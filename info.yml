@@ -1,24 +1,24 @@
 project:
-  name: 'ISII-2526-GrupoX-Team'
-  owner: 'GrupoX'
-  teamId: 'Team'
+  name: 'ISII-2526-GrupoA-LosKelvinSoftware'
+  owner: 'GrupoA'
+  teamId: 'LosKelvinSoftware'
   identities: {}
   notifications:
-    email: 'member1@alu.uclm.es,member2@alu.uclm.es,member3@alu.uclm.es,member4@alu.uclm.es'
+    email: 'javier.mellado1@alu.uclm.es,javier.saelices@alu.uclm.es,JuanPedro.Serrano1@alu.uclm.es,telmo.garcia@alu.uclm.es'
   members:
     member1:
-      name: 'Name1'
-      surname: 'Surname1' 
-      githubUsername: 'Name1gitUserName1'
+      name: 'Javier'
+      surname: 'Mellado' 
+      githubUsername: 'JaviTron2004'
     member2:
-      name: 'Name2'
-      surname: 'Surname2' 
-      githubUsername: 'Name1gitUserName2'
+      name: 'Javier'
+      surname: 'Saelices' 
+      githubUsername: 'javierlsg5'
     member3:
-      name: 'Name3'
-      surname: 'Surname3' 
-      githubUsername: 'Name1gitUserName3'
+      name: 'Juan Pedro'
+      surname: 'Serrano' 
+      githubUsername: 'JuanPedroSerrano'
     member4:
-      name: 'Name4'
-      surname: 'Surname4' 
-      githubUsername: 'Name1gitUserName4'
+      name: 'Telmo'
+      surname: 'García' 
+      githubUsername: 'telmocho'
