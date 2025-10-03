@@ -16,5 +16,6 @@
         public tiposMetodoPago MetodoPago { get; set; }
 
 
+
     }
 }

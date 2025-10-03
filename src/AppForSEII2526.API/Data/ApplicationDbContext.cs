@@ -10,9 +10,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Fabricante> Fabricante { get; set; }
     public DbSet<Herramienta> Herramienta { get; set; }
     public DbSet<Oferta> Oferta { get; set; }
-    public DbSet<OfertaItem> ofertaItem { get; set; }
+    public DbSet<OfertaItem> OfertaItem { get; set; }
     public DbSet<Reparacion> Reparacion { get; set; }
     public DbSet<ReparacionItem> ReparacionItem { get; set; }
-    public DbSet<tiposMetodoPago> tiposMetodoPago { get; set; }
 
 }

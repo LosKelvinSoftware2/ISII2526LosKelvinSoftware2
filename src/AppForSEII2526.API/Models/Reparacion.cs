@@ -12,5 +12,7 @@
         //Conexiones otras tablas
         public List<ReparacionItem> itemsReparacion { get; set; }
         //public ApplicationUser cliente { get; set; }
+        public tiposMetodoPago metodoPago { get; set; }
+
     }
 }
