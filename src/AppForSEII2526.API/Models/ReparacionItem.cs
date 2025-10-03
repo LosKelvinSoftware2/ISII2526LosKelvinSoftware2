@@ -1,6 +1,6 @@
 ﻿namespace AppForSEII2526.API.Models
 {
-    [PrimaryKey(nameof(herramientaId), nameof(IdReparacion))]
+    [PrimaryKey(nameof(herramientaId), nameof(ReparacionId))]
     public class ReparacionItem
     {
         public float precio { get; set; }
@@ -8,9 +8,12 @@
         public int cantidad { get; set; }
 
         //Conexiones otras tablas
-        public Herramienta herramienta { get; set; }
+        // FK hacia Herramienta
         public int herramientaId { get; set; }
-        public Reparacion IdReparacion { get; set; }
-        public int reparacion { get; set; }
+        public Herramienta herramienta { get; set; }
+
+        // FK hacia Reparacion
+        public int ReparacionId { get; set; }
+        public Reparacion Reparacion { get; set; }
     }
 }

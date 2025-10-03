@@ -2,5 +2,6 @@
 {
     public class tiposMetodoPago
     {
+        public int Id { get; set; }
     }
 }
