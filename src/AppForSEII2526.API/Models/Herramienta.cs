@@ -10,7 +10,7 @@
 
 
         // (Conexión a base de datos)
-        //public List<OfertaItem> Ofertaitems { get; set; }
+        public List<OfertaItem> Ofertaitems { get; set; }
         public Fabricante Fabricante { get; set; }
         public List<CompraItem> CompraItems { get; set; }
         //Reparacion Herramienta
