@@ -2,5 +2,6 @@
 {
     public class Oferta
     {
+        public int Id { get; set; }
     }
 }
