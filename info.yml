@@ -1,7 +1,7 @@
 project:
-  name: 'ISII-2526-GrupoA-LosKelvinSoftware'
+  name: 'ISII-2526-GrupoA-LosKelvinSoftware2'
   owner: 'GrupoA'
-  teamId: 'LosKelvinSoftware'
+  teamId: 'LosKelvinSoftware2'
   identities: {}
   notifications:
     email: 'javier.mellado1@alu.uclm.es,javier.saelices@alu.uclm.es,JuanPedro.Serrano1@alu.uclm.es,telmo.garcia@alu.uclm.es'
