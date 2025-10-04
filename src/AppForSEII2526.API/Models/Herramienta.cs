@@ -15,6 +15,7 @@
         public List<CompraItem> CompraItems { get; set; }
         //Reparacion Herramienta
         public List<ReparacionItem> ReparacionItems { get; set; }
+        public List<AlquilarItem> AlquilarItems { get; set; }
 
 
 
