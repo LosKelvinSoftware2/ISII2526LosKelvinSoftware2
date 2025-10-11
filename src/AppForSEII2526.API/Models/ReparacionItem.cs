@@ -1,19 +1,28 @@
 ﻿namespace AppForSEII2526.API.Models
 {
-    [PrimaryKey(nameof(herramientaId), nameof(ReparacionId))]
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
+    [PrimaryKey(nameof(HerramientaId), nameof(ReparacionId))]
     public class ReparacionItem
     {
-        public float precio { get; set; }
-        public string descripcion { get; set; }
-        public int cantidad { get; set; }
-
-        //Conexiones otras tablas
-        // FK hacia Herramienta
-        public int herramientaId { get; set; }
-        public Herramienta herramienta { get; set; }
-
-        // FK hacia Reparacion
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser al menos 1.")]
+        public int Cantidad { get; set; }
+        // Campo opcional
+        public string? Descripcion { get; set; }
+        [Required]
+        [Range(0, float.MaxValue)]
+        public float Precio { get; set; }
+        // Relación con Herramienta
+        [Required]
+        public int HerramientaId { get; set; }
+        [ForeignKey(nameof(HerramientaId))]
+        public Herramienta Herramienta { get; set; }
+        // Relación con Reparacion
+        [Required]
         public int ReparacionId { get; set; }
+        [ForeignKey(nameof(ReparacionId))]
         public Reparacion Reparacion { get; set; }
     }
 }

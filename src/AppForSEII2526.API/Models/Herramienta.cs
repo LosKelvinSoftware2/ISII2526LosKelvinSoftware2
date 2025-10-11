@@ -2,23 +2,40 @@
 {
     public class Herramienta
     {
+        [Key]
         public int Id { get; set; }
-        public string material { get; set; }
-        public string nombre { get; set; }
-        public float precio { get; set; }
-        public string tiempoReparacion { get; set; }
 
+        [Required]
+        [MaxLength(100)]
+        public string Nombre { get; set; }
 
-        // (Conexión a base de datos)
-        public List<OfertaItem> Ofertaitems { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public string Material { get; set; }
+
+        [Required]
+        [Range(0, float.MaxValue)]
+        public float Precio { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue)]
+        public int TiempoReparacion { get; set; } // días hábiles
+
+        // Relación con Fabricante
+        [Required]
+        public int FabricanteId { get; set; }
+
+        [ForeignKey(nameof(FabricanteId))]
         public Fabricante Fabricante { get; set; }
-        public List<CompraItem> CompraItems { get; set; }
-        //Reparacion Herramienta
+
+        // Relación con ReparacionItem
         public List<ReparacionItem> ReparacionItems { get; set; }
+        // Relación con CompraItem
+        public List<CompraItem> CompraItems { get; set; }
+        // Relación con OfertaItem
+        public List<OfertaItem> Ofertaitems { get; set; }
+        // Relación con AlquilarItem
         public List<AlquilarItem> AlquilarItems { get; set; }
-
-
-
-
     }
+    
 }
