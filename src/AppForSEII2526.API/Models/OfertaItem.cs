@@ -4,6 +4,8 @@
     public class OfertaItem
     {
 
+        [Required]
+        [Range(0.0, 100.0)]
         public float porcentaje { get; set; }
         public float precioFinal { get; set; }
 
