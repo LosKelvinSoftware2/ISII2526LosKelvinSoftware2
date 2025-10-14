@@ -11,6 +11,10 @@ public class ApplicationUser : IdentityUser {
     [Required]
     [MaxLength(100)]
     public string Apellido { get; set; }
+    public double Telefono { get; set; }
+    public string Correo { get; set; }
+
 
     public List<Reparacion> Reparaciones { get; set; }
+    public List<Alquiler> Alquileres { get; set; }
 }
