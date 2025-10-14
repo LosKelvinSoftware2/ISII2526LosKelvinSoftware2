@@ -1,10 +1,10 @@
 project:
-  name: 'ISII-2526-GrupoA-LosKelvinSoftware2'
+  name: 'ISII-2526-GrupoA-LosKelvinSoftware'
   owner: 'GrupoA'
-  teamId: 'LosKelvinSoftware2'
+  teamId: 'LosKelvinSoftware'
   identities: {}
   notifications:
-    email: 'javier.mellado1@alu.uclm.es,javier.saelices@alu.uclm.es,JuanPedro.Serrano1@alu.uclm.es,telmo.garcia@alu.uclm.es'
+    email: 'javier.mellado1@alu.uclm.es,javier.saelices@alu.uclm.es,juanpedro.serrano1@alu.uclm.es,telmo.garcia@alu.uclm.es'
   members:
     member1:
       name: 'Javier'
@@ -13,7 +13,7 @@ project:
     member2:
       name: 'Javier'
       surname: 'Saelices' 
-      githubUsername: 'javierlsg5'
+      githubUsername: 'javierslg5'
     member3:
       name: 'Juan Pedro'
       surname: 'Serrano' 
