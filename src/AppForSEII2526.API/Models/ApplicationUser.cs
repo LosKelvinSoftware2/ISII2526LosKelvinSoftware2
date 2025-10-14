@@ -12,6 +12,9 @@ public class ApplicationUser : IdentityUser {
     [Required]
     [MaxLength(100)]
     public string Apellido { get; set; }
+    public double Telefono { get; set; }
+    public string Correo { get; set; }
+
 
     // Opcional
     [Phone]
@@ -25,4 +28,7 @@ public class ApplicationUser : IdentityUser {
 
     // Relación con Compras (uno a muchos)
     public List<Compra> Compras { get; set; } = new();
+
+    // Relación con Compras (uno a muchos)
+    public List<Alquiler> Alquileres { get; set; } = new();
 }
