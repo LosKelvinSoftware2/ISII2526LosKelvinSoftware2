@@ -12,9 +12,6 @@ public class ApplicationUser : IdentityUser {
     [Required]
     [MaxLength(100)]
     public string Apellido { get; set; }
-    public double Telefono { get; set; }
-    public string Correo { get; set; }
-
 
     // Opcional
     [Phone]

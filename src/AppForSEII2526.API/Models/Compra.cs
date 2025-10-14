@@ -13,12 +13,6 @@
         [MaxLength(200)]
         public string direccionEnvio { get; set; }
 
-        [Phone]
-        public string? telefono { get; set; }
-
-        [EmailAddress]
-        public string? correoelectronico { get; set; }
-
         [Required]
         public DateTime fechaCompra { get; set; } 
 
@@ -31,5 +25,4 @@
 
         public List<CompraItem> CompraItems { get; set; } = new();
     }
-}
 }

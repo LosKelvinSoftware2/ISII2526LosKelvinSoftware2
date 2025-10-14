@@ -23,10 +23,10 @@
 
         // Relación con Fabricante
         [Required]
+        [ForeignKey(nameof(FabricanteId))]
         public int FabricanteId { get; set; }
 
-        [ForeignKey(nameof(FabricanteId))]
-        public Fabricante Fabricante { get; set; }
+        
 
         // Relación con ReparacionItem
         public List<ReparacionItem> ReparacionItems { get; set; }
