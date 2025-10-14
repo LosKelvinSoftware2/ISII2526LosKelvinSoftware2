@@ -2,20 +2,34 @@
 {
     public class Compra
     {
-        public string apellidoCliente { get; set; }
-        public string nombreCliente { get; set; }
-        public string correoelectronico { get; set; }
-        public string direccionEnvio { get; set; }
-        public string fechacompra { get; set; }
+        [Key]
         public int Id { get; set; }
-        public float precioTotal { get; set; }
-        public double telefono { get; set; }
 
+        //Vinculación con el usuario (cliente autenticado)
+        [Required]
+        public ApplicationUser Cliente { get; set; }
 
-        public List<CompraItem> CompraItems { get; set; }
+        [Required]
+        [MaxLength(200)]
+        public string direccionEnvio { get; set; }
+
+        [Phone]
+        public string? telefono { get; set; }
+
+        [EmailAddress]
+        public string? correoelectronico { get; set; }
+
+        [Required]
+        public DateTime fechaCompra { get; set; } 
+
+        [Required]
+        [Range(0, float.MaxValue, ErrorMessage = "El precio total no puede ser negativo.")]
+        public float PrecioTotal { get; set; }
+
+        [Required]
         public tiposMetodoPago MetodoPago { get; set; }
 
-
-
+        public List<CompraItem> CompraItems { get; set; } = new();
     }
+}
 }
