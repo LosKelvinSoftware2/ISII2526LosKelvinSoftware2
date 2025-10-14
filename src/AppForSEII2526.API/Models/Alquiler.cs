@@ -2,18 +2,17 @@
 {
     public class Alquiler
     {
-        public String apellidoCliente { get; set; }
-        public String correo { get; set; }
+        [Required]
         public String direccionEnvio { get; set; }
         public String fechaAlquiler { get; set; }
         public String fechaFin { get; set; }
         public int Id { get; set; }
-        public String nombreCliente { get; set; }
-        public double numeroTelefono { get; set; }
         public String periodo { get; set; }
+        [Range(0, float.MaxValue)]
         public int precioTotal { get; set; }
 
         public List<AlquilarItem> AlquilarItems { get; set; }
+        [Required]
         public tiposMetodoPago MetodoPago { get; set; }
     }
 }
