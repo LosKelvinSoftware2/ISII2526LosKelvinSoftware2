@@ -8,18 +8,10 @@
         [Key]
         public int Id { get; set; }
 
-        // Datos del cliente (obligatorios)
+        //Vinculación con el usuario (cliente autenticado)
         [Required]
-        [MaxLength(100)]
-        public string NombreCliente { get; set; }
+        public ApplicationUser Cliente { get; set; }
 
-        [Required]
-        [MaxLength(100)]
-        public string ApellidoCliente { get; set; }
-
-        // Opcional
-        [Phone]
-        public string? NumTelefono { get; set; }
 
         [Required]
         public DateTime FechaEntrega { get; set; } // No puede ser anterior a hoy
@@ -36,14 +28,9 @@
 
         // Método de pago obligatorio
         [Required]
-        public tiposMetodoPago MetodoPago { get; set; }
+        public tiposMetodoPago MetodoPago { get; set; }               
 
-        // Relación con el usuario (cliente autenticado)
-        [Required]
-        public string ClienteId { get; set; }
 
-        [ForeignKey(nameof(ClienteId))]
-        public ApplicationUser Cliente { get; set; }
     }
 
 }

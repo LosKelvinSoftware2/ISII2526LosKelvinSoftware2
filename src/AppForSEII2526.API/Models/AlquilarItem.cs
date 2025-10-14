@@ -8,16 +8,17 @@
         public int cantidad { get; set; }
         [Required]
         [Range (0, float.MaxValue)]
-        public int precio { get; set; }
+        public float precio { get; set; }
         //FK hacia Alquiler
         [Required]
-        public int alquilerId { get; set; }
         [ForeignKey(nameof(alquilerId))]
-        public Alquiler alquiler { get; set; }
+        public int alquilerId { get; set; }
+        
         //FK hacia Herramienta
         [Required]
-        public int herramientaId { get; set; }
         [ForeignKey(nameof(herramientaId))]
-        public Herramienta herramienta { get; set; }
+        public int herramientaId { get; set; }
+        
+        
     }
 }

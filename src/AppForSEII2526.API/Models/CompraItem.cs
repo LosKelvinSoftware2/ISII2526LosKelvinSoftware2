@@ -1,6 +1,7 @@
 ﻿namespace AppForSEII2526.API.Models
 {
 
+    [PrimaryKey(nameof(herramientaId), nameof(compraId))]
     public class CompraItem
     {
         [Required]
