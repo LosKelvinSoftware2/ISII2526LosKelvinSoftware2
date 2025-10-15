@@ -17,13 +17,13 @@
 
         // Foreign Keys (Conexión a base de datos)
 
-        [ForeignKey(nameof(compraId))]
         public int compraId { get; set; }
+        public Compra compra { get; set; }
 
-        [ForeignKey(nameof(herramientaId))] 
         public int herramientaId { get; set; }
+        public Herramienta herramienta { get; set; }
 
 
 
-    }
+        }
 }       

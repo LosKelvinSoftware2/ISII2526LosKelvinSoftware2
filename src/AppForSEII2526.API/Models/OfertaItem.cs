@@ -13,14 +13,12 @@
 
 
         // FK hacia Herramienta
-        [Required]
-        [ForeignKey(nameof(herramientaId))]
         public int herramientaId { get; set; }
+        public Herramienta herramienta { get; set; }
 
         // FK hacia Reparacion
-        [Required]
-        [ForeignKey(nameof(ofertaId))]
         public int ofertaId { get; set; }
+        public Oferta oferta { get; set; }
 
     }
 }
