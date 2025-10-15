@@ -23,6 +23,6 @@
         [Required]
         public tiposMetodoPago MetodoPago { get; set; }
 
-        public List<CompraItem> CompraItems { get; set; } = new();
+        public List<CompraItem> CompraItems { get; set; }
     }
 }

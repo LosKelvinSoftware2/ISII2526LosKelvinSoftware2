@@ -14,6 +14,11 @@
         [Range(0, float.MaxValue)]
         public float precioTotal { get; set; }
 
+        //Vinculación con el usuario (cliente autenticado)
+        [Required]
+        public ApplicationUser Cliente { get; set; }
+
+        [Required]
         public List<AlquilarItem> AlquilarItems { get; set; }
         [Required]
         public tiposMetodoPago MetodoPago { get; set; }

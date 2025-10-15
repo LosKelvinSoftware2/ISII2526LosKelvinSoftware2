@@ -16,14 +16,12 @@
         public float Precio { get; set; }
 
         // Relación con Herramienta
-        [Required]
-        [ForeignKey(nameof(herramientaId))]
         public int herramientaId { get; set; }
-        
+        public Herramienta Herramienta { get; set; }
+
         // Relación con Reparacion
-        [Required]
-        [ForeignKey(nameof(reparacionId))]
         public int reparacionId { get; set; }
-        
+        public Reparacion Reparacion { get; set; }
+
     }
 }

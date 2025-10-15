@@ -1,7 +1,23 @@
-﻿namespace AppForSEII2526.API.Models
+﻿namespace AppForSEII2526.API.DTO
 {
-    public class Herramienta
+    public class HerramientaDTO
     {
+        public HerramientaDTO(int id, string nombre, string material, 
+            float precio, int tiemporep)
+        {
+            Id = id;
+            Nombre = nombre;
+            Material = material;
+            Precio = precio;
+            TiempoReparacion = tiemporep;
+            ReparacionItems = new List<ReparacionItem>();
+            CompraItems = new List<CompraItem>();
+            Ofertaitems = new List<OfertaItem>();
+            AlquilarItems = new List<AlquilarItem>();
+
+        }
+
+
         [Key]
         public int Id { get; set; }
 
@@ -21,7 +37,7 @@
         [Range(1, int.MaxValue)]
         public int TiempoReparacion { get; set; } // días hábiles
 
-        // Relación con Fabricante       
+        // Relación con Fabricante
         public Fabricante fabricante { get; set; }
         // Relación con ReparacionItem
         public List<ReparacionItem> ReparacionItems { get; set; }
@@ -32,5 +48,4 @@
         // Relación con AlquilarItem
         public List<AlquilarItem> AlquilarItems { get; set; }
     }
-    
 }
