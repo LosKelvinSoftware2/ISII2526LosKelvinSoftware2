@@ -1,4 +1,5 @@
 ﻿using AppForSEII2526.API.DTO;
+using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -67,9 +68,50 @@ namespace AppForSEII2526.API.Controllers
             return Ok(reparacion);
         }
 
+        // Crear Oferta, Telmo
 
+        [HttpGet]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(OfertaDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
 
+        public async Task<ActionResult> GetOferta(int id)
+        {
+            if (_context.Oferta == null)
+            {
+                _logger.LogError("Error: Oferta table does not exist");
+                return NotFound();
+            }
 
+            var oferta = await _context.Oferta
+                .Where(o => o.Id == id)
+                    .Include(o => o.ofertaItems) // join table OfertaItems
+                        .ThenInclude(oi => oi.herramienta)
+                .Select(o => new OfertaDTO(
+                    o.Id,
+                    o.fechaFinal,
+                    o.fechaInicio,
+                    o.fechaOferta,
+                    o.ofertaItems
+                        .Select(oi => new OfertaItemDTO(
+                            oi.precioFinal,
+                            oi.herramienta.Nombre,
+                            oi.herramienta.Material,
+                            oi.herramienta.fabricante.Nombre,
+                            oi.herramienta.Precio
+                            )).ToList,
+                    o.metodoPago,
+                    o.dirigidaA
+                    ))
+                .FirstOrDefaultAsync();
 
+            if (oferta == null)
+            {
+                _logger.LogWarning($"No se encontró la oferta con id {id}");
+                return NotFound();
+            }
+
+            return Ok(oferta);
+        }
     }
 }

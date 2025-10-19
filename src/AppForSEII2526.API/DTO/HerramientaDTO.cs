@@ -3,13 +3,14 @@
     public class HerramientaDTO
     {
         public HerramientaDTO(int id, string nombre, string material, 
-            float precio, int tiemporep)
+            float precio, int tiemporep, Fabricante fabricante)
         {
             Id = id;
             Nombre = nombre;
             Material = material;
             Precio = precio;
             TiempoReparacion = tiemporep;
+            this.fabricante = fabricante;
             ReparacionItems = new List<ReparacionItem>();
             CompraItems = new List<CompraItem>();
             Ofertaitems = new List<OfertaItem>();
