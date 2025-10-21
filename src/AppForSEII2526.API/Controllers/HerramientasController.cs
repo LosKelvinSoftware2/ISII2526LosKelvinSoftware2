@@ -21,6 +21,54 @@ namespace AppForSEII2526.API.Controllers
 
         }
 
+
+
+        //Comprar herramientas Mellado
+        [HttpGet]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(CompraDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+
+        public async Task<ActionResult> GetCompra(int id)
+        {
+            if (_context.Compra == null)
+            {
+                _logger.LogError("Error: Compras table does not exist");
+                return NotFound();
+            }
+            var compra = await _context.Compra
+                .Where(c => c.Id == id)
+                .Include(c => c.CompraItems)         // join con CompraItem
+                    .ThenInclude(ci => ci.herramienta)   // join con Herramienta
+                .Select(c => new CompraDTO(
+                    c.Id,
+                    c.Cliente,                           // Nombre completo del cliente
+                    c.direccionEnvio,
+                    c.fechaCompra,
+                    c.PrecioTotal,
+                    c.CompraItems
+                        .Select(ci => new CompraItemDTO(
+                            ci.cantidad,
+                            ci.descripcion,
+                            ci.precio,
+                            ci.herramientaId,
+                            ci.herramienta,
+                            ci.compraId,
+                            ci.compra
+                        )).ToList()
+                    , c.MetodoPago
+                ))
+                .FirstOrDefaultAsync();
+            if (compra == null)
+            {
+                _logger.LogWarning($"No se encontró la compra con id {id}");
+                return NotFound();
+            }
+            return Ok(compra);
+        }
+
+
+
         //Reparacion de herramientas Saelices
         [HttpGet]
         [Route("[action]")]
@@ -113,5 +161,9 @@ namespace AppForSEII2526.API.Controllers
 
             return Ok(oferta);
         }
+
+       
+
+
     }
 }
