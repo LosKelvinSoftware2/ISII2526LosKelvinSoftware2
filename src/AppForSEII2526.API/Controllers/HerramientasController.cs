@@ -162,8 +162,51 @@ namespace AppForSEII2526.API.Controllers
             return Ok(oferta);
         }
 
-       
+        //Alquilar herramienta, Juan Pe
 
+        [HttpGet]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(AlquilerDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+
+        public async Task<ActionResult> GetAlquiler(int id)
+        {
+            if (_context.Alquiler == null)
+            {
+                _logger.LogError("Error: Alquiler table does not exist");
+                return NotFound();
+            }
+            var alquiler = await _context.Alquiler
+                .Where(a => a.Id == id)
+                .Include(a => a.AlquilarItems)         // join con AlquilerItem
+                    .ThenInclude(ai => ai.herramienta)   // join con Herramienta
+                .Select(a => new AlquilerDTO(
+                    a.direccionEnvio,
+                    a.fechaAlquiler,
+                    a.fechaFin,
+                    a.Id,
+                    a.periodo,
+                    a.precioTotal,
+                    a.Cliente,                           // Nombre completo del cliente
+                    a.AlquilarItems
+                        .Select(ai => new AlquilarItemDTO(
+                            ai.cantidad,
+                            ai.herramienta.Precio,
+                            ai.alquilerId,
+                            ai.alquiler,
+                            ai.herramientaId,
+                            ai.herramienta
+                        )).ToList()
+                    , a.MetodoPago
+                ))
+                .FirstOrDefaultAsync();
+            if (alquiler == null)
+            {
+                _logger.LogWarning($"No se encontró el alquiler con id {id}");
+                return NotFound();
+            }
+            return Ok(alquiler);
+        }
 
     }
 }
