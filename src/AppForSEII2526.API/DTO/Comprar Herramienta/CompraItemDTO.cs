@@ -1,4 +1,4 @@
-﻿namespace AppForSEII2526.API.DTO
+﻿namespace AppForSEII2526.API.DTO.Comprar_Herramienta
 {
     public class CompraItemDTO
     {
@@ -28,7 +28,7 @@
         [Range(0, float.MaxValue, ErrorMessage = "El precio no puede ser negativo.")]
         public float precio { get; set; }
 
-        // Foreign Keys (Conexión a base de datos)
+        // Conexión con Compra y Herramienta (base de datos)
 
         public int compraId { get; set; }
         public Compra compra { get; set; }
