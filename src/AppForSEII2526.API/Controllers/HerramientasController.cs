@@ -1,5 +1,6 @@
-﻿using AppForSEII2526.API.DTO;
+using AppForSEII2526.API.DTO;
 using AppForSEII2526.API.DTO.OfertaDTOs;
+using AppForSEII2526.API.DTO.Comprar_Herramienta;
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ namespace AppForSEII2526.API.Controllers
 
 
 
-        //Comprar herramientas Mellado
+        //Comprar herramientas Javi (Mellado)   
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(CompraDTO), (int)HttpStatusCode.OK)]
@@ -38,17 +39,17 @@ namespace AppForSEII2526.API.Controllers
                 return NotFound();
             }
             var compra = await _context.Compra
-                .Where(c => c.Id == id)
-                .Include(c => c.CompraItems)         // join con CompraItem
+                .Where(c => c.Id == id)                  // filtro por id
+                .Include(c => c.CompraItems)             // join con CompraItem
                     .ThenInclude(ci => ci.herramienta)   // join con Herramienta
-                .Select(c => new CompraDTO(
+                .Select(c => new CompraDetailsDTO(
                     c.Id,
                     c.Cliente,                           // Nombre completo del cliente
                     c.direccionEnvio,
                     c.fechaCompra,
                     c.PrecioTotal,
                     c.CompraItems
-                        .Select(ci => new CompraItemDTO(
+                        .Select(ci => new CompraItemDTO( 
                             ci.cantidad,
                             ci.descripcion,
                             ci.precio,
@@ -56,8 +57,8 @@ namespace AppForSEII2526.API.Controllers
                             ci.herramienta,
                             ci.compraId,
                             ci.compra
-                        )).ToList()
-                    , c.MetodoPago
+                        )).ToList(),
+                    c.MetodoPago
                 ))
                 .FirstOrDefaultAsync();
             if (compra == null)

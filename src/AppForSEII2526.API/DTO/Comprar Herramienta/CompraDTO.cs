@@ -1,22 +1,17 @@
-﻿namespace AppForSEII2526.API.DTO
+﻿namespace AppForSEII2526.API.DTO.Comprar_Herramienta
 {
     public class CompraDTO
     {
 
-        public CompraDTO(int Id, ApplicationUser Cliente, string direccionEnvio, DateTime fechaCompra, float PrecioTotal, 
+        public CompraDTO(ApplicationUser Cliente, string direccionEnvio, float PrecioTotal, 
             List<CompraItemDTO> CompraItemDTO, tiposMetodoPago MetodoPago)
         {
-            this.Id = Id;
             this.Cliente = Cliente;
             this.direccionEnvio = direccionEnvio;
-            this.fechaCompra = fechaCompra;
             this.PrecioTotal = PrecioTotal;
             this.CompraItemsDTO = CompraItemDTO;
             this.MetodoPago = MetodoPago;
         }
-
-        [Key]
-        public int Id { get; set; }
 
         //Vinculación con el usuario (cliente autenticado)
         [Required]
@@ -25,9 +20,6 @@
         [Required]
         [MaxLength(200)]
         public string direccionEnvio { get; set; }
-
-        [Required]
-        public DateTime fechaCompra { get; set; }
 
         [Required]
         [Range(0, float.MaxValue, ErrorMessage = "El precio total no puede ser negativo.")]
@@ -39,5 +31,13 @@
         public List<CompraItemDTO> CompraItemsDTO { get; set; }
 
 
+
+
+        //Métodos
+
+        protected bool CompararFechas(DateTime fecha1, DateTime fecha2)
+        {
+            return (fecha1.Subtract(fecha2) < new TimeSpan(0, 1, 0));
+        }
     }
 }
