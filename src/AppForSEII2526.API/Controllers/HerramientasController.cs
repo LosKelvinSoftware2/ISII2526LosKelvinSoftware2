@@ -41,7 +41,7 @@ namespace AppForSEII2526.API.Controllers
                 .Where(c => c.Id == id)                  // filtro por id
                 .Include(c => c.CompraItems)             // join con CompraItem
                     .ThenInclude(ci => ci.herramienta)   // join con Herramienta
-                .Select(c => new CompraDTO(
+                .Select(c => new CompraDetailsDTO(
                     c.Id,
                     c.Cliente,                           // Nombre completo del cliente
                     c.direccionEnvio,
@@ -56,8 +56,8 @@ namespace AppForSEII2526.API.Controllers
                             ci.herramienta,
                             ci.compraId,
                             ci.compra
-                        )).ToList()
-                    , c.MetodoPago
+                        )).ToList(),
+                    c.MetodoPago
                 ))
                 .FirstOrDefaultAsync();
             if (compra == null)
