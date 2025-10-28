@@ -30,10 +30,6 @@
         [Range(0, float.MaxValue)]
         public float Precio { get; set; }
 
-        [Required]
-        [Range(1, int.MaxValue)]
-        public int TiempoReparacion { get; set; } // días hábiles
-
         // Relación con Fabricante
         public Fabricante fabricante { get; set; }
         // Relación con CompraItem
