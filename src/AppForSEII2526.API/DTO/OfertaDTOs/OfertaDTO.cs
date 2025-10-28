@@ -5,13 +5,15 @@
         private object value;
         private Func<List<OfertaItemDTO>> toList;
 
-        public OfertaDTO(int id, string fechaFinal, string fechaInicio, string fechaOferta, Func<List<OfertaItemDTO>> toList, tiposMetodoPago metodoPago, tiposDiridaOferta? dirigidaA)
+        public OfertaDTO(int id, float porcentaje, DateTime fechaFinal, DateTime fechaInicio,
+            tiposMetodoPago metodoPago, tiposDiridaOferta? dirigidaA, IList<OfertaItemDTO> ofertaItems)
         {
             Id = id;
+            this.porcentaje = porcentaje;
             this.fechaFinal = fechaFinal;
             this.fechaInicio = fechaInicio;
-            this.fechaOferta = fechaOferta;
-            this.toList = toList;
+            this.fechaOferta = DateTime.Today;
+            this.ofertaItems = ofertaItems;
             this.metodoPago = metodoPago;
             this.dirigidaA = dirigidaA;
         }
@@ -20,14 +22,18 @@
         public int Id { get; set; }
 
         [Required]
-        public string fechaFinal { get; set; }
+        public DateTime fechaFinal { get; set; }
 
         [Required]
-        public string fechaInicio { get; set; } // No puede ser anterior a hoy
-        public string fechaOferta { get; set; } // Debe ser después de la fecha de inicio y antes de la fecha final
+        [Range(0.0, 100.0)]
+        public float porcentaje { get; set; }
+
+        [Required]
+        public DateTime fechaInicio { get; set; } // No puede ser anterior a hoy
+        public DateTime fechaOferta { get; set; } // Debe ser después de la fecha de inicio y antes de la fecha final
 
         // Conexiones otras tablas
-        public List<OfertaItem> ofertaItems { get; set; }
+        public IList<OfertaItemDTO> ofertaItems { get; set; }
 
         [Required]
         public tiposMetodoPago metodoPago { get; set; }

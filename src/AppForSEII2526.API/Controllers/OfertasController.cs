@@ -1,6 +1,8 @@
 ﻿using AppForSEII2526.API.DTO.OfertaDTOs;
+using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -41,8 +43,6 @@ namespace AppForSEII2526.API.Controllers
                     o.metodoPago,
                     o.dirigidaA,
                     o.ofertaItems.Select(oi => new OfertaItemDTO(
-                        oi.ofertaId,
-                        oi.porcentaje,
                         oi.precioFinal,
                         oi.herramienta.Nombre,
                         oi.herramienta.Material,
@@ -61,5 +61,61 @@ namespace AppForSEII2526.API.Controllers
             return Ok(oferta);
         }
 
+        [HttpPost]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(OfertaDetailsDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
+        public async Task<ActionResult> CreateOferta (OfertaDTO ofertaForCreate)
+        {
+            if (ofertaForCreate.fechaInicio <= DateTime.Today)
+                ModelState.AddModelError("RentalDateFrom", "Error! La fecha de inicio de oferta debe ser al menos mañana");
+            if (ofertaForCreate.fechaInicio >= ofertaForCreate.fechaFinal)
+                ModelState.AddModelError("RentalDateTo", "Error! La fecha final de oferta debe ser después de la fecha de inicio");
+            if (ofertaForCreate.porcentaje <= 0 || ofertaForCreate.porcentaje > 100)
+                ModelState.AddModelError("porcentaje", "Error! El porcentaje de descuento debe estar entre 1 y 100");
+
+            var herramientasIds = ofertaForCreate.ofertaItems.Select(oi => oi.herramientaId).ToList();
+
+            var herramienta = _context.Herramienta.Include(h => h.Ofertaitems)
+                .ThenInclude(ri => ri.oferta)
+                .Where(h => herramientasIds.Contains(h.Id))
+
+                //we use an anonymous type https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/anonymous-types
+                .Select(h => new {
+                    h.Id,
+                    h.Nombre,
+                    h.Material,
+                    h.Precio,
+                    //we count the number of rentalItems that are within the rental period
+                    NumHerramientasOfertadas = h.Ofertaitems.Count(oi => oi.oferta.fechaInicio <= ofertaForCreate.fechaFinal
+                            && ofertaForCreate.fechaFinal >= oi.oferta.fechaInicio)
+                })
+                .ToList();
+
+            Oferta oferta = new Oferta(ofertaForCreate.Id, ofertaForCreate.porcentaje, ofertaForCreate.fechaFinal,
+                ofertaForCreate.fechaInicio, tiposMetodoPago, tiposDiridaOferta, new List<OfertaItem>());
+
+            _context.Oferta.Add(oferta);
+
+            try {
+                //we store in the database both rental and its rentalitems
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex.Message);
+                ModelState.AddModelError("Oferta", $"Error! There was an error while saving your oferta, plese, try again later");
+                return Conflict("Error" + ex.Message);
+
+            }
+
+            //it returns rentalDetail
+            var OfertaDetail = new OfertaDetailDTO(oferta.Id, oferta.porcentaje, oferta.fechaInicio,
+                oferta.fechaFinal, oferta.fechaOferta, oferta.metodoPago, oferta.dirigidaA,
+                oferta.ofertaItems);
+
+            return CreatedAtAction("GetOferta", new { id = oferta.Id }, OfertaDetail);
+        }
     }
 }
