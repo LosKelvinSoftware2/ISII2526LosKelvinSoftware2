@@ -1,4 +1,4 @@
-﻿namespace AppForSEII2526.API.DTO
+﻿namespace AppForSEII2526.API.DTO.OfertaDTOs
 {
     public class OfertaItemDTO
     {
