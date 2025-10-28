@@ -5,6 +5,7 @@ using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using AppForSEII2526.API.DTO.Alquilar_Herramienta;
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -161,7 +162,7 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(AlquilerDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
 
-        public async Task<ActionResult> GetAlquiler(int id)
+        public async Task<ActionResult> GetAlquiler(String nombre , String material)
         {
             if (_context.Alquiler == null)
             {
@@ -169,36 +170,25 @@ namespace AppForSEII2526.API.Controllers
                 return NotFound();
             }
             var alquiler = await _context.Alquiler
-                .Where(a => a.Id == id)
-                .Include(a => a.AlquilarItems)         // join con AlquilerItem
-                    .ThenInclude(ai => ai.herramienta)   // join con Herramienta
-                .Select(a => new AlquilerDTO(
-                    a.direccionEnvio,
-                    a.fechaAlquiler,
-                    a.fechaFin,
-                    a.Id,
-                    a.periodo,
-                    a.precioTotal,
-                    a.Cliente,                           // Nombre completo del cliente
-                    a.AlquilarItems
-                        .Select(ai => new AlquilarItemDTO(
-                            ai.cantidad,
-                            ai.herramienta.Precio,
-                            ai.alquilerId,
-                            ai.alquiler,
-                            ai.herramientaId,
-                            ai.herramienta
-                        )).ToList()
-                    , a.MetodoPago
-                ))
-                .FirstOrDefaultAsync();
-            if (alquiler == null)
+                .Include(a => a.AlquilarItems)
+                    .ThenInclude(ai => ai.herramienta)
+                .SelectMany(a => a.AlquilarItems)
+                .Where(ai => ai.herramienta.Nombre == nombre && ai.herramienta.Material == material)
+                .Select(ai => new AlquilerHerramientasDTO(
+                    ai.alquiler.Id,
+                    ai.herramienta.Nombre,
+                    ai.herramienta.Material,
+                    ai.precio,
+                    ai.herramienta.fabricante))
+                .ToListAsync();
+            if (alquiler == null || !alquiler.Any())
             {
-                _logger.LogWarning($"No se encontró el alquiler con id {id}");
-                return NotFound();
+                return NotFound(new{Mensaje = "No se encontraron alquileres que coincidan con el nombre y material indicados."});
             }
+
             return Ok(alquiler);
         }
+
 
     }
 }

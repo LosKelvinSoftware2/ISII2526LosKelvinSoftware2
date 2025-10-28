@@ -2,6 +2,7 @@
 {
     public class Alquiler
     {
+
         [Required]
         public String direccionEnvio { get; set; }
         [Required]
@@ -19,7 +20,7 @@
         public ApplicationUser Cliente { get; set; }
 
         [Required]
-        public List<AlquilarItem> AlquilarItems { get; set; }
+        public IList<AlquilarItem> AlquilarItems { get; set; }
         [Required]
         public tiposMetodoPago MetodoPago { get; set; }
     }
