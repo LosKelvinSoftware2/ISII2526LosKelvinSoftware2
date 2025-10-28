@@ -27,47 +27,27 @@ namespace AppForSEII2526.API.Controllers
 
 
         //Comprar herramientas Javi (Mellado)   
-        [HttpGet]
-        [Route("[action]")]
-        [ProducesResponseType(typeof(CompraDTO), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-
-        public async Task<ActionResult> GetCompra(int id)
+        [HttpGet("Disponibles")]
+        [ProducesResponseType(typeof(List<CompraHerramientasDTO>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<CompraHerramientasDTO>>> GetHerramientasDisponibles()
         {
-            if (_context.Compra == null)
+            if (_context.Herramienta == null)
             {
-                _logger.LogError("Error: Compras table does not exist");
+                _logger.LogError("Error: Herramienta table does not exist");
                 return NotFound();
             }
-            var compra = await _context.Compra
-                .Where(c => c.Id == id)                  // filtro por id
-                .Include(c => c.CompraItems)             // join con CompraItem
-                    .ThenInclude(ci => ci.herramienta)   // join con Herramienta
-                .Select(c => new CompraDetailsDTO(
-                    c.Id,
-                    c.Cliente,                           // Nombre completo del cliente
-                    c.direccionEnvio,
-                    c.fechaCompra,
-                    c.PrecioTotal,
-                    c.CompraItems
-                        .Select(ci => new CompraItemDTO( 
-                            ci.cantidad,
-                            ci.descripcion,
-                            ci.precio,
-                            ci.herramientaId,
-                            ci.herramienta,
-                            ci.compraId,
-                            ci.compra
-                        )).ToList(),
-                    c.MetodoPago
+
+            var herramientas = await _context.Herramienta
+                .Select(h => new CompraHerramientasDTO(
+                    h.Id,
+                    h.Nombre,
+                    h.Material,
+                    h.Precio,
+                    h.fabricante
                 ))
-                .FirstOrDefaultAsync();
-            if (compra == null)
-            {
-                _logger.LogWarning($"No se encontró la compra con id {id}");
-                return NotFound();
-            }
-            return Ok(compra);
+                .ToListAsync();
+
+            return Ok(herramientas);
         }
 
 
