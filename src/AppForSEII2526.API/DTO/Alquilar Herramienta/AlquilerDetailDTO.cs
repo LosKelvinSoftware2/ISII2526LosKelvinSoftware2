@@ -1,17 +1,21 @@
 ﻿namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
 {
-    public class AlquilerDetailDTO : AlquilerDTO
-
+    public class AlquilerDetailDTO
     {
-        public AlquilerDetailDTO(int id, string nombreCliente, string apellidoCliente, string direccionEnvio, DateTime fechaAlquiler, DateTime fechaDevolucion, float precioTotal, List<AlquilarItemDTO> alquilarItems)
-            : base(direccionEnvio, fechaAlquiler, fechaDevolucion, precioTotal, alquilarItems, nombreCliente, apellidoCliente)
+        public AlquilerDetailDTO(int id, string cliente, string direccionEnvio,
+            DateTime fechaAlquiler, DateTime fechaDevolucion, float precioTotal,
+            List<AlquilarItemDTO> alquilarItems)
         {
-            this.Id = id;
+            Id = id;
+            Cliente = cliente;
+            this.direccionEnvio = direccionEnvio;
+            this.fechaAlquiler = fechaAlquiler;
+            this.fechaDevolucion = fechaDevolucion;
+            PrecioTotal = precioTotal;
+            AlquilarItems = alquilarItems;
         }
-
         public int Id { get; set; }
-        public string nombreCliente { get; set; }
-        public string apellidoCliente { get; set; }
+        public string Cliente { get; set; }
         public string direccionEnvio { get; set; }
         public DateTime fechaAlquiler { get; set; }
         public DateTime fechaDevolucion { get; set; }
@@ -19,6 +23,3 @@
         public List<AlquilarItemDTO> AlquilarItems { get; set; }
     }
 }
-
-
-

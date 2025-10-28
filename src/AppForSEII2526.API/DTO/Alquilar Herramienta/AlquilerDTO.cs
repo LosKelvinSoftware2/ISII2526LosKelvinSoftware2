@@ -2,33 +2,31 @@
 {
     public class AlquilerDTO
     {
-
-        public AlquilerDTO(String direccionEnvio, DateTime fechaAlquiler, DateTime fechaFin, float precioTotal, List<AlquilarItemDTO> alquilarItemDTOs, String nombreCliente, String apellidoCliente)
+       
+        public AlquilerDTO(String direccionEnvio, String fechaAlquiler, String fechaFin, String periodo, float precioTotal, ApplicationUser cliente, List<AlquilarItemDTO> alquilarItemDTOs)
         {
             this.direccionEnvio = direccionEnvio;
             this.fechaAlquiler = fechaAlquiler;
             this.fechaFin = fechaFin;
+            this.periodo = periodo;
             this.precioTotal = precioTotal;
+            Cliente = cliente;
             AlquilarItemDTOs = alquilarItemDTOs;
-            this.nombreCliente = nombreCliente;
-            this.apellidoCliente = apellidoCliente;
         }
         [Required]
         public String direccionEnvio { get; set; }
         [Required]
-        public DateTime fechaAlquiler { get; set; }
+        public String fechaAlquiler { get; set; }
         [Required]
-        public DateTime fechaFin { get; set; }
+        public String fechaFin { get; set; }
+        public String periodo { get; set; }
         [Range(0, float.MaxValue)]
         public float precioTotal { get; set; }
 
-        public String nombreCliente { get; set; }
-        public String apellidoCliente { get; set; }
-
-
+        //Vinculación con el usuario (cliente autenticado)
+        [Required]
+        public ApplicationUser Cliente { get; set; }
 
         public IList<AlquilarItemDTO> AlquilarItemDTOs { get; set; }
     }
 }
-
-

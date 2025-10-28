@@ -1,5 +1,6 @@
-﻿using AppForSEII2526.API.DTO.Comprar_Herramienta;
 using AppForSEII2526.API.DTO;
+using AppForSEII2526.API.DTO.OfertaDTOs;
+using AppForSEII2526.API.DTO.Comprar_Herramienta;
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -125,43 +126,33 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(OfertaDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
 
-        public async Task<ActionResult> GetOferta(int id)
+        public async Task<ActionResult> GetHerramientaForOferta (string? fabricante, float? precio)
         {
-            if (_context.Oferta == null)
+            if (_context.Herramienta == null)
             {
-                _logger.LogError("Error: Oferta table does not exist");
+                _logger.LogError("Error: Herramienta table does not exist");
                 return NotFound();
             }
 
-            var oferta = await _context.Oferta
-                .Where(o => o.Id == id)
-                    .Include(o => o.ofertaItems) // join table OfertaItems
-                        .ThenInclude(oi => oi.herramienta)
-                .Select(o => new OfertaDTO(
-                    o.Id,
-                    o.fechaFinal,
-                    o.fechaInicio,
-                    o.fechaOferta,
-                    o.ofertaItems
-                        .Select(oi => new OfertaItemDTO(
-                            oi.precioFinal,
-                            oi.herramienta.Nombre,
-                            oi.herramienta.Material,
-                            oi.herramienta.fabricante.Nombre,
-                            oi.herramienta.Precio
-                            )).ToList,
-                    o.metodoPago,
-                    o.dirigidaA
-                    ))
-                .FirstOrDefaultAsync();
+            // Dar valor por defecto al precio si no se ha pasado por parámetro
+            precio = !precio.HasValue ? 0 : precio;
 
-            if (oferta == null)
+            var herramienta = await _context.Herramienta
+                .Where(h => // Filtrar por id, fabricante y precio
+                    // Mostrar todas las herramientas si no se ha pasado el fabricante por parámetro
+                    ((fabricante == null) || (h.fabricante.Nombre == fabricante))
+                    && ((precio == 0) || (h.Precio <= precio))) // igual para precio si es 0
+                .Select(h => new HerramientaForOfertaDTO(h.Id, h.Nombre, h.Material, h.Precio, h.fabricante))
+                .ToListAsync();
+
+
+            if (herramienta == null)
             {
-                _logger.LogWarning($"No se encontró la oferta con id {id}");
+                _logger.LogWarning($"No se encontró la herramienta con fabricante {fabricante}");
                 return NotFound();
             }
 
-            return Ok(oferta);
+            return Ok(herramienta);
         }
 
         //Alquilar herramienta, Juan Pe
