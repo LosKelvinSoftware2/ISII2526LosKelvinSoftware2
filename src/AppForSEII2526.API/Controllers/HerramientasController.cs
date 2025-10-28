@@ -179,7 +179,13 @@ namespace AppForSEII2526.API.Controllers
                     ai.herramienta.Nombre,
                     ai.herramienta.Material,
                     ai.precio,
-                    ai.herramienta.fabricante))
+                    ai.herramienta.fabricante,
+                    ai.alquiler.fechaAlquiler,
+                    ai.alquiler.fechaFin,
+                    ai.alquiler.direccionEnvio,
+                    ai.alquiler.MetodoPago,
+                    ai.alquiler.nombreCliente,
+                    ai.alquiler.apellidoCliente))
                 .ToListAsync();
             if (alquiler == null || !alquiler.Any())
             {
