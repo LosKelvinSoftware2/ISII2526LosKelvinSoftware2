@@ -12,9 +12,6 @@
             TiempoReparacion = tiemporep;
             this.fabricante = fabricante;
             ReparacionItems = new List<ReparacionItem>();
-            CompraItems = new List<CompraItem>();
-            Ofertaitems = new List<OfertaItem>();
-            AlquilarItems = new List<AlquilarItem>();
 
         }
 
@@ -42,11 +39,5 @@
         public Fabricante fabricante { get; set; }
         // Relación con ReparacionItem
         public List<ReparacionItem> ReparacionItems { get; set; }
-        // Relación con CompraItem
-        public List<CompraItem> CompraItems { get; set; }
-        // Relación con OfertaItem
-        public List<OfertaItem> Ofertaitems { get; set; }
-        // Relación con AlquilarItem
-        public List<AlquilarItem> AlquilarItems { get; set; }
     }
 }
