@@ -51,10 +51,36 @@ namespace AppForSEII2526.API.Controllers
             return Ok(herramientas);
         }
 
+        //Reparacion de herramientas Saelices PASO-2
+        [HttpGet("DisponiblesReparacion")]
+        [ProducesResponseType(typeof(List<HerramientaRepaDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<HerramientaRepaDTO>>> GetHerramientasDisponiblesParaReparar()
+        {
+            if (_context.Herramienta == null)
+            {
+                _logger.LogError("Error: Herramienta table does not exist");
+                return NotFound();
+            }
 
+            var herramientas = await _context.Herramienta
+                .Select(h => new HerramientaRepaDTO(
+                    h.Id,
+                    h.Nombre,
+                    h.Material,
+                    h.Precio,
+                    h.TiempoReparacion,
+                    h.fabricante
+                ))
+                .ToListAsync();
 
-        //Reparacion de herramientas Saelices
-        
+            if (!herramientas.Any())
+            {
+                return NotFound(new { Mensaje = "No hay herramientas disponibles para reparación." });
+            }
+
+            return Ok(herramientas);
+        }
 
         // Crear Oferta, Telmo
 
