@@ -2,11 +2,12 @@
 {
     public class OfertaDetailsDTO: OfertaDTO
     {
-        public OfertaDetailsDTO(int id, string fechaInicio, string fechaFinal, string fechaOferta,
+        public OfertaDetailsDTO(int id, float porcentaje, DateTime fechaInicio, DateTime fechaFinal, DateTime fechaOferta,
             tiposMetodoPago metodoPago, tiposDiridaOferta? dirigidaA, IList<OfertaItemDTO> ofertaItems):
-            base(id, fechaFinal, fechaInicio, fechaOferta, metodoPago, dirigidaA, ofertaItems)
+            base(id, porcentaje, fechaFinal, fechaInicio, metodoPago, dirigidaA, ofertaItems)
         {
             this.id = id;
+            this.porcentaje = porcentaje;
             this.fechaInicio = fechaInicio;
             this.fechaFinal = fechaFinal;
             this.fechaOferta = fechaOferta;
@@ -17,10 +18,10 @@
 
         public int id { get; set; }
 
-        public string fechaInicio { get; set; }
+        public DateTime fechaInicio { get; set; }
 
-        public string fechaFinal { get; set; }
-        public string fechaOferta { get; set; }
+        public DateTime fechaFinal { get; set; }
+        public DateTime fechaOferta { get; set; }
 
         public tiposMetodoPago metodoPago { get; set; }
 
