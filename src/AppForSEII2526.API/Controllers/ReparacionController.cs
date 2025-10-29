@@ -66,7 +66,71 @@ namespace AppForSEII2526.API.Controllers
             return Ok(reparacion);
         }
 
-        
+
+        // apartado 5 crear una nueva solicitud de reparación
+        [HttpPost("Registrar")]
+        [ProducesResponseType(typeof(ReparacionDetailsDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ReparacionDetailsDTO>> RegistrarReparacion([FromBody] ReparacionDetailsDTO nuevaReparacion)
+        {
+            if (nuevaReparacion == null)
+                return BadRequest("Los datos de la reparación son requeridos.");
+
+            if (nuevaReparacion.ItemsReparacion == null || !nuevaReparacion.ItemsReparacion.Any())
+                return BadRequest("Debe seleccionar al menos una herramienta para reparar.");
+
+            // Validar fechas
+            if (nuevaReparacion.FechaEntrega < DateTime.Today)
+                return BadRequest("La fecha de entrega no puede ser anterior al día actual.");
+
+            // Calcular el precio total si no viene ya calculado
+            nuevaReparacion.PrecioTotal = nuevaReparacion.ItemsReparacion.Sum(i => i.Precio * i.Cantidad);
+
+            // Crear entidad de reparación
+            var reparacionEntity = new Reparacion
+            {
+                Cliente = await _context.Users.FirstOrDefaultAsync(u => u.Nombre == nuevaReparacion.NombreCliente && u.Apellido == nuevaReparacion.ApellidosCliente),
+                FechaEntrega = nuevaReparacion.FechaEntrega,
+                FechaRecogida = nuevaReparacion.FechaRecogida,
+                PrecioTotal = nuevaReparacion.PrecioTotal,
+                MetodoPago = nuevaReparacion.MetodoPago,
+                ItemsReparacion = new List<ReparacionItem>()
+            };
+
+            // Agregar los ítems de reparación
+            foreach (var item in nuevaReparacion.ItemsReparacion)
+            {
+                var herramienta = await _context.Herramienta.FindAsync(item.herramientaId);
+                if (herramienta == null)
+                    return BadRequest($"La herramienta con ID {item.herramientaId} no existe.");
+
+                reparacionEntity.ItemsReparacion.Add(new ReparacionItem
+                {
+                    Cantidad = item.Cantidad,
+                    Descripcion = item.Descripcion,
+                    Precio = herramienta.Precio,
+                    Herramienta = herramienta
+                });
+            }
+
+            _context.Reparacion.Add(reparacionEntity);
+            await _context.SaveChangesAsync();
+
+            // Crear DTO de respuesta
+            var reparacionDTO = new ReparacionDetailsDTO(
+                reparacionEntity.Id,
+                nuevaReparacion.NombreCliente,
+                nuevaReparacion.ApellidosCliente,
+                reparacionEntity.FechaEntrega,
+                reparacionEntity.FechaRecogida,
+                reparacionEntity.PrecioTotal,
+                reparacionEntity.MetodoPago,
+                nuevaReparacion.ItemsReparacion
+            );
+
+            return CreatedAtAction(nameof(GetReparacion), new { id = reparacionEntity.Id }, reparacionDTO);
+        }
+
 
     }
 }
