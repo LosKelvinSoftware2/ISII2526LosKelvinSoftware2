@@ -18,6 +18,8 @@
 
         public int id { get; set; }
 
+        public float porcentaje { get; set; }
+
         public DateTime fechaInicio { get; set; }
 
         public DateTime fechaFinal { get; set; }
