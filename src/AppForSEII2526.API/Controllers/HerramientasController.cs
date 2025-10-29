@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using AppForSEII2526.API.DTO.Alquilar_Herramienta;
+using AppForSEII2526.API.DTO.RepararDTOs;
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -27,96 +28,58 @@ namespace AppForSEII2526.API.Controllers
 
 
         //Comprar herramientas Javi (Mellado)   
-        [HttpGet]
-        [Route("[action]")]
-        [ProducesResponseType(typeof(CompraDTO), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-
-        public async Task<ActionResult> GetCompra(int id)
+        [HttpGet("Disponibles")]
+        [ProducesResponseType(typeof(List<CompraHerramientasDTO>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<CompraHerramientasDTO>>> GetHerramientasDisponibles()
         {
-            if (_context.Compra == null)
+            if (_context.Herramienta == null)
             {
-                _logger.LogError("Error: Compras table does not exist");
+                _logger.LogError("Error: Herramienta table does not exist");
                 return NotFound();
             }
-            var compra = await _context.Compra
-                .Where(c => c.Id == id)                  // filtro por id
-                .Include(c => c.CompraItems)             // join con CompraItem
-                    .ThenInclude(ci => ci.herramienta)   // join con Herramienta
-                .Select(c => new CompraDetailsDTO(
-                    c.Id,
-                    c.Cliente,                           // Nombre completo del cliente
-                    c.direccionEnvio,
-                    c.fechaCompra,
-                    c.PrecioTotal,
-                    c.CompraItems
-                        .Select(ci => new CompraItemDTO( 
-                            ci.cantidad,
-                            ci.descripcion,
-                            ci.precio,
-                            ci.herramientaId,
-                            ci.herramienta,
-                            ci.compraId,
-                            ci.compra
-                        )).ToList(),
-                    c.MetodoPago
+
+            var herramientas = await _context.Herramienta
+                .Select(h => new CompraHerramientasDTO(
+                    h.Id,
+                    h.Nombre,
+                    h.Material,
+                    h.Precio,
+                    h.fabricante
                 ))
-                .FirstOrDefaultAsync();
-            if (compra == null)
-            {
-                _logger.LogWarning($"No se encontró la compra con id {id}");
-                return NotFound();
-            }
-            return Ok(compra);
+                .ToListAsync();
+
+            return Ok(herramientas);
         }
 
-
-
-        //Reparacion de herramientas Saelices
-        [HttpGet]
-        [Route("[action]")]
-        [ProducesResponseType(typeof(ReparacionDTO), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> GetReparacion(int id)
+        //Reparacion de herramientas Saelices PASO-2
+        [HttpGet("DisponiblesReparacion")]
+        [ProducesResponseType(typeof(List<HerramientaRepaDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<HerramientaRepaDTO>>> GetHerramientasDisponiblesParaReparar()
         {
-            if (_context.Reparacion == null)
+            if (_context.Herramienta == null)
             {
-                _logger.LogError("Error: Reparaciones table does not exist");
+                _logger.LogError("Error: Herramienta table does not exist");
                 return NotFound();
             }
 
-            var reparacion = await _context.Reparacion
-                .Where(r => r.Id == id)
-                .Include(r => r.ItemsReparacion)         // join con ReparacionItem
-                    .ThenInclude(ri => ri.Herramienta)   // join con Herramienta
-                .Select(r => new ReparacionDTO(
-                    r.Id,
-                    r.Cliente,                           // Nombre completo del cliente
-                    r.FechaEntrega,
-                    r.FechaRecogida,
-                    r.PrecioTotal,
-                    r.ItemsReparacion
-                        .Select(ri => new ReparacionItemDTO(
-                            ri.Cantidad,
-                            ri.Descripcion,
-                            ri.Herramienta.Precio,
-                            ri.Herramienta.Id,
-                            ri.Herramienta,
-                            ri.reparacionId,
-                            ri.Reparacion
-
-                        )).ToList()
-                    , r.MetodoPago
+            var herramientas = await _context.Herramienta
+                .Select(h => new HerramientaRepaDTO(
+                    h.Id,
+                    h.Nombre,
+                    h.Material,
+                    h.Precio,
+                    h.TiempoReparacion,
+                    h.fabricante
                 ))
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
-            if (reparacion == null)
+            if (!herramientas.Any())
             {
-                _logger.LogWarning($"No se encontró la reparación con id {id}");
-                return NotFound();
+                return NotFound(new { Mensaje = "No hay herramientas disponibles para reparación." });
             }
 
-            return Ok(reparacion);
+            return Ok(herramientas);
         }
 
         // Crear Oferta, Telmo
@@ -179,7 +142,13 @@ namespace AppForSEII2526.API.Controllers
                     ai.herramienta.Nombre,
                     ai.herramienta.Material,
                     ai.precio,
-                    ai.herramienta.fabricante))
+                    ai.herramienta.fabricante,
+                    ai.alquiler.fechaAlquiler,
+                    ai.alquiler.fechaFin,
+                    ai.alquiler.direccionEnvio,
+                    ai.alquiler.MetodoPago,
+                    ai.alquiler.nombreCliente,
+                    ai.alquiler.apellidoCliente))
                 .ToListAsync();
             if (alquiler == null || !alquiler.Any())
             {
