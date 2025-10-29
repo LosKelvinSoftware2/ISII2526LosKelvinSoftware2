@@ -8,6 +8,8 @@ namespace AppForSEII2526.API.Models
         [Key]
         public int Id { get; set; }
 
+        public float porcentaje { get; set; }
+
         [Required]
         public DateTime fechaFinal { get; set; }
 

@@ -37,6 +37,7 @@ namespace AppForSEII2526.API.Controllers
                         .ThenInclude(oi => oi.herramienta)
                 .Select(o => new OfertaDetailsDTO(
                     o.Id,
+                    o.porcentaje,
                     o.fechaInicio,
                     o.fechaFinal,
                     o.fechaOferta,
@@ -94,8 +95,15 @@ namespace AppForSEII2526.API.Controllers
                 })
                 .ToList();
 
-            Oferta oferta = new Oferta(ofertaForCreate.Id, ofertaForCreate.porcentaje, ofertaForCreate.fechaFinal,
-                ofertaForCreate.fechaInicio, tiposMetodoPago, tiposDiridaOferta, new List<OfertaItem>());
+            Oferta oferta = new Oferta
+            {
+                porcentaje = ofertaForCreate.porcentaje,
+                fechaFinal = ofertaForCreate.fechaFinal,
+                fechaInicio = ofertaForCreate.fechaInicio,
+                fechaOferta = DateTime.Today,
+                metodoPago = ofertaForCreate.metodoPago,
+                dirigidaA = ofertaForCreate.dirigidaA
+            };
 
             _context.Oferta.Add(oferta);
 
@@ -111,9 +119,23 @@ namespace AppForSEII2526.API.Controllers
             }
 
             //it returns rentalDetail
-            var OfertaDetail = new OfertaDetailDTO(oferta.Id, oferta.porcentaje, oferta.fechaInicio,
-                oferta.fechaFinal, oferta.fechaOferta, oferta.metodoPago, oferta.dirigidaA,
-                oferta.ofertaItems);
+            OfertaDetailsDTO OfertaDetail = new OfertaDetailsDTO
+                (oferta.Id,
+                oferta.porcentaje,
+                oferta.fechaInicio,
+                oferta.fechaFinal,
+                oferta.fechaOferta,
+                oferta.metodoPago,
+                oferta.dirigidaA,
+                oferta.ofertaItems.Select(oi => new OfertaItemDTO(
+                    oi.precioFinal,
+                    oi.herramienta.Nombre,
+                    oi.herramienta.Material,
+                    oi.herramienta.fabricante.Nombre,
+                    oi.herramienta.Precio
+                )).ToList<OfertaItemDTO>()
+
+                );
 
             return CreatedAtAction("GetOferta", new { id = oferta.Id }, OfertaDetail);
         }
