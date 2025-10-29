@@ -28,7 +28,7 @@
         public DateTime fechaFin { get; set; }
         public string direccionEnvio { get; set; }
         public tiposMetodoPago metodoPago { get; set; }
-       `public string nombreCliente { get; set; }
+        public string nombreCliente { get; set; }
         public string apellidoCliente { get; set; }
         //Relación con fabricante
         public Fabricante fabricante { get; set; }
