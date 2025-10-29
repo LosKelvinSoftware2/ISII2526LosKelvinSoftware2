@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using AppForSEII2526.API.DTO;
+﻿using AppForSEII2526.API.DTO;
 using AppForSEII2526.API.DTO.Alquilar_Herramienta;
+using AppForSEII2526.API.DTO.Comprar_Herramienta;
 using AppForSEII2526.API.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
 
@@ -135,8 +136,26 @@ namespace AppForSEII2526.API.Controllers
                 return Conflict("Error" + ex.Message);
 
             }
- 
 
+            var alquilerDTO = new AlquilerDetailDTO(
+                alquiler.Id,
+                alquiler.Cliente.Nombre,
+                alquiler.Cliente.Apellido,
+                alquiler.direccionEnvio,
+                alquiler.fechaAlquiler,
+                alquiler.fechaFin,
+                alquiler.precioTotal,
+                alquiler.AlquilarItems.Select(ai => new AlquilarItemDTO(
+                    ai.cantidad,
+                    ai.precio,
+                    ai.alquilerId,
+                    ai.alquiler,
+                    ai.herramientaId,
+                    ai.herramienta
+                )).ToList()
+            );
+
+            return CreatedAtAction(nameof(GetAlquilerDetail), new { id = alquiler.Id }, alquilerDTO);
         }
     }
 
