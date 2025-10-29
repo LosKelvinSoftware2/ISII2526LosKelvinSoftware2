@@ -1,8 +1,8 @@
-﻿namespace AppForSEII2526.API.DTO
+﻿namespace AppForSEII2526.API.DTO.RepararDTOs
 {
-    public class HerramientaDTO
+    public class HerramientaRepaDTO
     {
-        public HerramientaDTO(int id, string nombre, string material, 
+        public HerramientaRepaDTO(int id, string nombre, string material, 
             float precio, int tiemporep, Fabricante fabricante)
         {
             Id = id;
