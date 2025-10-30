@@ -2,19 +2,7 @@
 {
     public class Alquiler
     {
-        public Alquiler(string direccionEnvio, DateTime fechaAlquiler, DateTime fechaFin, int id, float precioTotal, IList<AlquilarItem> alquilarItems, tiposMetodoPago metodoPago , string nombreCliente , string apellidoCliente)
-        {
-            this.direccionEnvio = direccionEnvio;
-            this.fechaAlquiler = fechaAlquiler;
-            this.fechaFin = fechaFin;
-            Id = id;
-            this.precioTotal = precioTotal;
-            AlquilarItems = alquilarItems;
-            MetodoPago = metodoPago;
-            this.nombreCliente= nombreCliente;
-            this.apellidoCliente= apellidoCliente;
-        }
-
+        
         [Required]
         public String direccionEnvio { get; set; }
         [Required]
