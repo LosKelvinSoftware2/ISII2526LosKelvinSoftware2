@@ -73,9 +73,10 @@ namespace AppForSEII2526.API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    fechaFinal = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    fechaInicio = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    fechaOferta = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    porcentaje = table.Column<float>(type: "real", nullable: false),
+                    fechaFinal = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    fechaInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    fechaOferta = table.Column<DateTime>(type: "datetime2", nullable: false),
                     metodoPago = table.Column<int>(type: "int", nullable: false),
                     dirigidaA = table.Column<int>(type: "int", nullable: true)
                 },
@@ -112,11 +113,12 @@ namespace AppForSEII2526.API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     direccionEnvio = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    fechaAlquiler = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    fechaFin = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    periodo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    fechaAlquiler = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    fechaFin = table.Column<DateTime>(type: "datetime2", nullable: false),
                     precioTotal = table.Column<float>(type: "real", nullable: false),
-                    ClienteId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    nombreCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    apellidoCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClienteId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     MetodoPago = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -126,8 +128,7 @@ namespace AppForSEII2526.API.Migrations
                         name: "FK_Alquiler_AspNetUsers_ClienteId",
                         column: x => x.ClienteId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
