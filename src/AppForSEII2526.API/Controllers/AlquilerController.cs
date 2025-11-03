@@ -63,7 +63,7 @@ namespace AppForSEII2526.API.Controllers
             }
             return Ok(alquiler);
         }
-
+        /*
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(AlquilerDetailDTO), (int)HttpStatusCode.Created)]
@@ -157,6 +157,7 @@ namespace AppForSEII2526.API.Controllers
 
             return CreatedAtAction(nameof(GetAlquilerDetail), new { id = alquiler.Id }, alquilerDTO);
         }
+        */
     }
 
 }
