@@ -2,28 +2,34 @@
 namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
 {
     public class AlquilerDetailDTO : AlquilerDTO
-
     {
-        private List<AlquilarItem> alquilerItems;
-
-        public AlquilerDetailDTO(int id, string nombreCliente, string apellidoCliente, string direccionEnvio, DateTime fechaAlquiler, DateTime fechaDevolucion, float precioTotal, List<AlquilarItemDTO> alquilarItems)
-            : base(direccionEnvio, fechaAlquiler, fechaDevolucion, precioTotal, alquilarItems, nombreCliente, apellidoCliente)
+        public AlquilerDetailDTO(int id, DateTime fechaAlquiler, ApplicationUser cliente, string direccionEnvio, float precioTotal,
+            DateTime fechaFin, DateTime fechaInicio, List<AlquilarItemDTO> alquilarItems) :
+            base(cliente, direccionEnvio, precioTotal, fechaFin, fechaInicio, alquilarItems)
         {
-            this.Id = id;
+            Id = id;
+            this.fechaAlquiler = fechaAlquiler;
         }
 
-     
-
-        public int Id { get; set; }
-        public string nombreCliente { get; set; }
-        public string apellidoCliente { get; set; }
-        public string direccionEnvio { get; set; }
+        [Key]
+        int Id { get; set; }
+        [Required]
         public DateTime fechaAlquiler { get; set; }
-        public DateTime fechaDevolucion { get; set; }
-        public float PrecioTotal { get; set; }
+
+        // Vinculación con el usuario (cliente autenticado)
+        public ApplicationUser Cliente { get; set; }
+        [Required]
+        public String direccionEnvio { get; set; }
+
+        [Range(0, float.MaxValue)]
+        public float precioTotal { get; set; }
+        [Required]
+        public DateTime fechaFin { get; set; }
+
+        [Required]
+        public DateTime fechaInicio { get; set; }
+        // Relación con Items de alquiler
         public List<AlquilarItemDTO> AlquilarItems { get; set; }
+
     }
 }
-
-
-
