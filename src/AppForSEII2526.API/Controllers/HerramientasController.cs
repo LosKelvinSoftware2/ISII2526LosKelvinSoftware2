@@ -119,7 +119,7 @@ namespace AppForSEII2526.API.Controllers
         }
 
         //Alquilar herramienta, Juan Pe
-
+        
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(AlquilerDTO), (int)HttpStatusCode.OK)]

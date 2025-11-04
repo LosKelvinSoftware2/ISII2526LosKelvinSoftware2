@@ -5,10 +5,11 @@
         private object value;
 
         
-        public ReparacionDTO(int id, ApplicationUser cliente, DateTime fechaEntrega, DateTime fechaRecogida, float precioTotal, List<ReparacionItemDTO> itemsReparacion, tiposMetodoPago metodoPago)
+        public ReparacionDTO(int id, string nombreCliente, string apellidosCliente, DateTime fechaEntrega, DateTime fechaRecogida, float precioTotal, List<ReparacionItemDTO> itemsReparacion, tiposMetodoPago metodoPago)
         {
             Id = id;
-            Cliente = cliente;
+            NombreCliente = nombreCliente;
+            ApellidosCliente = apellidosCliente;
             FechaEntrega = fechaEntrega;
             FechaRecogida = fechaRecogida;
             PrecioTotal = precioTotal;
@@ -20,8 +21,14 @@
         public int Id { get; set; }
 
         //Vinculación con el usuario (cliente autenticado)
+        // Datos del cliente
         [Required]
-        public ApplicationUser Cliente { get; set; }
+        [MaxLength(100)]
+        public string NombreCliente { get; set; }
+
+        [Required]
+        [MaxLength(100)]
+        public string ApellidosCliente { get; set; }
 
 
         [Required]
