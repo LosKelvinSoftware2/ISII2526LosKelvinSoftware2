@@ -89,7 +89,7 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(OfertaDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
 
-        public async Task<ActionResult> GetHerramientaForOferta (string? fabricante, float? precio)
+        public async Task<ActionResult> GetHerramientaForOferta(string? fabricante, float? precio)
         {
             if (_context.Herramienta == null)
             {
@@ -102,7 +102,7 @@ namespace AppForSEII2526.API.Controllers
 
             var herramienta = await _context.Herramienta
                 .Where(h => // Filtrar por id, fabricante y precio
-                    // Mostrar todas las herramientas si no se ha pasado el fabricante por parámetro
+                            // Mostrar todas las herramientas si no se ha pasado el fabricante por parámetro
                     ((fabricante == null) || (h.fabricante.Nombre == fabricante))
                     && ((precio == 0) || (h.Precio <= precio))) // igual para precio si es 0
                 .Select(h => new HerramientaForOfertaDTO(h.Id, h.Nombre, h.Material, h.Precio, h.fabricante))
@@ -119,43 +119,50 @@ namespace AppForSEII2526.API.Controllers
         }
 
         //Alquilar herramienta, Juan Pe
-        
+
         [HttpGet]
         [Route("[action]")]
-        [ProducesResponseType(typeof(AlquilerDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<AlquilerHerramientasDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
 
-        public async Task<ActionResult> GetAlquiler(String nombre , String material)
+        public async Task<ActionResult> GetAlquileresDisponibles(string? nombre, string? material)
         {
             if (_context.Alquiler == null)
             {
                 _logger.LogError("Error: Alquiler table does not exist");
                 return NotFound();
             }
-            var alquiler = await _context.Alquiler
-                .Include(a => a.AlquilarItems)
-                    .ThenInclude(ai => ai.herramienta)
-                .SelectMany(a => a.AlquilarItems)
-                .Where(ai => ai.herramienta.Nombre == nombre && ai.herramienta.Material == material)
-                .Select(ai => new AlquilerHerramientasDTO(
-                    ai.alquiler.Id,
-                    ai.herramienta.Nombre,
-                    ai.herramienta.Material,
-                    ai.precio,
-                    ai.herramienta.fabricante,
-                    ai.alquiler.fechaAlquiler,
-                    ai.alquiler.fechaFin,
-                    ai.alquiler.direccionEnvio,
-                    ai.alquiler.MetodoPago,
-                    ai.alquiler.nombreCliente,
-                    ai.alquiler.apellidoCliente))
+
+            var fechaInicio = DateTime.Today.AddDays(2); //Alquileres a partir de pasado mañana
+            var fechaFin = DateTime.Today.AddDays(9); //Alquileres hasta una semana después del inicio
+
+            var herramientasOcupadas = await _context.Alquiler
+           .Where(a => a.fechaAlquiler <= fechaFin && a.fechaFin >= fechaInicio)    // Alquileres que se solapan con el periodo dado
+           .SelectMany(a => a.AlquilarItems.Select(ai => ai.herramienta.Id))        //Guardamos los Id de las herramientas ya alquiladas en dicho periodo
+           .Distinct()  //Eliminamos duplicados
+           .ToListAsync();
+
+            // Ahora obtenemos las herramientas que no están en la lista de ocupadas
+            var herramientasDisponibles = await _context.Herramienta
+                .Where(h => !herramientasOcupadas.Contains(h.Id) &&
+                    (nombre == null || h.Nombre.Contains(nombre)) &&
+                    (material == null || h.Material == material))
+                .Select(h => new AlquilerHerramientasDTO
+                (
+                    h.Id,
+                    h.Nombre,
+                    h.Material,
+                    h.Precio,
+                    h.fabricante
+                ))
                 .ToListAsync();
-            if (alquiler == null || !alquiler.Any())
+
+            if (!herramientasDisponibles.Any())
             {
-                return NotFound(new{Mensaje = "No se encontraron alquileres que coincidan con el nombre y material indicados."});
+                return NotFound(new { Mensaje = "No hay herramientas disponibles para alquilar en las fechas indicadas." });
             }
 
-            return Ok(alquiler);
+            return Ok(herramientasDisponibles);
         }
 
 

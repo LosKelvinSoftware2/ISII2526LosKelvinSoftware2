@@ -2,33 +2,30 @@
 {
     public class AlquilerDTO
     {
-
-        public AlquilerDTO(String direccionEnvio, DateTime fechaAlquiler, DateTime fechaFin, float precioTotal, List<AlquilarItemDTO> alquilarItemDTOs, String nombreCliente, String apellidoCliente)
+        public AlquilerDTO(ApplicationUser cliente, string direccionEnvio, float precioTotal,
+            DateTime fechaFin, DateTime fechaInicio, List<AlquilarItemDTO> alquilarItems)
         {
+            Cliente = cliente;
             this.direccionEnvio = direccionEnvio;
-            this.fechaAlquiler = fechaAlquiler;
-            this.fechaFin = fechaFin;
             this.precioTotal = precioTotal;
-            AlquilarItemDTOs = alquilarItemDTOs;
-            this.nombreCliente = nombreCliente;
-            this.apellidoCliente = apellidoCliente;
+            this.fechaFin = fechaFin;
+            this.fechaInicio = fechaInicio;
+            AlquilarItems = alquilarItems;
         }
+        // Vinculación con el usuario (cliente autenticado)
+        public ApplicationUser Cliente { get; set; }
         [Required]
         public String direccionEnvio { get; set; }
-        [Required]
-        public DateTime fechaAlquiler { get; set; }
-        [Required]
-        public DateTime fechaFin { get; set; }
+
         [Range(0, float.MaxValue)]
         public float precioTotal { get; set; }
+        [Required]
+        public DateTime fechaFin { get; set; }
 
-        public String nombreCliente { get; set; }
-        public String apellidoCliente { get; set; }
-
-
-
-        public IList<AlquilarItemDTO> AlquilarItemDTOs { get; set; }
+        [Required]
+        public DateTime fechaInicio { get; set; }
+        // Relación con Items de alquiler
+        public List<AlquilarItemDTO> AlquilarItems { get; set; }
+        public tiposMetodoPago MetodoPago { get; set; }
     }
 }
-
-
