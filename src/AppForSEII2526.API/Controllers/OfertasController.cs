@@ -32,7 +32,7 @@ namespace AppForSEII2526.API.Controllers
             }
 
             var oferta = await _context.Oferta
-                .Where (o => o.Id == id)
+                .Where (o => (o.Id == id))
                     .Include(o => o.ofertaItems)
                         .ThenInclude(oi => oi.herramienta)
                 .Select(o => new OfertaDetailsDTO(
