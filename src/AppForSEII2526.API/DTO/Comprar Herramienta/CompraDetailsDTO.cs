@@ -14,6 +14,9 @@
         [Key]
         public int Id { get; set; }
 
+        // Vinculación con el usuario (cliente autenticado)
+        public ApplicationUser Cliente { get; set; }
+
         [Required]
         public DateTime fechaCompra { get; set; }
 

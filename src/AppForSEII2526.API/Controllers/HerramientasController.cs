@@ -28,9 +28,11 @@ namespace AppForSEII2526.API.Controllers
 
 
         //Comprar herramientas Javi (Mellado)   
-        [HttpGet("Disponibles")]
+        [HttpGet]
+        [Route("DisponiblesCompra")]
         [ProducesResponseType(typeof(List<CompraHerramientasDTO>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<CompraHerramientasDTO>>> GetHerramientasDisponibles()
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<List<CompraHerramientasDTO>>> GetHerramientasDisponibles(string? material , float? precio)
         {
             if (_context.Herramienta == null)
             {
@@ -39,6 +41,9 @@ namespace AppForSEII2526.API.Controllers
             }
 
             var herramientas = await _context.Herramienta
+
+                .Where(h => (h.Material == material || material == null) && 
+                            ((h.Precio <= precio) || precio == null) ) 
                 .Select(h => new CompraHerramientasDTO(
                     h.Id,
                     h.Nombre,

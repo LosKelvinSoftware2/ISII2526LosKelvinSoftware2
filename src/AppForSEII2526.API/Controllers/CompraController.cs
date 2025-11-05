@@ -1,4 +1,5 @@
-﻿using AppForSEII2526.API.DTO.Comprar_Herramienta;
+﻿using AppForSEII2526.API.DTO.Alquilar_Herramienta;
+using AppForSEII2526.API.DTO.Comprar_Herramienta;
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,30 +11,30 @@ namespace AppForSEII2526.API.Controllers
     [ApiController]
     public class CompraController : ControllerBase
     {
-        private readonly ApplicationDbContext context;
-        private readonly ILogger<CompraController> logger;
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<CompraController> _logger;
 
         public CompraController(ApplicationDbContext context, ILogger<CompraController> logger)
         {
-            this.context = context;
-            this.logger = logger;
+            _context = context;
+            _logger = logger;
         }
 
         // GET: api/Compra/{id}
 
         [HttpGet]
-        [Route("{id}")]
+        [Route("[action]")]
         [ProducesResponseType(typeof(CompraDetailsDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CompraDetailsDTO>> GetCompra(int id)
         {
-            if (context.Compra == null)
+            if (_context.Compra == null)
             {
-                logger.LogError("Error: Compras table does not exist");
+                _logger.LogError("Error: Compras table does not exist");
                 return NotFound();
             }
 
-            var compra = await context.Compra
+            var compra = await _context.Compra
                 .Where(c => c.Id == id)
                 .Include(c => c.CompraItems)
                     .ThenInclude(ci => ci.herramienta)
@@ -58,7 +59,7 @@ namespace AppForSEII2526.API.Controllers
 
             if (compra == null)
             {
-                logger.LogWarning($"Compra con id {id} no encontrada.");
+                _logger.LogWarning($"Compra con id {id} no encontrada.");
                 return NotFound();
             }
 
@@ -68,11 +69,11 @@ namespace AppForSEII2526.API.Controllers
         // POST: api/Compra/CrearCompra
 
         [HttpPost]
-        [Route("CrearCompra")]
-        [ProducesResponseType(typeof(CompraDetailsDTO), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-        public async Task<ActionResult<CompraDetailsDTO>> CrearCompra([FromBody] CompraDTO dto)
+        [Route("[action]")]
+        [ProducesResponseType(typeof(CompraDetailsDTO), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
+        public async Task<ActionResult> CrearCompra(CompraDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ValidationProblemDetails(ModelState));
@@ -96,9 +97,9 @@ namespace AppForSEII2526.API.Controllers
                 CompraItems = new List<CompraItem>()
             };
 
-            foreach (var item in dto.CompraItemsDTO ?? new List<CompraItemDTO>())
+            foreach (var item in dto.CompraItemsDTO)
             {
-                var herramienta = await context.Herramienta.FindAsync(item.herramientaId);
+                var herramienta = await _context.Herramienta.FindAsync(item.herramientaId);
                 if (herramienta == null)
                 {
                     ModelState.AddModelError("Items", $"Herramienta con ID {item.herramientaId} no encontrada");
@@ -121,15 +122,15 @@ namespace AppForSEII2526.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(new ValidationProblemDetails(ModelState));
 
-            context.Compra.Add(compra);
+            _context.Compra.Add(compra);
 
             try
             {
-                await context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.Message);
+                _logger.LogError(ex.Message);
                 ModelState.AddModelError("Compra", $"Error al guardar la compra: {ex.Message}");
                 return Conflict("Error al guardar la compra");
             }
@@ -157,37 +158,4 @@ namespace AppForSEII2526.API.Controllers
         }
     }
 
-    // DTOs para la creación de la compra
-    public class CrearCompraDTO
-    {
-        [Required]
-        public string Nombre { get; set; } = string.Empty;
-
-        [Required]
-        public string Apellidos { get; set; } = string.Empty;
-
-        [Required]
-        public string DireccionEnvio { get; set; } = string.Empty;
-
-        [Required]
-        public tiposMetodoPago MetodoPago { get; set; }
-
-        public double? Telefono { get; set; }
-        public string? Correo { get; set; }
-
-        [Required]
-        public List<CompraItemCrearDTO> Items { get; set; } = new();
-    }
-
-    public class CompraItemCrearDTO
-    {
-        [Required]
-        public int HerramientaId { get; set; }
-
-        [Required]
-        public int Cantidad { get; set; }
-
-        [Required]
-        public string Descripcion { get; set; } = string.Empty;
-    }
 }
