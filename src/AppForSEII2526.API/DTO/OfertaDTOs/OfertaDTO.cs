@@ -2,8 +2,6 @@
 {
     public class OfertaDTO
     {
-        private object value;
-        private Func<List<OfertaItemDTO>> toList;
 
         public OfertaDTO(float porcentaje, DateTime fechaFinal, DateTime fechaInicio,
             tiposMetodoPago metodoPago, tiposDiridaOferta? dirigidaA, IList<OfertaItemDTO> ofertaItems)
