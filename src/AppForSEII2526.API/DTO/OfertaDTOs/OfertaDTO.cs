@@ -5,10 +5,9 @@
         private object value;
         private Func<List<OfertaItemDTO>> toList;
 
-        public OfertaDTO(int id, float porcentaje, DateTime fechaFinal, DateTime fechaInicio,
+        public OfertaDTO(float porcentaje, DateTime fechaFinal, DateTime fechaInicio,
             tiposMetodoPago metodoPago, tiposDiridaOferta? dirigidaA, IList<OfertaItemDTO> ofertaItems)
         {
-            Id = id;
             this.porcentaje = porcentaje;
             this.fechaFinal = fechaFinal;
             this.fechaInicio = fechaInicio;
@@ -18,8 +17,6 @@
             this.dirigidaA = dirigidaA;
         }
 
-        [Key]
-        public int Id { get; set; }
 
         [Required]
         public DateTime fechaFinal { get; set; }
