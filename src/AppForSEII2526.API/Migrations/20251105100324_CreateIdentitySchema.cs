@@ -115,9 +115,9 @@ namespace AppForSEII2526.API.Migrations
                     direccionEnvio = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     fechaAlquiler = table.Column<DateTime>(type: "datetime2", nullable: false),
                     fechaFin = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    fechaInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    periodo = table.Column<int>(type: "int", nullable: false),
                     precioTotal = table.Column<float>(type: "real", nullable: false),
-                    nombreCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    apellidoCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ClienteId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     MetodoPago = table.Column<int>(type: "int", nullable: false)
                 },

@@ -57,10 +57,6 @@ namespace AppForSEII2526.API.Migrations
                     b.Property<int>("MetodoPago")
                         .HasColumnType("int");
 
-                    b.Property<string>("apellidoCliente")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("direccionEnvio")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -71,9 +67,11 @@ namespace AppForSEII2526.API.Migrations
                     b.Property<DateTime>("fechaFin")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("nombreCliente")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("fechaInicio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("periodo")
+                        .HasColumnType("int");
 
                     b.Property<float>("precioTotal")
                         .HasColumnType("real");

@@ -2,6 +2,8 @@
 {
     public class Alquiler
     {
+        [Key]
+        public int Id { get; set; }
 
         [Required]
         public String direccionEnvio { get; set; }
@@ -12,8 +14,7 @@
 
         [Required]
         public DateTime fechaInicio { get; set; }
-        [Key]
-        public int Id { get; set; }
+
         public int periodo { get; set; }
         [Range(0, float.MaxValue)]
         public float precioTotal { get; set; }
