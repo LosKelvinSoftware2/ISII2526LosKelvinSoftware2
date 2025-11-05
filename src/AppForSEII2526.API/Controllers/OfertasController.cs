@@ -44,6 +44,7 @@ namespace AppForSEII2526.API.Controllers
                     o.metodoPago,
                     o.dirigidaA,
                     o.ofertaItems.Select(oi => new OfertaItemDTO(
+                        oi.herramientaId,
                         oi.precioFinal,
                         oi.herramienta.Nombre,
                         oi.herramienta.Material,
@@ -64,8 +65,8 @@ namespace AppForSEII2526.API.Controllers
 
         [HttpPost]
         [Route("[action]")]
+
         [ProducesResponseType(typeof(OfertaDetailsDTO), (int)HttpStatusCode.Created)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
         public async Task<ActionResult> CreateOferta (OfertaDTO ofertaForCreate)
@@ -77,67 +78,99 @@ namespace AppForSEII2526.API.Controllers
             if (ofertaForCreate.porcentaje <= 0 || ofertaForCreate.porcentaje > 100)
                 ModelState.AddModelError("porcentaje", "Error! El porcentaje de descuento debe estar entre 1 y 100");
 
-            var herramientasIds = ofertaForCreate.ofertaItems.Select(oi => oi.herramientaId).ToList();
+            // Retorno si hay errores iniciales
+            if (!ModelState.IsValid)
+            {
+                // Flujo Alternativo 5: Datos obligatorios no rellenados (o rango incorrecto)
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
 
-            var herramienta = _context.Herramienta.Include(h => h.Ofertaitems)
-                .ThenInclude(ri => ri.oferta)
-                .Where(h => herramientasIds.Contains(h.Id))
+            // --- 2. Validación de Existencia de Herramientas ---
+            var herramientaIds = ofertaForCreate.ofertaItems.Select(oi => oi.herramientaId).Distinct().ToList();
 
-                //we use an anonymous type https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/anonymous-types
-                .Select(h => new {
-                    h.Id,
-                    h.Nombre,
-                    h.Material,
-                    h.Precio,
-                    //we count the number of rentalItems that are within the rental period
-                    NumHerramientasOfertadas = h.Ofertaitems.Count(oi => oi.oferta.fechaInicio <= ofertaForCreate.fechaFinal
-                            && ofertaForCreate.fechaFinal >= oi.oferta.fechaInicio)
-                })
-                .ToList();
+            // Obtener los datos de las herramientas necesarias (Nombre, Material, Fabricante, Precio Original)
+            var herramientas = await _context.Herramienta
+                .Include(h => h.fabricante) 
+                .Where(h => herramientaIds.Contains(h.Id))
+                .ToDictionaryAsync(h => h.Id);
 
-            Oferta oferta = new Oferta
+                 // Verificar si todas las IDs existen
+            if (herramientas.Count != herramientaIds.Count)
+            {
+                var missingIds = herramientaIds.Except(herramientas.Keys).ToList();
+                ModelState.AddModelError("herramientaId", $"Error! No se encontraron herramientas con los IDs: {string.Join(", ", missingIds)}");
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
+            // --- 3. Construcción de Entidades (Modelos de DB) ---
+
+            // Crear la entidad Oferta principal
+            var nuevaOferta = new Oferta
             {
                 porcentaje = ofertaForCreate.porcentaje,
-                fechaFinal = ofertaForCreate.fechaFinal,
                 fechaInicio = ofertaForCreate.fechaInicio,
-                fechaOferta = DateTime.Today,
+                fechaFinal = ofertaForCreate.fechaFinal,
+                fechaOferta = DateTime.Now, // La fecha de creación es ahora
                 metodoPago = ofertaForCreate.metodoPago,
-                dirigidaA = ofertaForCreate.dirigidaA
+                dirigidaA = ofertaForCreate.dirigidaA,
+                // Las propiedades de precio/porcentaje pueden variar.
             };
+            // Crear las entidades OfertaItem y adjuntarlas a la Oferta
+            foreach (var item in ofertaForCreate.ofertaItems)
+            {
+                var herramienta = herramientas[item.herramientaId];
 
-            _context.Oferta.Add(oferta);
+                // Cálculo del precio con la oferta (asumiendo que Precio en Herramienta es el original)
+                float precioOriginal = herramienta.Precio;
+                float porcentaje = ofertaForCreate.porcentaje / 100.0f; // Convertir a decimal
+                float precioFinal = precioOriginal - (precioOriginal * porcentaje);
 
-            try {
-                //we store in the database both rental and its rentalitems
+                nuevaOferta.ofertaItems.Add(new OfertaItem
+                {
+                    herramientaId = item.herramientaId,
+                    porcentaje = ofertaForCreate.porcentaje, // Guardamos el porcentaje en DB si es necesario
+                    precioFinal = precioFinal, // El precio ya rebajado
+                });
+            }
+
+            _context.Oferta.Add(nuevaOferta);
+
+            // --- 4. Guardar en Base de Datos ---
+
+            try
+            {
                 await _context.SaveChangesAsync();
             }
-            catch (Exception ex) {
-                _logger.LogError(ex.Message);
-                ModelState.AddModelError("Oferta", $"Error! There was an error while saving your oferta, plese, try again later");
-                return Conflict("Error" + ex.Message);
-
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al guardar la nueva oferta en la base de datos.");
+                return Conflict($"Error al guardar la oferta. Por favor, inténtelo de nuevo más tarde: {ex.Message}");
             }
 
-            //it returns rentalDetail
-            OfertaDetailsDTO OfertaDetail = new OfertaDetailsDTO
-                (oferta.Id,
-                oferta.porcentaje,
-                oferta.fechaInicio,
-                oferta.fechaFinal,
-                oferta.fechaOferta,
-                oferta.metodoPago,
-                oferta.dirigidaA,
-                oferta.ofertaItems.Select(oi => new OfertaItemDTO(
+            // --- 5. Respuesta Exitosa (Flujo Básico 7) ---
+
+            // Crear un DTO de respuesta que contenga los detalles finales 
+            
+
+            var ofertaDetail = new OfertaDetailsDTO(
+                nuevaOferta.Id,
+                nuevaOferta.porcentaje,
+                nuevaOferta.fechaInicio,
+                nuevaOferta.fechaFinal,
+                nuevaOferta.fechaOferta,
+                nuevaOferta.metodoPago,
+                nuevaOferta.dirigidaA,
+                nuevaOferta.ofertaItems.Select(oi => new OfertaItemDTO(
+                    oi.herramientaId,
                     oi.precioFinal,
-                    oi.herramienta.Nombre,
-                    oi.herramienta.Material,
-                    oi.herramienta.fabricante.Nombre,
-                    oi.herramienta.Precio
-                )).ToList<OfertaItemDTO>()
+                    herramientas[oi.herramientaId].Nombre,
+                    herramientas[oi.herramientaId].Material,
+                    herramientas[oi.herramientaId].fabricante.Nombre,
+                    herramientas[oi.herramientaId].Precio
+            )).ToList());
 
-                );
-
-            return CreatedAtAction("GetOferta", new { id = oferta.Id }, OfertaDetail);
+            // Devuelve el código 201 Created y la ubicación del recurso recién creado
+            return CreatedAtAction("GetOferta", new { id = nuevaOferta.Id }, ofertaDetail);
         }
     }
 }

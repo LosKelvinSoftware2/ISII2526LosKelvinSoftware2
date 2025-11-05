@@ -5,6 +5,13 @@ namespace AppForSEII2526.API.Models
 {
     public class Oferta
     {
+
+        public Oferta()
+        {
+            ofertaItems = new List<OfertaItem>();
+        }
+
+
         [Key]
         public int Id { get; set; }
 
