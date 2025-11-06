@@ -1,24 +1,28 @@
-﻿namespace AppForSEII2526.API.DTO.Comprar_Herramienta
+﻿using AppForSEII2526.API.DTO.Alquilar_Herramienta;
+
+namespace AppForSEII2526.API.DTO.Comprar_Herramienta
 {
     public class CompraDetailsDTO : CompraDTO
     {
 
-        public CompraDetailsDTO(int id, ApplicationUser cliente, string direccionEnvio, DateTime fechaCompra, float precioTotal,
-            List<CompraItemDTO> compraItemsDTO, tiposMetodoPago metodoPago):
-            base (cliente, direccionEnvio, precioTotal, compraItemsDTO, metodoPago)
+        public CompraDetailsDTO(int id, DateTime fechaCompra, ApplicationUser cliente, string direccionEnvio, float precioTotal,
+            List<CompraItemDTO> CompraItems, tiposMetodoPago MetodoPago) :
+            base(cliente, direccionEnvio, precioTotal, fechaCompra, CompraItems, MetodoPago)
         {
-            Id = id;    
-            this.fechaCompra = fechaCompra;
+            Id = id;
+            nombreCliente = cliente.Nombre;
+            apellidoCliente = cliente.Apellido;
+            this.fechaAlquiler = fechaAlquiler;
         }
-        
+
         [Key]
-        public int Id { get; set; }
-
-        // Vinculación con el usuario (cliente autenticado)
-        public ApplicationUser Cliente { get; set; }
-
+        int Id { get; set; }
         [Required]
-        public DateTime fechaCompra { get; set; }
+        public string nombreCliente { get; set; }
+        [Required]
+        public string apellidoCliente { get; set; }
+        [Required]
+        public DateTime fechaAlquiler { get; set; }
 
 
         public override bool Equals(object? obj)

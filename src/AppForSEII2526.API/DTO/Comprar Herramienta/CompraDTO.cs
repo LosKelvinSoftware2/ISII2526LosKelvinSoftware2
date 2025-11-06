@@ -3,19 +3,20 @@
     public class CompraDTO
     {
 
-        public CompraDTO(ApplicationUser Cliente, string direccionEnvio, float PrecioTotal, 
-            List<CompraItemDTO> CompraItemDTO, tiposMetodoPago MetodoPago)
+        public CompraDTO(ApplicationUser cliente, string direccionEnvio, float PrecioTotal,
+            DateTime fechaCompra, List<CompraItemDTO> CompraItemDTO, tiposMetodoPago MetodoPago)
         {
-            this.Cliente = Cliente;
+            this.cliente = cliente;
             this.direccionEnvio = direccionEnvio;
             this.PrecioTotal = PrecioTotal;
-            this.CompraItemsDTO = CompraItemDTO;
             this.MetodoPago = MetodoPago;
+            this.CompraItems = CompraItemDTO;
+            
         }
 
         //Vinculación con el usuario (cliente autenticado)
-        [Required]
-        public ApplicationUser Cliente { get; set; }
+        [JsonIgnore]
+        public ApplicationUser cliente { get; set; }
 
         [Required]
         [MaxLength(200)]
@@ -26,10 +27,12 @@
         public float PrecioTotal { get; set; }
 
         [Required]
+        public DateTime fechaCompra { get; set; }
+
+        [Required]
         public tiposMetodoPago MetodoPago { get; set; }
 
-        public List<CompraItemDTO> CompraItemsDTO { get; set; }
-
+        public List<CompraItemDTO> CompraItems { get; set; }
 
 
 

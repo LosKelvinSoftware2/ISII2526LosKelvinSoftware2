@@ -20,9 +20,13 @@
         [Range(0, float.MaxValue, ErrorMessage = "El precio total no puede ser negativo.")]
         public float PrecioTotal { get; set; }
 
+
+        public List<CompraItem> CompraItems { get; set; } = new();
+
+
         [Required]
         public tiposMetodoPago MetodoPago { get; set; }
 
-        public List<CompraItem> CompraItems { get; set; }
+        
     }
 }
