@@ -80,7 +80,7 @@ namespace AppForSEII2526.API.Controllers
             // Crear usuario temporal (o buscar existente)
             var usuario = new ApplicationUser
             {
-                Nombre = dto.Cliente.Nombre,
+                Nombre = dto.Cliente.Nombre,     
                 Apellido = dto.Cliente.Apellido,   
                 telefono = dto.Cliente.telefono,
                 correoelectronico = dto.Cliente.correoelectronico,
@@ -157,37 +157,4 @@ namespace AppForSEII2526.API.Controllers
         }
     }
 
-    // DTOs para la creación de la compra
-    public class CrearCompraDTO
-    {
-        [Required]
-        public string Nombre { get; set; } = string.Empty;
-
-        [Required]
-        public string Apellidos { get; set; } = string.Empty;
-
-        [Required]
-        public string DireccionEnvio { get; set; } = string.Empty;
-
-        [Required]
-        public tiposMetodoPago MetodoPago { get; set; }
-
-        public double? Telefono { get; set; }
-        public string? Correo { get; set; }
-
-        [Required]
-        public List<CompraItemCrearDTO> Items { get; set; } = new();
-    }
-
-    public class CompraItemCrearDTO
-    {
-        [Required]
-        public int HerramientaId { get; set; }
-
-        [Required]
-        public int Cantidad { get; set; }
-
-        [Required]
-        public string Descripcion { get; set; } = string.Empty;
-    }
 }
