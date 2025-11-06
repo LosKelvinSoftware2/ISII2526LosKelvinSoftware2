@@ -1,17 +1,17 @@
-﻿namespace AppForSEII2526.API.DTO.RepararDTOs
+﻿using AppForSEII2526.API.Models;
+
+namespace AppForSEII2526.API.DTO.RepararDTOs
 {
     public class HerramientaRepaDTO
     {
-        public HerramientaRepaDTO(int id, string nombre, string material, 
-            float precio, int tiemporep, Fabricante fabricante)
+        public HerramientaRepaDTO(int id, string nombre, string material, string fabricante,float precio, int tiemporep)
         {
             Id = id;
             Nombre = nombre;
             Material = material;
             Precio = precio;
-            TiempoReparacion = tiemporep;
-            this.fabricante = fabricante;
-            ReparacionItems = new List<ReparacionItem>();
+            Fabricante = fabricante;
+            TiempoReparacion = tiemporep;            
 
         }
 
@@ -27,6 +27,9 @@
         [MaxLength(50)]
         public string Material { get; set; }
 
+        [Required, MaxLength(100)]
+        public string Fabricante { get; set; }
+
         [Required]
         [Range(0, float.MaxValue)]
         public float Precio { get; set; }
@@ -35,9 +38,5 @@
         [Range(1, int.MaxValue)]
         public int TiempoReparacion { get; set; } // días hábiles
 
-        // Relación con Fabricante
-        public Fabricante fabricante { get; set; }
-        // Relación con ReparacionItem
-        public List<ReparacionItem> ReparacionItems { get; set; }
     }
 }

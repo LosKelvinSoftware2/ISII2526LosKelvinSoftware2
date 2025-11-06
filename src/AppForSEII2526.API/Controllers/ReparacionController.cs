@@ -21,10 +21,10 @@ namespace AppForSEII2526.API.Controllers
 
         // GET details apartado 7
         [HttpGet]
-        [Route("{id}")]
-        [ProducesResponseType(typeof(List<ReparacionDTO>), (int)HttpStatusCode.OK)]
+        [Route("[action]")]
+        [ProducesResponseType(typeof(List<ReparacionDetailsDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> GetReparacion()
+        public async Task<ActionResult> GetReparacionDetails()
         {
             if (_context.Reparacion == null)
             {
@@ -36,24 +36,24 @@ namespace AppForSEII2526.API.Controllers
                 .Include(r => r.Cliente)
                 .Include(r => r.ItemsReparacion)
                     .ThenInclude(ri => ri.Herramienta)
-                .Select(r => new ReparacionDTO(
+                .Select(r => new ReparacionDetailsDTO(
                     r.Id,
                     r.Cliente.Nombre,
                     r.Cliente.Apellido,
+                    r.Cliente.PhoneNumber,
                     r.FechaEntrega,
                     r.FechaRecogida,
                     r.PrecioTotal,
+                    r.MetodoPago,
                     r.ItemsReparacion
-                        .Select(ri => new ReparacionItemDTO(
-                            ri.Cantidad,
-                            ri.Descripcion,
+                        .Select(ri => new ReparacionItemDetailsDTO(
+                            ri.Herramienta.Nombre,
                             ri.Herramienta.Precio,
-                            ri.Herramienta.Id,
-                            ri.Herramienta,
-                            ri.reparacionId,
-                            ri.Reparacion
-                        )).ToList(),
-                    r.MetodoPago
+                            ri.Cantidad,
+                            ri.Descripcion
+                            
+                        )).ToList()
+                    
                 ))
                 .ToListAsync();
 
@@ -67,91 +67,149 @@ namespace AppForSEII2526.API.Controllers
         }
 
         // apartado 5 crear una nueva solicitud de reparación
-        [HttpPost("Registrar")]
+        [HttpPost]
+        [Route("[action]")]
         [ProducesResponseType(typeof(ReparacionDetailsDTO), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ReparacionDetailsDTO>> RegistrarReparacion([FromBody] ReparacionDetailsDTO nuevaReparacion)
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+        public async Task<ActionResult> CreateReparacion(ReparacionDTO reparacionForCreate)
         {
-            if (nuevaReparacion == null)
-                return BadRequest("Los datos de la reparación son requeridos.");
+            // Buscar usuario por UserName (que es el email según tu BD)
+            var user = _context.ApplicationUser.FirstOrDefault(au => au.UserName == reparacionForCreate.UserName);
+            if (user == null)
+                ModelState.AddModelError("Usuario", "Error! Usuario no autenticado o no encontrado");
 
-            if (string.IsNullOrWhiteSpace(nuevaReparacion.NombreCliente) ||
-                string.IsNullOrWhiteSpace(nuevaReparacion.ApellidosCliente))
-                return BadRequest("El nombre y los apellidos del cliente son obligatorios.");
+            // Validaciones de fechas
+            if (reparacionForCreate.FechaEntrega <= DateTime.Today)
+                ModelState.AddModelError("FechaEntrega", "Error! La fecha de entrega debe ser posterior a hoy");
 
-            if (nuevaReparacion.ItemsReparacion == null || !nuevaReparacion.ItemsReparacion.Any())
-                return BadRequest("Debe seleccionar al menos una herramienta para reparar.");
+            // Validación de items
+            if (reparacionForCreate.ItemsReparacion == null || reparacionForCreate.ItemsReparacion.Count == 0)
+                ModelState.AddModelError("ItemsReparacion", "Error! Debe incluir al menos una herramienta para reparar");
 
-            if (nuevaReparacion.FechaEntrega < DateTime.Today)
-                return BadRequest("La fecha de entrega no puede ser anterior al día actual.");
+            // Validación de cantidades (Flujo Alternativo 5)
+            if (reparacionForCreate.ItemsReparacion != null && reparacionForCreate.ItemsReparacion.Any(item => item.Cantidad <= 0))
+                ModelState.AddModelError("ItemsReparacion", "Error! La cantidad de todas las herramientas debe ser al menos 1");
 
-            if (!Enum.IsDefined(typeof(tiposMetodoPago), nuevaReparacion.MetodoPago))
-                return BadRequest("El método de pago es inválido.");
+            if (ModelState.ErrorCount > 0)
+                return BadRequest(new ValidationProblemDetails(ModelState));
 
-            // Buscar cliente por nombre y apellidos
-            var cliente = await _context.Users
-                .FirstOrDefaultAsync(u => u.Nombre == nuevaReparacion.NombreCliente && u.Apellido == nuevaReparacion.ApellidosCliente);
+            // Resto del código permanece igual...
+            var herramientaIds = reparacionForCreate.ItemsReparacion.Select(ri => ri.HerramientaId).ToList();
 
-            if (cliente == null)
-                return BadRequest("El cliente no existe. Debe estar registrado en el sistema.");
+            var herramientas = await _context.Herramienta
+                .Include(h => h.fabricante)
+                .Where(h => herramientaIds.Contains(h.Id))
+                .Select(h => new {
+                    h.Id,
+                    h.Nombre,
+                    h.Precio,
+                    h.TiempoReparacion,
+                    EstaEnReparacion = _context.ReparacionItem.Any(ri => ri.herramientaId == h.Id)
+                })
+                .ToListAsync();
 
-            // Calcular precio total basado en las herramientas
-            float precioTotal = 0;
-            var itemsEntidad = new List<ReparacionItem>();
-
-            foreach (var itemDto in nuevaReparacion.ItemsReparacion)
+            var reparacion = new Reparacion
             {
-                var herramienta = await _context.Herramienta.FindAsync(itemDto.herramientaId);
-                if (herramienta == null)
-                    return BadRequest($"La herramienta con ID {itemDto.herramientaId} no existe.");
-
-                var precioItem = herramienta.Precio * itemDto.Cantidad;
-                precioTotal += precioItem;
-
-                itemsEntidad.Add(new ReparacionItem
-                {
-                    Cantidad = itemDto.Cantidad,
-                    Descripcion = itemDto.Descripcion,
-                    Precio = herramienta.Precio,
-                    Herramienta = herramienta
-                });
-            }
-
-            // Crear la entidad de reparación
-            var reparacionEntity = new Reparacion
-            {
-                Cliente = cliente,
-                FechaEntrega = nuevaReparacion.FechaEntrega,
-                FechaRecogida = nuevaReparacion.FechaRecogida,
-                PrecioTotal = precioTotal,
-                MetodoPago = nuevaReparacion.MetodoPago,
-                ItemsReparacion = itemsEntidad
+                Cliente = user,
+                FechaEntrega = reparacionForCreate.FechaEntrega,
+                FechaRecogida = reparacionForCreate.FechaEntrega,
+                MetodoPago = reparacionForCreate.MetodoPago,
+                ItemsReparacion = new List<ReparacionItem>()
             };
 
-            _context.Reparacion.Add(reparacionEntity);
-            await _context.SaveChangesAsync();
+            float precioTotal = 0;
+            int maxTiempoReparacion = 0;
 
-            // Construir DTO de respuesta
-            var reparacionDTO = new ReparacionDetailsDTO(
-                reparacionEntity.Id,
-                cliente.Nombre,
-                cliente.Apellido,
-                reparacionEntity.FechaEntrega,
-                reparacionEntity.FechaRecogida,
-                reparacionEntity.PrecioTotal,
-                reparacionEntity.MetodoPago,
-                reparacionEntity.ItemsReparacion.Select(ri => new ReparacionItemDTO(
-                    ri.Cantidad,
-                    ri.Descripcion,
-                    ri.Precio,
-                    ri.Herramienta.Id,
-                    ri.Herramienta,
-                    ri.reparacionId,
-                    ri.Reparacion
-                )).ToList()
+            foreach (var item in reparacionForCreate.ItemsReparacion)
+            {
+                var herramienta = herramientas.FirstOrDefault(h => h.Id == item.HerramientaId);
+
+                if (herramienta == null)
+                {
+                    ModelState.AddModelError("ItemsReparacion", $"Error! La herramienta con ID {item.HerramientaId} no existe");
+                }
+                else if (herramienta.EstaEnReparacion)
+                {
+                    ModelState.AddModelError("ItemsReparacion", $"Error! La herramienta '{herramienta.Nombre}' no está disponible para reparación");
+                }
+                else
+                {
+                    float precioItem = herramienta.Precio * item.Cantidad;
+                    precioTotal += precioItem;
+
+                    if (herramienta.TiempoReparacion > maxTiempoReparacion)
+                        maxTiempoReparacion = herramienta.TiempoReparacion;
+
+                    var reparacionItem = new ReparacionItem
+                    {
+                        herramientaId = item.HerramientaId,
+                        Cantidad = item.Cantidad,
+                        Descripcion = item.Descripcion,
+                        Precio = precioItem,
+                        Herramienta = await _context.Herramienta.FindAsync(item.HerramientaId)
+                    };
+
+                    reparacion.ItemsReparacion.Add(reparacionItem);
+                }
+            }
+
+            reparacion.FechaRecogida = CalcularFechaRecogida(reparacion.FechaEntrega, maxTiempoReparacion);
+            reparacion.PrecioTotal = precioTotal;
+
+            if (ModelState.ErrorCount > 0)
+                return BadRequest(new ValidationProblemDetails(ModelState));
+
+            _context.Reparacion.Add(reparacion);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                ModelState.AddModelError("Reparacion", $"Error! Hubo un problema al guardar la reparación, por favor intente más tarde");
+                return Conflict("Error: " + ex.Message);
+            }
+
+            var itemsDetails = reparacion.ItemsReparacion.Select(ri => new ReparacionItemDetailsDTO(
+                ri.Herramienta.Nombre,
+                ri.Precio,
+                ri.Cantidad,
+                ri.Descripcion
+            )).ToList();
+
+            var reparacionDetail = new ReparacionDetailsDTO(
+                reparacion.Id,
+                user.Nombre,
+                user.Apellido,
+                user.PhoneNumber,
+                reparacion.FechaEntrega,
+                reparacion.FechaRecogida,
+                reparacion.PrecioTotal,
+                reparacion.MetodoPago,
+                itemsDetails
             );
 
-            return CreatedAtAction(nameof(GetReparacion), new { id = reparacionEntity.Id }, reparacionDTO);
+            return CreatedAtAction("GetReparacionDetails", new { id = reparacion.Id }, reparacionDetail);
+        }
+
+        private DateTime CalcularFechaRecogida(DateTime fechaEntrega, int diasHabiles)
+        {
+            DateTime fechaRecogida = fechaEntrega;
+            int diasAgregados = 0;
+
+            while (diasAgregados < diasHabiles)
+            {
+                fechaRecogida = fechaRecogida.AddDays(1);
+                if (fechaRecogida.DayOfWeek != DayOfWeek.Saturday && fechaRecogida.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    diasAgregados++;
+                }
+            }
+
+            return fechaRecogida;
         }
 
 
