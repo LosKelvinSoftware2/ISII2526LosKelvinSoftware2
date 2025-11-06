@@ -1,12 +1,13 @@
 ﻿using AppForSEII2526.API.DTO;
-using AppForSEII2526.API.DTO.OfertaDTOs;
+using AppForSEII2526.API.DTO.Alquilar_Herramienta;
 using AppForSEII2526.API.DTO.Comprar_Herramienta;
+using AppForSEII2526.API.DTO.OfertaDTOs;
+using AppForSEII2526.API.DTO.RepararDTOs;
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using AppForSEII2526.API.DTO.Alquilar_Herramienta;
-using AppForSEII2526.API.DTO.RepararDTOs;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -55,22 +56,33 @@ namespace AppForSEII2526.API.Controllers
         [HttpGet("DisponiblesReparacion")]
         [ProducesResponseType(typeof(List<HerramientaRepaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<HerramientaRepaDTO>>> GetHerramientasDisponiblesParaReparar()
+        public async Task<ActionResult<List<HerramientaRepaDTO>>> GetHerramientasDisponiblesParaReparar(string? NombreHerramienta , int? DiaReparacion)
         {
             if (_context.Herramienta == null)
             {
                 _logger.LogError("Error: Herramienta table does not exist");
                 return NotFound();
             }
+            
+
+            // Obtener las herramientas que NO están en reparaciones activas
+            var herramientasEnReparacion = await _context.ReparacionItem
+                .Select(ri => ri.herramientaId)
+                .Distinct()
+                .ToListAsync();
 
             var herramientas = await _context.Herramienta
+                .Where(h => (NombreHerramienta == null || h.Nombre.Contains(NombreHerramienta)) && (DiaReparacion == null || h.TiempoReparacion == DiaReparacion)
+                    && (herramientasEnReparacion.Contains(h.Id))
+                )
+                .Include(h => h.fabricante)
                 .Select(h => new HerramientaRepaDTO(
                     h.Id,
                     h.Nombre,
                     h.Material,
+                    h.fabricante.Nombre,
                     h.Precio,
-                    h.TiempoReparacion,
-                    h.fabricante
+                    h.TiempoReparacion
                 ))
                 .ToListAsync();
 
