@@ -129,7 +129,7 @@ namespace AppForSEII2526.API.Controllers
         {
             if (_context.Alquiler == null)
             {
-                _logger.LogError("Error: Alquiler table does not exist");
+                _logger.LogError("Error: La tabla Alquiler no existe");
                 return NotFound();
             }
 
@@ -146,7 +146,7 @@ namespace AppForSEII2526.API.Controllers
             var herramientasDisponibles = await _context.Herramienta
                 .Where(h => !herramientasOcupadas.Contains(h.Id) &&
                     (nombre == null || h.Nombre.Contains(nombre)) &&
-                    (material == null || h.Material == material))
+                    (material == null || h.Material.Contains(material)))
                 .Select(h => new AlquilerHerramientasDTO
                 (
                     h.Id,
