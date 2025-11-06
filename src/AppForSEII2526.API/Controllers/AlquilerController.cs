@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
-
 namespace AppForSEII2526.API.Controllers
 {
     [Route("api/[controller]")]
@@ -51,13 +50,11 @@ namespace AppForSEII2526.API.Controllers
                     a.fechaFin,
                     a.fechaInicio,
                     a.AlquilarItems.Select(ai => new AlquilarItemDTO(
+                        ai.herramienta,
                         ai.cantidad,
-                        ai.precio,
-                        ai.alquilerId,
-                        ai.alquiler,
-                        ai.herramientaId,
-                        ai.herramienta
-                    )).ToList()
+                        ai.precio
+                    )).ToList(),
+                    a.MetodoPago
                 ))
                 .FirstOrDefaultAsync();
 
@@ -80,17 +77,11 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
         public async Task<ActionResult> CreateAlquiler(AlquilerDTO alquilerForCreate)
         {
-
-
-
-            foreach (var item in alquilerForCreate.AlquilarItems)
-            {
-                //Comprobamos que el alquiler se está realizando en una fecha correcta
-                if (alquilerForCreate.fechaInicio <= DateTime.Today)
-                    ModelState.AddModelError("fechaInicio", "El alquiler debe empezar después de hoy");
-                if (alquilerForCreate.fechaFin <= alquilerForCreate.fechaInicio)
-                    ModelState.AddModelError("fechaFin y fechaInicio", "El alquiler debe terminar después de iniciar");
-            }
+            //Comprobamos que el alquiler se está realizando en una fecha correcta
+            if (alquilerForCreate.fechaInicio <= DateTime.Today)
+                ModelState.AddModelError("fechaInicio", "El alquiler debe empezar después de hoy");
+            if (alquilerForCreate.fechaFin <= alquilerForCreate.fechaInicio)
+                ModelState.AddModelError("fechaFin y fechaInicio", "El alquiler debe terminar después de iniciar");
             //Comprobamos que hay al menos una herramienta
             if (alquilerForCreate.AlquilarItems.Count == 0)
                 ModelState.AddModelError("AlquilarItems", "Debe haber al menos una herramienta a alquilar");
@@ -101,19 +92,22 @@ namespace AppForSEII2526.API.Controllers
                 ModelState.AddModelError("Cliente.Apellido", "El apellido es obligatorio");
             if (string.IsNullOrEmpty(alquilerForCreate.direccionEnvio))
                 ModelState.AddModelError("direccionEnvio", "La dirección de envío es obligatoria");
-            if (alquilerForCreate.MetodoPago == null)
+            if (!Enum.IsDefined(typeof(tiposMetodoPago), alquilerForCreate.MetodoPago))
                 ModelState.AddModelError("metodoPago", "El método de pago es obligatorio");
 
             // Validar cantidad de cada herramienta
             foreach (var item in alquilerForCreate.AlquilarItems)
             {
-                if (item.cantidad <= 0) // Asegurarse de que la cantidad es positiva
+                if (item.cantidad <= 0) // Asegurarse de que la cantidad es positiva y que ha sido seleccionada la cantidad
                     ModelState.AddModelError("cantidad", "Debe especificarse una cantidad válida para cada herramienta");
             }
 
+            if (ModelState.ErrorCount > 0)
+            {
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
 
-
-            var herramientasNombre = alquilerForCreate.AlquilarItems.Select(ri => ri.herramienta.Nombre).ToList<string>();
+            var herramientasNombre = alquilerForCreate.AlquilarItems.Select(ri => ri.nombreHerramienta).ToList<string>();
             var herramientasLista = await _context.Herramienta
                 .Where(h => herramientasNombre.Contains(h.Nombre))
                 .ToListAsync();
@@ -140,7 +134,7 @@ namespace AppForSEII2526.API.Controllers
 
             foreach (var item in alquilerForCreate.AlquilarItems)
             {
-                var herramienta = herramientasLista.FirstOrDefault(h => h.Nombre == item.herramienta.Nombre);
+                var herramienta = herramientasLista.FirstOrDefault(h => h.Nombre == item.nombreHerramienta);
                 if (herramienta == null) continue;
 
                 var precioUnitario = herramienta.Precio;
@@ -153,12 +147,6 @@ namespace AppForSEII2526.API.Controllers
                 });
                 alquiler.precioTotal += (float)(precioUnitario * item.cantidad * numDays);
 
-            }
-        
-
-            if (ModelState.ErrorCount > 0)
-            {
-                return BadRequest(new ValidationProblemDetails(ModelState));
             }
 
             _context.Alquiler.Add(alquiler);
@@ -184,13 +172,11 @@ namespace AppForSEII2526.API.Controllers
                 alquiler.fechaFin,
                 alquiler.fechaInicio,
                 alquiler.AlquilarItems.Select(ai => new AlquilarItemDTO(
+                    ai.herramienta,
                     ai.cantidad,
-                    ai.precio,
-                    ai.alquilerId,
-                    ai.alquiler,
-                    ai.herramientaId,
-                    ai.herramienta
-                )).ToList()
+                    ai.precio
+                )).ToList(),
+                alquiler.MetodoPago
             );
 
             return CreatedAtAction(nameof(GetAlquilerDetail), new { id = alquiler.Id }, alquilerDTO);
