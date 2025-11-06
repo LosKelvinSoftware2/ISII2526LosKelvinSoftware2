@@ -35,9 +35,5 @@
         [Range(1, int.MaxValue)]
         public int TiempoReparacion { get; set; } // días hábiles
 
-        // Relación con Fabricante
-        public Fabricante fabricante { get; set; }
-        // Relación con ReparacionItem
-        public List<ReparacionItem> ReparacionItems { get; set; }
     }
 }
