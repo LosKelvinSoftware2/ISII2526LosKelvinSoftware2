@@ -15,4 +15,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ReparacionItem> ReparacionItem { get; set; }
     public DbSet<Alquiler> Alquiler { get; set; }
     public DbSet<AlquilarItem> AlquilarItem { get; set; }
+    public DbSet<ApplicationUser> ApplicationUser { get; set; }
 }
