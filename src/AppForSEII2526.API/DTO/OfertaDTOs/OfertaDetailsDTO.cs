@@ -16,6 +16,14 @@
             this.ofertaItems = ofertaItems;
         }
 
+        public override bool Equals(object? obj)
+        {
+            return obj is OfertaDetailsDTO dTO &&
+                   porcentaje == dTO.porcentaje &&
+                   fechaOferta == dTO.fechaOferta &&
+                   Id == dTO.Id;
+        }
+
         public int Id { get; set; }
 
         public float porcentaje { get; set; }
@@ -30,5 +38,7 @@
         public tiposDiridaOferta? dirigidaA { get; set; }
 
         public IList<OfertaItemDTO> ofertaItems { get; set; }
+
+        
     }
 }
