@@ -15,7 +15,17 @@
             // Viene de OfertaItem.precioFinal (float se recomienda cambiar a decimal) 
         }
 
-        
+        public override bool Equals(object? obj)
+        {
+            return obj is OfertaItemDTO dTO &&
+                   precioFinal == dTO.precioFinal &&
+                   precioOriginal == dTO.precioOriginal &&
+                   nombre == dTO.nombre &&
+                   herramientaId == dTO.herramientaId &&
+                   ofertaId == dTO.ofertaId;
+        }
+
+
         [Required]
         [Range(0, float.MaxValue, ErrorMessage = "El precio total no puede ser negativo.")]
         public float precioFinal { get; set; }
@@ -36,5 +46,6 @@
         // FK hacia Reparacion
         public int ofertaId { get; set; }
 
+       
     }
 }

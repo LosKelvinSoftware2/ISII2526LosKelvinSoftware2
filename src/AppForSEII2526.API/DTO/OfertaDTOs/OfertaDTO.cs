@@ -1,4 +1,5 @@
-﻿namespace AppForSEII2526.API.DTO.OfertaDTOs
+﻿
+namespace AppForSEII2526.API.DTO.OfertaDTOs
 {
     public class OfertaDTO
     {
@@ -13,6 +14,18 @@
             this.ofertaItems = ofertaItems;
             this.metodoPago = metodoPago;
             this.dirigidaA = dirigidaA;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is OfertaDTO dTO &&
+                   fechaFinal == dTO.fechaFinal &&
+                   porcentaje == dTO.porcentaje &&
+                   fechaInicio == dTO.fechaInicio &&
+                   fechaOferta == dTO.fechaOferta &&
+                   EqualityComparer<IList<OfertaItemDTO>>.Default.Equals(ofertaItems, dTO.ofertaItems) &&
+                   metodoPago == dTO.metodoPago &&
+                   dirigidaA == dTO.dirigidaA;
         }
 
 
@@ -35,6 +48,8 @@
 
         // La interrogación significa que puede ser nulo
         public tiposDiridaOferta? dirigidaA { get; set; }
+
+       
     }
 }
 

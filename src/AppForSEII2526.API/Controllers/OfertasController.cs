@@ -77,6 +77,9 @@ namespace AppForSEII2526.API.Controllers
                 ModelState.AddModelError("RentalDateTo", "Error! La fecha final de oferta debe ser después de la fecha de inicio");
             if (ofertaForCreate.porcentaje <= 0 || ofertaForCreate.porcentaje > 100)
                 ModelState.AddModelError("porcentaje", "Error! El porcentaje de descuento debe estar entre 1 y 100");
+            if (ofertaForCreate.ofertaItems.Count == 0)
+                ModelState.AddModelError("RentalItems", "Error! Hay que incluir al menos una herramienta");
+
 
             // Retorno si hay errores iniciales
             if (!ModelState.IsValid)
@@ -94,13 +97,6 @@ namespace AppForSEII2526.API.Controllers
                 .Where(h => herramientaIds.Contains(h.Id))
                 .ToDictionaryAsync(h => h.Id);
 
-                 // Verificar si todas las IDs existen
-            if (herramientas.Count != herramientaIds.Count)
-            {
-                var missingIds = herramientaIds.Except(herramientas.Keys).ToList();
-                ModelState.AddModelError("herramientaId", $"Error! No se encontraron herramientas con los IDs: {string.Join(", ", missingIds)}");
-                return BadRequest(new ValidationProblemDetails(ModelState));
-            }
 
             // --- 3. Construcción de Entidades (Modelos de DB) ---
 
@@ -110,7 +106,7 @@ namespace AppForSEII2526.API.Controllers
                 porcentaje = ofertaForCreate.porcentaje,
                 fechaInicio = ofertaForCreate.fechaInicio,
                 fechaFinal = ofertaForCreate.fechaFinal,
-                fechaOferta = DateTime.Now, // La fecha de creación es ahora
+                fechaOferta = DateTime.Today, // La fecha de creación es ahora
                 metodoPago = ofertaForCreate.metodoPago,
                 dirigidaA = ofertaForCreate.dirigidaA,
                 // Las propiedades de precio/porcentaje pueden variar.
