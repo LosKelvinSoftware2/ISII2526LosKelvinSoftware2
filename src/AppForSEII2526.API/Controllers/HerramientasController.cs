@@ -108,11 +108,22 @@ namespace AppForSEII2526.API.Controllers
 
         public async Task<ActionResult> GetHerramientaForOferta(string? fabricante, float? precio)
         {
+
+            // /!\ Validar que el precio no sea negativo antes de consultar la base de datos
+            if (precio < 0)
+            {
+                ModelState.AddModelError("precio", "El precio no puede ser negativo");
+                _logger.LogError("Error: El precio no puede ser negativo");
+
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
             if (_context.Herramienta == null)
             {
                 _logger.LogError("Error: Herramienta table does not exist");
                 return NotFound();
             }
+
 
             // Dar valor por defecto al precio si no se ha pasado por parámetro
             precio = !precio.HasValue ? 0 : precio;
