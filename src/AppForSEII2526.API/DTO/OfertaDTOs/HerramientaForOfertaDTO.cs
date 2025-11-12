@@ -1,4 +1,5 @@
-﻿namespace AppForSEII2526.API.DTO.OfertaDTOs
+﻿
+namespace AppForSEII2526.API.DTO.OfertaDTOs
 {
     public class HerramientaForOfertaDTO
     {
@@ -30,7 +31,17 @@
 
         // Relación con Fabricante
         public Fabricante fabricante { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is HerramientaForOfertaDTO dTO &&
+                   Id == dTO.Id &&
+                   Nombre == dTO.Nombre &&
+                   Material == dTO.Material &&
+                   Precio == dTO.Precio &&
+                   fabricante.Id == dTO.fabricante.Id;
+        }
         // Relación con ReparacionItem
-        
+
     }
 }
