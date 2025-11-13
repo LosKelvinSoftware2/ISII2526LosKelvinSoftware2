@@ -10,7 +10,7 @@ public class RabbitMQLoggerConfiguration
     public string ExchangeType { get; set; } = null!;
     public bool Durable { get; set; }
 
-
+  
 
   
 }
