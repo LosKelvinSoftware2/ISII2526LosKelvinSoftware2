@@ -1,4 +1,5 @@
-﻿namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
+﻿
+namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
 {
     public class AlquilerHerramientasDTO
     {
@@ -24,5 +25,15 @@
         [Range(0, float.MaxValue)]
         public float Precio { get; set; }
         public Fabricante fabricante { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is AlquilerHerramientasDTO dTO &&
+                   Id == dTO.Id &&
+                   Nombre == dTO.Nombre &&
+                   Material == dTO.Material &&
+                   Precio == dTO.Precio;
+                   fabricante.Equals(dTO.fabricante);
+        }
     }
 }

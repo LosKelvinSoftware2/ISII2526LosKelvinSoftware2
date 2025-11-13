@@ -187,7 +187,10 @@ namespace AppForSEII2526.API.Controllers
 
             if (!herramientasDisponibles.Any())
             {
-                return NotFound(new { Mensaje = "No hay herramientas disponibles para alquilar en las fechas indicadas." });
+                ModelState.AddModelError("nombre&material", "No hay herramientas disponibles con los parámetros introducidos.");
+                _logger.LogError("Error: No hay herramientas disponibles con los parámetros introducidos.");
+
+                return NotFound(new ValidationProblemDetails(ModelState));
             }
 
             return Ok(herramientasDisponibles);
