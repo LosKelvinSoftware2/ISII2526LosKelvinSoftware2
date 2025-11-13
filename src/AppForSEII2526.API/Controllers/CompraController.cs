@@ -1,6 +1,4 @@
-﻿using AppForSEII2526.API.DTO.Alquilar_Herramienta;
-using AppForSEII2526.API.DTO.Comprar_Herramienta;
-using AppForSEII2526.API.DTO.RepararDTOs;
+﻿using AppForSEII2526.API.DTO.Comprar_Herramienta;
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +42,10 @@ namespace AppForSEII2526.API.Controllers
                 .Select(c => new CompraDetailsDTO(
                     c.Id,
                     c.fechaCompra,
-                    c.Cliente,
+                    c.Cliente.Nombre,
+                    c.Cliente.Apellido,
+                    c.Cliente.telefono,
+                    c.Cliente.correoelectronico,
                     c.direccionEnvio,
                     c.PrecioTotal,
                     c.CompraItems.Select(ci => new CompraItemDTO(
@@ -85,9 +86,9 @@ namespace AppForSEII2526.API.Controllers
             if (dto.CompraItems.Count == 0)
                 ModelState.AddModelError("CompraItems", "Debe haber al menos una herramienta para comprar");
             // Validar datos del cliente
-            if (string.IsNullOrEmpty(dto.cliente.Nombre))
+            if (string.IsNullOrEmpty(dto.nombreCliente))
                 ModelState.AddModelError("Cliente.Nombre", "El nombre es obligatorio");
-            if (string.IsNullOrEmpty(dto.cliente.Apellido))
+            if (string.IsNullOrEmpty(dto.apellidoCliente))
                 ModelState.AddModelError("Cliente.Apellido", "El apellido es obligatorio");
             if (string.IsNullOrEmpty(dto.direccionEnvio))
                 ModelState.AddModelError("direccionEnvio", "La dirección de envío es obligatoria");
@@ -115,10 +116,10 @@ namespace AppForSEII2526.API.Controllers
             {
                 Cliente = new ApplicationUser
                 {
-                    Nombre = dto.cliente.Nombre,
-                    Apellido = dto.cliente.Apellido,
-                    telefono = dto.cliente.telefono,
-                    correoelectronico = dto.cliente.correoelectronico,
+                    Nombre = dto.nombreCliente,
+                    Apellido = dto.apellidoCliente,
+                    telefono = dto.telefonoCliente,
+                    correoelectronico = dto.correoCliente,
                 },
                 direccionEnvio = dto.direccionEnvio,
                 fechaCompra = DateTime.UtcNow,
@@ -161,13 +162,16 @@ namespace AppForSEII2526.API.Controllers
             var compraDTO = new CompraDetailsDTO(
                 compra.Id,
                 compra.fechaCompra,
-                compra.Cliente,
+                compra.Cliente.Nombre,
+                compra.Cliente.Apellido,
+                compra.Cliente.telefono,
+                compra.Cliente.correoelectronico,
                 compra.direccionEnvio,
                 compra.PrecioTotal,
-                compra.CompraItems.Select(ai => new CompraItemDTO(
-                    ai.herramienta,
-                    ai.cantidad,
-                    ai.precio
+                compra.CompraItems.Select(ci => new CompraItemDTO(
+                    ci.herramienta,
+                    ci.cantidad,
+                    ci.precio
                 )).ToList(),
                 compra.MetodoPago
             );
