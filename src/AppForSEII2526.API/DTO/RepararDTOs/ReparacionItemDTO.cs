@@ -16,6 +16,14 @@
 
         [Required, Range(1, int.MaxValue, ErrorMessage = "La herramienta es obligatoria.")]
         public int HerramientaId { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ReparacionItemDTO dTO &&
+                   Cantidad == dTO.Cantidad &&
+                   Descripcion == dTO.Descripcion &&
+                   HerramientaId == dTO.HerramientaId;
+        }
     }
 
 }
