@@ -82,7 +82,9 @@ namespace AppForSEII2526.UT.HerramientasController_test
         public async Task GetAlquileresDisponibles_OK_test(string? nombre, string? material, IList<AlquilerHerramientasDTO> herramientasEsperadas)
         {
             // Arrange
-            var controller = new HerramientasController(_context, null);
+            var mock = new Mock<ILogger<HerramientasController>>();
+            ILogger<HerramientasController> logger = mock.Object;
+            var controller = new HerramientasController(_context, logger);
             // Act
             var result = await controller.GetAlquileresDisponibles(nombre, material);
             // Assert
