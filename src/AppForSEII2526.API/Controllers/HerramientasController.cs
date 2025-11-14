@@ -35,29 +35,44 @@ namespace AppForSEII2526.API.Controllers
         [Route("DisponiblesCompra")]
         [ProducesResponseType(typeof(List<CompraHerramientasDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult<List<CompraHerramientasDTO>>> GetHerramientasDisponibles(string? material , float? precio)
+        public async Task<ActionResult<List<CompraHerramientasDTO>>> GetHerramientasDisponibles(string? nombre, float? precio)
         {
-            if (_context.Herramienta == null)
+            // Obtenemos todas las herramientas de la base de datos incluyendo fabricante
+            var query = _context.Herramienta
+                                .Include(h => h.fabricante)
+                                .AsQueryable();
+
+            // Filtrado por nombre parcial si se proporciona
+            if (!string.IsNullOrEmpty(nombre))
             {
-                _logger.LogError("Error: Herramienta table does not exist");
-                return NotFound();
+                query = query.Where(h => h.Nombre.Contains(nombre));
             }
 
-            var herramientas = await _context.Herramienta
+            // Filtrado por precio exacto si se proporciona
+            if (precio.HasValue)
+            {
+                query = query.Where(h => h.Precio == precio.Value);
+            }
 
-                .Where(h => (h.Material == material || material == null) && 
-                            ((h.Precio <= precio) || precio == null) ) 
-                .Select(h => new CompraHerramientasDTO(
-                    h.Id,
-                    h.Nombre,
-                    h.Material,
-                    h.Precio,
-                    h.fabricante
-                ))
-                .ToListAsync();
+            var herramientas = await query.ToListAsync();
 
-            return Ok(herramientas);
+            if (!herramientas.Any())
+            {
+                return NotFound(new { Mensaje = "No hay herramientas disponibles con los parámetros introducidos." });
+            }
+
+            // Mapear a DTO para la respuesta
+            var herramientasDTO = herramientas.Select(h => new CompraHerramientasDTO(
+                h.Id,
+                h.Nombre,
+                h.Material,
+                h.Precio,
+                h.fabricante
+            )).ToList();
+
+            return Ok(herramientasDTO);
         }
+
 
         //Reparacion de herramientas Saelices PASO-2
         [HttpGet("DisponiblesReparacion")]

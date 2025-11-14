@@ -79,12 +79,15 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
         public async Task<ActionResult> CreateCompra(CompraDTO dto)
         {
-            //Comprobamos que el alquiler se está realizando en una fecha correcta
-            if (dto.fechaCompra <= DateTime.Today)
-                ModelState.AddModelError("FechaCompra", "La compra no puede realizarse un dia anterio a hoy");
-            //Comprobamos que hay al menos una herramienta
-            if (dto.CompraItems.Count == 0)
+            // Ajuste mínimo: permitir compras del mismo día
+            // No permitir fechas anteriores a hoy (aceptar hoy y futuras)
+            if (dto.fechaCompra < DateTime.Today)
+                ModelState.AddModelError("FechaCompra", "La compra no puede realizarse en una fecha anterior a hoy");
+
+            // Comprobamos que hay al menos una herramienta
+            if (dto.CompraItems == null || dto.CompraItems.Count == 0)
                 ModelState.AddModelError("CompraItems", "Debe haber al menos una herramienta para comprar");
+
             // Validar datos del cliente
             if (string.IsNullOrEmpty(dto.nombreCliente))
                 ModelState.AddModelError("Cliente.Nombre", "El nombre es obligatorio");
@@ -96,10 +99,13 @@ namespace AppForSEII2526.API.Controllers
                 ModelState.AddModelError("metodoPago", "El método de pago es obligatorio");
 
             // Validar cantidad de cada herramienta
-            foreach (var item in dto.CompraItems)
+            if (dto.CompraItems != null)
             {
-                if (item.cantidad <= 0)
-                    ModelState.AddModelError("Cantidad", "Debe especificarse una cantidad válida para cada herramienta");
+                foreach (var item in dto.CompraItems)
+                {
+                    if (item.cantidad <= 0)
+                        ModelState.AddModelError("Cantidad", "Debe especificarse una cantidad válida para cada herramienta");
+                }
             }
 
             if (ModelState.ErrorCount > 0)
@@ -107,12 +113,13 @@ namespace AppForSEII2526.API.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
 
-            var herramientasNombre = dto.CompraItems.Select(ci => ci.nombre).ToList<string>();
+            var herramientasNombre = dto.CompraItems.Select(ci => ci.nombre).ToList();
             var herramientasLista = await _context.Herramienta
                 .Where(h => herramientasNombre.Contains(h.Nombre))
                 .ToListAsync();
 
-            Compra compra = new Compra
+            // Crear Cliente solo si no existe (manteniendo tu lógica)
+            var compra = new Compra
             {
                 Cliente = new ApplicationUser
                 {
@@ -141,8 +148,7 @@ namespace AppForSEII2526.API.Controllers
                     herramientaId = herramienta.Id,
                     herramienta = herramienta
                 });
-                compra.PrecioTotal += (float)(herramienta.Precio * item.cantidad);
-
+                compra.PrecioTotal += herramienta.Precio * item.cantidad;
             }
 
             _context.Compra.Add(compra);
@@ -156,7 +162,6 @@ namespace AppForSEII2526.API.Controllers
                 _logger.LogError(ex.Message);
                 ModelState.AddModelError("Compra", $"Error! Ha ocurrido un error");
                 return Conflict("Error" + ex.Message);
-
             }
 
             var compraDTO = new CompraDetailsDTO(
@@ -178,6 +183,7 @@ namespace AppForSEII2526.API.Controllers
 
             return CreatedAtAction(nameof(GetCompraDetails), new { id = compra.Id }, compraDTO);
         }
+
 
     }
 
