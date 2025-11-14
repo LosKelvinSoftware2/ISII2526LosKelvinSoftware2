@@ -20,7 +20,20 @@ namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
         [Required]
         public string apellidoCliente { get; set; }
         [Required]
-        public DateTime fechaAlquiler { get; set; } 
+        public DateTime fechaAlquiler { get; set; }
 
+        public override bool Equals(object? obj)
+        {
+            return obj is AlquilerDetailDTO dTO &&
+                   direccionEnvio == dTO.direccionEnvio &&
+                   precioTotal == dTO.precioTotal &&
+                   fechaFin == dTO.fechaFin &&
+                   fechaInicio == dTO.fechaInicio &&
+                   MetodoPago == dTO.MetodoPago &&
+                   Id == dTO.Id &&
+                   nombreCliente == dTO.nombreCliente &&
+                   apellidoCliente == dTO.apellidoCliente &&
+                   fechaAlquiler == dTO.fechaAlquiler;
+        }
     }
 }

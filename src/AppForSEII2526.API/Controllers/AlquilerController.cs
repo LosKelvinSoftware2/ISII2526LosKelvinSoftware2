@@ -16,8 +16,8 @@ namespace AppForSEII2526.API.Controllers
         //contorlador para la base datos
         private readonly ApplicationDbContext _context;
         // un log de problemas
-        private readonly ILogger<HerramientasController> _logger;
-        public AlquilerController(ApplicationDbContext context, ILogger<HerramientasController> logger)
+        private readonly ILogger<AlquilerController> _logger;
+        public AlquilerController(ApplicationDbContext context, ILogger<AlquilerController> logger)
         {
             _context = context;
             _logger = logger;
@@ -112,7 +112,8 @@ namespace AppForSEII2526.API.Controllers
                 .Where(h => herramientasNombre.Contains(h.Nombre))
                 .ToListAsync();
 
-            Alquiler alquiler = new Alquiler {
+            Alquiler alquiler = new Alquiler
+            {
                 Cliente = new ApplicationUser
                 {
                     Nombre = alquilerForCreate.Cliente.Nombre,
