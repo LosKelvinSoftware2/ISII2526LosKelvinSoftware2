@@ -38,5 +38,15 @@ namespace AppForSEII2526.API.DTO.RepararDTOs
         [Range(1, int.MaxValue)]
         public int TiempoReparacion { get; set; } // días hábiles
 
+        public override bool Equals(object? obj)
+        {
+            return obj is HerramientaRepaDTO dTO &&
+                   Id == dTO.Id &&
+                   Nombre == dTO.Nombre &&
+                   Material == dTO.Material &&
+                   Fabricante == dTO.Fabricante &&
+                   Precio == dTO.Precio &&
+                   TiempoReparacion == dTO.TiempoReparacion;
+        }
     }
 }

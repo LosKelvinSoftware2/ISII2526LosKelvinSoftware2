@@ -17,6 +17,7 @@ namespace AppForSEII2526.API.DTO.RepararDTOs
             ItemsReparacion = itemsReparacion;
         }
 
+
         public int Id { get; set; }
         public string NombreCliente { get; set; }
         public string ApellidosCliente { get; set; }
@@ -27,6 +28,20 @@ namespace AppForSEII2526.API.DTO.RepararDTOs
         public tiposMetodoPago MetodoPago { get; set; }
 
         public List<ReparacionItemDetailsDTO> ItemsReparacion { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ReparacionDetailsDTO dTO &&
+                   Id == dTO.Id &&
+                   NombreCliente == dTO.NombreCliente &&
+                   ApellidosCliente == dTO.ApellidosCliente &&
+                   NumTelefono == dTO.NumTelefono &&
+                   FechaEntrega == dTO.FechaEntrega &&
+                   FechaRecogida == dTO.FechaRecogida &&
+                   PrecioTotal == dTO.PrecioTotal &&
+                   MetodoPago == dTO.MetodoPago &&
+                   EqualityComparer<List<ReparacionItemDetailsDTO>>.Default.Equals(ItemsReparacion, dTO.ItemsReparacion);
+        }
     }
 
     public class ReparacionItemDetailsDTO
@@ -43,5 +58,14 @@ namespace AppForSEII2526.API.DTO.RepararDTOs
         public float Precio { get; set; }
         public int Cantidad { get; set; }
         public string Descripcion { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ReparacionItemDetailsDTO dTO &&
+                   NombreHerramienta == dTO.NombreHerramienta &&
+                   Precio == dTO.Precio &&
+                   Cantidad == dTO.Cantidad &&
+                   Descripcion == dTO.Descripcion;
+        }
     }
 }

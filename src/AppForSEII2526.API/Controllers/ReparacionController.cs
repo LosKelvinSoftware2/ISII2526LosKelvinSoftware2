@@ -48,7 +48,7 @@ namespace AppForSEII2526.API.Controllers
                     r.ItemsReparacion
                         .Select(ri => new ReparacionItemDetailsDTO(
                             ri.Herramienta.Nombre,
-                            ri.Herramienta.Precio,
+                            ri.Precio,
                             ri.Cantidad,
                             ri.Descripcion
                             

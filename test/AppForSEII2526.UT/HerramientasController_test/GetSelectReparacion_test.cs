@@ -11,9 +11,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppForSEII2526.UT.HerramientasControllerTest
 {
-    public class GetSelectReparacion : AppForSEII25264SqliteUT
+    public class GetSelectReparacion_test : AppForSEII25264SqliteUT
     {
-        public GetSelectReparacion()
+        public GetSelectReparacion_test()
         {
             // --- CREAMOS LOS DATOS DE PRUEBA ---
             var fabricante = new List<Fabricante>()
@@ -123,8 +123,8 @@ namespace AppForSEII2526.UT.HerramientasControllerTest
         public async Task GetHerramientasDisponiblesParaReparar_OK_test(string? nombre, int? dias, IList<HerramientaRepaDTO> expected)
         {
             // Arrange
-            //var mockLogger = new Mock<ILogger<HerramientasController>>();
-            var controller = new HerramientasController(_context, null); //mockLogger.Object
+            var mockLogger = new Mock<ILogger<HerramientasController>>();
+            var controller = new HerramientasController(_context, mockLogger.Object); //mockLogger.Object
 
             // Act
             var result = await controller.GetHerramientasDisponiblesParaReparar(nombre, dias);
@@ -147,8 +147,8 @@ namespace AppForSEII2526.UT.HerramientasControllerTest
         public async Task GetHerramientasDisponiblesParaReparar_NotFound_Test()
         {
             // Arrange
-            //var mockLogger = new Mock<ILogger<HerramientasController>>();
-            var controller = new HerramientasController(_context, null);//mockLogger.Object
+            var mockLogger = new Mock<ILogger<HerramientasController>>();
+            var controller = new HerramientasController(_context, mockLogger.Object);//mockLogger.Object
 
             // Act -> filtro que no existe
             var result = await controller.GetHerramientasDisponiblesParaReparar("NoExiste", null);

@@ -22,5 +22,17 @@
 
         [Required]
         public List<ReparacionItemDTO> ItemsReparacion { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ReparacionDTO dTO &&
+                   UserName == dTO.UserName &&
+                   NombreCliente == dTO.NombreCliente &&
+                   ApellidosCliente == dTO.ApellidosCliente &&
+                   NumTelefono == dTO.NumTelefono &&
+                   FechaEntrega == dTO.FechaEntrega &&
+                   MetodoPago == dTO.MetodoPago &&
+                   EqualityComparer<List<ReparacionItemDTO>>.Default.Equals(ItemsReparacion, dTO.ItemsReparacion);
+        }
     }
 }
