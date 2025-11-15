@@ -1,4 +1,4 @@
-﻿
+﻿using System.Linq;
 namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
 {
     public class AlquilerDetailDTO : AlquilerDTO
@@ -33,7 +33,9 @@ namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
                    Id == dTO.Id &&
                    nombreCliente == dTO.nombreCliente &&
                    apellidoCliente == dTO.apellidoCliente &&
-                   fechaAlquiler == dTO.fechaAlquiler;
+                   fechaAlquiler == dTO.fechaAlquiler &&
+                   AlquilarItems.SequenceEqual(dTO.AlquilarItems)&&
+                   Cliente.Id == dTO.Cliente.Id;
         }
     }
 }
