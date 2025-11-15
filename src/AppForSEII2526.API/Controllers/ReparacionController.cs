@@ -17,6 +17,7 @@ namespace AppForSEII2526.API.Controllers
         {
             this._context = context;
             this._logger = logger;
+            _logger.LogInformation("ReparacionController initialized");
         }
 
         // GET details apartado 7
