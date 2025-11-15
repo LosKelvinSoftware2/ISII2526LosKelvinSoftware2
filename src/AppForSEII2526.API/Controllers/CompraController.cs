@@ -49,7 +49,9 @@ namespace AppForSEII2526.API.Controllers
                     c.direccionEnvio,
                     c.PrecioTotal,
                     c.CompraItems.Select(ci => new CompraItemDTO(
-                        ci.herramienta,
+                        ci.herramienta.Id,
+                        ci.herramienta.Nombre,
+                        ci.herramienta.Material,
                         ci.cantidad,
                         ci.precio
                     )).ToList(),
@@ -174,7 +176,9 @@ namespace AppForSEII2526.API.Controllers
                 compra.direccionEnvio,
                 compra.PrecioTotal,
                 compra.CompraItems.Select(ci => new CompraItemDTO(
-                    ci.herramienta,
+                    ci.herramienta.Id,
+                    ci.herramienta.Nombre,
+                    ci.herramienta.Material,
                     ci.cantidad,
                     ci.precio
                 )).ToList(),

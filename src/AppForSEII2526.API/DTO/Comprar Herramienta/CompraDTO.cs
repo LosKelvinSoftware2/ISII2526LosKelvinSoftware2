@@ -9,6 +9,7 @@
         {
             this.nombreCliente = nombreCliente;
             this.apellidoCliente = apellidoCliente;
+            this.fechaCompra = fechaCompra;
             this.telefonoCliente = telefonoCliente;
             this.correoCliente = correoCliente;
             this.direccionEnvio = direccionEnvio;
