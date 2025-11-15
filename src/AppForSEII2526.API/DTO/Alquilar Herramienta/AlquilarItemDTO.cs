@@ -22,5 +22,13 @@
         [Range(0, float.MaxValue)]
         public float precio { get; set; }
 
+        public override bool Equals(object? obj)
+        {
+            return obj is AlquilarItemDTO dTO &&
+                   nombreHerramienta == dTO.nombreHerramienta &&
+                   materialHerramienta == dTO.materialHerramienta &&
+                   cantidad == dTO.cantidad &&
+                   precio == dTO.precio;
+        }
     }
 }

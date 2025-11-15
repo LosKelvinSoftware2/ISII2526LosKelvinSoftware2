@@ -114,15 +114,9 @@ namespace AppForSEII2526.API.Controllers
 
             Alquiler alquiler = new Alquiler
             {
-                Cliente = new ApplicationUser
-                {
-                    Nombre = alquilerForCreate.Cliente.Nombre,
-                    Apellido = alquilerForCreate.Cliente.Apellido,
-                    telefono = alquilerForCreate.Cliente.telefono,
-                    correoelectronico = alquilerForCreate.Cliente.correoelectronico,
-                },
+                Cliente = alquilerForCreate.Cliente,
                 direccionEnvio = alquilerForCreate.direccionEnvio,
-                fechaAlquiler = DateTime.UtcNow,
+                fechaAlquiler = DateTime.Today,
                 fechaInicio = alquilerForCreate.fechaInicio,
                 fechaFin = alquilerForCreate.fechaFin,
                 MetodoPago = alquilerForCreate.MetodoPago,
@@ -146,7 +140,7 @@ namespace AppForSEII2526.API.Controllers
                     herramientaId = herramienta.Id,
                     herramienta = herramienta
                 });
-                alquiler.precioTotal += (float)(precioUnitario * item.cantidad * numDays);
+                alquiler.precioTotal += (float)(precioUnitario * item.cantidad);
 
             }
 
