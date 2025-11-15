@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace AppForSEII2526.UT.ReparacionController_test
 {
-    public class DetailsReparacion : AppForSEII25264SqliteUT
+    public class DetailsReparacion_test : AppForSEII25264SqliteUT
     {
          // Definir fechas fijas para evitar problemas de tiempo
         private readonly DateTime fechaBase = new DateTime(2025, 11, 21, 18, 59, 25);
 
-        public DetailsReparacion()
+        public DetailsReparacion_test()
         {
             // --- CREAMOS LOS DATOS DE PRUEBA ---
             var fabricante = new List<Fabricante>()
@@ -98,7 +98,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
         public async Task GetReparacionDetails_NotFound_test()
         {
             // Arrange            
-            var mockLogger = new Mock<ILogger<CompraController>>();
+            var mockLogger = new Mock<ILogger<ReparacionController>>();
             var controller = new ReparacionController(_context, mockLogger.Object);
 
             // Eliminar todas las reparaciones para este test
@@ -122,7 +122,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
         public async Task GetReparacionDetails_Found_test()
         {
             // Arrange
-            var mockLogger = new Mock<ILogger<CompraController>>();
+            var mockLogger = new Mock<ILogger<ReparacionController>>();
             var controller = new ReparacionController(_context, mockLogger.Object);
 
             // Act

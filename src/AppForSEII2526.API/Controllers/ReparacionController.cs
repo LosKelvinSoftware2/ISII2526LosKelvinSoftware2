@@ -11,9 +11,9 @@ namespace AppForSEII2526.API.Controllers
     public class ReparacionController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<CompraController> _logger;
+        private readonly ILogger<ReparacionController> _logger;
 
-        public ReparacionController(ApplicationDbContext context, ILogger<CompraController> logger)
+        public ReparacionController(ApplicationDbContext context, ILogger<ReparacionController> logger)
         {
             this._context = context;
             this._logger = logger;
@@ -127,11 +127,11 @@ namespace AppForSEII2526.API.Controllers
 
                 if (herramienta == null)
                 {
-                    ModelState.AddModelError("ItemsReparacion", $"Error! La herramienta con ID {item.HerramientaId} no existe");
+                    ModelState.AddModelError("ItemsReparacion", $"Error! La herramienta con ese ID no existe");
                 }
                 else if (herramienta.EstaEnReparacion)
                 {
-                    ModelState.AddModelError("ItemsReparacion", $"Error! La herramienta '{herramienta.Nombre}' no está disponible para reparación");
+                    ModelState.AddModelError("ItemsReparacion", $"Error! La herramienta con ese nombre no está disponible para reparación");
                 }
                 else
                 {
