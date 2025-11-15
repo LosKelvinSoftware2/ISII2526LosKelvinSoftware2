@@ -2,14 +2,19 @@
 {
     public class CompraItemDTO
     {
-        public CompraItemDTO(Herramienta herramienta, int cantidad, float precio)
+        public CompraItemDTO(int herramientaId, string nombre, string material, int cantidad, float precio)
         {
-            this.nombre = herramienta.Nombre;
-            this.material = herramienta.Material;
+            this.herramientaId = herramientaId;
+            this.nombre = nombre;
+            this.material = material;
             this.cantidad = cantidad;
             this.precio = precio;
 
         }
+
+        // FK hacia Herramienta
+        [Required]
+        public int herramientaId { get; set; }
         [Required]
         public string nombre { get; set; }
         [Required]

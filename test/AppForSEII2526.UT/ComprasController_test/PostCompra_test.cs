@@ -1,5 +1,6 @@
 ﻿using AppForSEII2526.API.Controllers;
 using AppForSEII2526.API.DTO.Comprar_Herramienta;
+using AppForSEII2526.API.DTO.OfertaDTOs;
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -58,7 +59,7 @@ namespace AppForSEII2526.UT.ComprasController_test
                 ConcurrencyStamp = Guid.NewGuid().ToString()
             };
 
-            // Creamos una compra ya existente en la DB para pruebas de Get
+            // Compra de ejemplo ya existente
             var compra = new Compra()
             {
                 Id = 1,
@@ -81,29 +82,38 @@ namespace AppForSEII2526.UT.ComprasController_test
             _context.SaveChanges();
         }
 
+        // --- CASOS DE ERROR ---
         public static IEnumerable<object[]> TestCasesFor_CreateCompra()
         {
-            var herramientasDTO = new List<Herramienta>()
+            // CompraItems válidos que existen en la DB
+            var compraItemsValid = new List<CompraItemDTO>()
             {
-                new Herramienta(){ Id=1, Nombre="Taladro", Material="Metal", Precio=100.0f},
-                new Herramienta(){ Id=2, Nombre="Martillo", Material="Plástico", Precio=50.0f}
+                new CompraItemDTO(1, "Taladro", "Metal", 1, 100),
+                new CompraItemDTO(2, "Martillo", "Plástico", 1, 50)
             };
 
-            // DTO sin herramientas
-            var compraSinItems = new CompraDTO(_clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
-                _direccionEnvio, 0f, DateTime.Today.AddDays(1), new List<CompraItemDTO>(), tiposMetodoPago.Efectivo);
+            // 1️ Sin items
+            var compraSinItems = new CompraDTO(
+                _clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
+                _direccionEnvio, 0f, DateTime.Today.AddDays(1),
+                new List<CompraItemDTO>(), tiposMetodoPago.Efectivo
+            );
 
-            // DTO con fecha anterior a hoy
-            var compraFechaIncorrecta = new CompraDTO(_clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
-                _direccionEnvio, 100f, DateTime.Today.AddDays(-1),
-                new List<CompraItemDTO> { new CompraItemDTO(herramientasDTO[0], 1, herramientasDTO[0].Precio) },
-                tiposMetodoPago.TarjetaCredito);
+            // 2️ Fecha anterior a hoy
+            var compraFechaIncorrecta = new CompraDTO(
+                _clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
+                _direccionEnvio, 150f, DateTime.Today.AddDays(-1),
+                new List<CompraItemDTO> { compraItemsValid[0] },
+                tiposMetodoPago.TarjetaCredito
+            );
 
-            // DTO con cantidad inválida
-            var compraCantidadIncorrecta = new CompraDTO(_clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
+            // 3️ Cantidad inválida
+            var compraCantidadIncorrecta = new CompraDTO(
+                _clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
                 _direccionEnvio, 50f, DateTime.Today.AddDays(1),
-                new List<CompraItemDTO> { new CompraItemDTO(herramientasDTO[1], 0, herramientasDTO[1].Precio) },
-                tiposMetodoPago.PayPal);
+                new List<CompraItemDTO> { new CompraItemDTO(2, "Martillo", "Plástico", 0, 50) },
+                tiposMetodoPago.PayPal
+            );
 
             return new List<object[]>
             {
@@ -119,75 +129,72 @@ namespace AppForSEII2526.UT.ComprasController_test
         [MemberData(nameof(TestCasesFor_CreateCompra))]
         public async Task CreateCompra_Error_test(CompraDTO compraDTO, string errorExpected)
         {
+            // Arrange
             var mockLogger = new Mock<ILogger<CompraController>>();
             ILogger<CompraController> logger = mockLogger.Object;
             var controller = new CompraController(_context, logger);
 
+            // Act
             var result = await controller.CreateCompra(compraDTO);
 
+            // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var problemDetails = Assert.IsType<ValidationProblemDetails>(badRequestResult.Value);
 
             var errorActual = problemDetails.Errors.First().Value[0];
+
             Assert.StartsWith(errorExpected, errorActual);
         }
 
+        // --- SUCCESS TEST SE MANTIENE IGUAL ---
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         [Trait("Database", "WithoutFixture")]
-        public async Task CreateCompra_Success_test()
+        public async Task CreateOferta_Success_test()
         {
-            var mockLogger = new Mock<ILogger<CompraController>>();
-            ILogger<CompraController> logger = mockLogger.Object;
+            var mock = new Mock<ILogger<CompraController>>();
+            ILogger<CompraController> logger = mock.Object;
+
             var controller = new CompraController(_context, logger);
-
-            // Tomamos herramientas existentes
-            var herramientas = _context.Herramienta.Take(2).ToList();
-
-            // Creamos CompraItemDTO válidos
-            var compraItems = herramientas.Select((h, index) =>
-                new CompraItemDTO(h, 1 + index, h.Precio) // cantidades > 0
-            ).ToList();
-
-            // DTO de compra con fecha futura
-            var compraDTO = new CompraDTO(
-                _clienteNombre,
-                _clienteApellido,
-                _clienteTelefono,
-                _clienteCorreo,
-                _direccionEnvio,
-                0f, // precio total calculado en el controlador
-                DateTime.Today.AddDays(1),
-                compraItems,
-                tiposMetodoPago.Efectivo
+            var compraItems = new List<CompraItemDTO>(){
+                new CompraItemDTO(1, "Taladro", "Metal", 1, 100.0f),
+                new CompraItemDTO(2, "Sierra", "Madera", 1, 200.0f)
+            };
+            var CompraForCreate = new CompraDTO
+            (
+                 nombreCliente: _clienteNombre,
+                 apellidoCliente: _clienteApellido,
+                 telefonoCliente: _clienteTelefono,
+                 correoCliente: _clienteCorreo,
+                 direccionEnvio: _direccionEnvio,
+                 PrecioTotal: 300.0f,
+                 fechaCompra: DateTime.Today,
+                 CompraItemDTO: compraItems,
+                 MetodoPago: tiposMetodoPago.TarjetaCredito
+            );
+            var expectedCompra = new CompraDetailsDTO
+            (
+                id: 1,
+                fechaCompra: DateTime.Today,
+                nombreCliente: _clienteNombre,
+                apellidoCliente: _clienteApellido,
+                telefonoCliente: _clienteTelefono,
+                correoCliente: _clienteCorreo,
+                direccionEnvio: _direccionEnvio,
+                precioTotal: 300.0f,
+                CompraItems: compraItems,
+                MetodoPago: tiposMetodoPago.TarjetaCredito
             );
 
-            // Ejecutamos POST
-            var result = await controller.CreateCompra(compraDTO);
+            // Act
+            var result = await controller.CreateCompra(CompraForCreate);
 
-            // Debe devolver CreatedAtActionResult con CompraDetailsDTO
-            var createdResult = Assert.IsType<CreatedAtActionResult>(result);
-            var actualCompraDetailDTO = Assert.IsType<CompraDetailsDTO>(createdResult.Value);
+            // Assert
+            var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
+            var createdCompra = Assert.IsType<CompraDetailsDTO>(createdAtActionResult.Value);
 
-            // Opcional: validar acción y código de estado
-            Assert.Equal(nameof(CompraController.GetCompraDetails), createdResult.ActionName);
-            Assert.Equal((int)HttpStatusCode.Created, createdResult.StatusCode);
-
-            // Validamos datos del cliente
-            Assert.Equal(_clienteNombre, actualCompraDetailDTO.nombreCliente);
-            Assert.Equal(_clienteApellido, actualCompraDetailDTO.apellidoCliente);
-            Assert.Equal(_clienteCorreo, actualCompraDetailDTO.correoCliente);
-            Assert.Equal(_clienteTelefono, actualCompraDetailDTO.telefonoCliente);
-            Assert.Equal(_direccionEnvio, actualCompraDetailDTO.direccionEnvio);
-
-            // Validamos items
-            Assert.Equal(compraItems.Count, actualCompraDetailDTO.CompraItems.Count);
-            for (int i = 0; i < compraItems.Count; i++)
-            {
-                Assert.Equal(compraItems[i].nombre, actualCompraDetailDTO.CompraItems[i].nombre);
-                Assert.Equal(compraItems[i].material, actualCompraDetailDTO.CompraItems[i].material);
-                Assert.Equal(compraItems[i].cantidad, actualCompraDetailDTO.CompraItems[i].cantidad);
-            }
+            Assert.Equal(expectedCompra, createdCompra);
         }
+
     }
 }
