@@ -116,14 +116,15 @@ namespace AppForSEII2526.UT.AlquilerController_test
             };
             var alquilarItems = new List<AlquilarItemDTO>()
             {
-                new AlquilarItemDTO(herramientas[0] , 1 , 100.0f),
-                new AlquilarItemDTO(herramientas[1] , 2 , 50.0f)
+                new AlquilarItemDTO(herramientas[0].Nombre, herramientas[0].Material , 1 , 100.0f),
+                new AlquilarItemDTO(herramientas[1].Nombre, herramientas[1].Material , 2 , 50.0f)
             };
 
             var expectedAlquilerDetailDTO = new AlquilerDetailDTO(
                  1,
                  new DateTime(2023, 1, 1),
-                 cliente,
+                 cliente.Nombre,
+                 cliente.Apellido,
                  "Calle Falsa 123",
                  150.0f,
                  new DateTime(2023, 1, 10),

@@ -44,13 +44,15 @@ namespace AppForSEII2526.API.Controllers
                 .Select(a => new AlquilerDetailDTO(
                     a.Id,
                     a.fechaAlquiler,
-                    a.Cliente,
+                    a.Cliente.Nombre,
+                    a.Cliente.Apellido,
                     a.direccionEnvio,
                     a.precioTotal,
                     a.fechaFin,
                     a.fechaInicio,
                     a.AlquilarItems.Select(ai => new AlquilarItemDTO(
-                        ai.herramienta,
+                        ai.herramienta.Nombre,
+                        ai.herramienta.Material,
                         ai.cantidad,
                         ai.precio
                     )).ToList(),
@@ -86,15 +88,16 @@ namespace AppForSEII2526.API.Controllers
             if (alquilerForCreate.AlquilarItems.Count == 0)
                 ModelState.AddModelError("AlquilarItems", "Debe haber al menos una herramienta a alquilar");
             // Validar datos del cliente
-            if (string.IsNullOrEmpty(alquilerForCreate.Cliente.Nombre))
+            if (string.IsNullOrEmpty(alquilerForCreate.nombreCliente))
                 ModelState.AddModelError("Cliente.Nombre", "El nombre es obligatorio");
-            if (string.IsNullOrEmpty(alquilerForCreate.Cliente.Apellido))
+            if (string.IsNullOrEmpty(alquilerForCreate.apellidoCliente))
                 ModelState.AddModelError("Cliente.Apellido", "El apellido es obligatorio");
             if (string.IsNullOrEmpty(alquilerForCreate.direccionEnvio))
                 ModelState.AddModelError("direccionEnvio", "La dirección de envío es obligatoria");
             if (!Enum.IsDefined(typeof(tiposMetodoPago), alquilerForCreate.MetodoPago))
                 ModelState.AddModelError("metodoPago", "El método de pago es obligatorio");
 
+            var cliente = _context.ApplicationUser.FirstOrDefault(u => u.Nombre == alquilerForCreate.nombreCliente && u.Apellido == alquilerForCreate.apellidoCliente);
             // Validar cantidad de cada herramienta
             foreach (var item in alquilerForCreate.AlquilarItems)
             {
@@ -114,7 +117,7 @@ namespace AppForSEII2526.API.Controllers
 
             Alquiler alquiler = new Alquiler
             {
-                Cliente = alquilerForCreate.Cliente,
+                Cliente = cliente,
                 direccionEnvio = alquilerForCreate.direccionEnvio,
                 fechaAlquiler = DateTime.Today,
                 fechaInicio = alquilerForCreate.fechaInicio,
@@ -161,13 +164,15 @@ namespace AppForSEII2526.API.Controllers
             var alquilerDTO = new AlquilerDetailDTO(
                 alquiler.Id,
                 alquiler.fechaAlquiler,
-                alquiler.Cliente,
+                alquilerForCreate.nombreCliente,
+                alquilerForCreate.apellidoCliente,
                 alquiler.direccionEnvio,
                 alquiler.precioTotal,
                 alquiler.fechaFin,
                 alquiler.fechaInicio,
                 alquiler.AlquilarItems.Select(ai => new AlquilarItemDTO(
-                    ai.herramienta,
+                    ai.herramienta.Nombre,
+                    ai.herramienta.Material,
                     ai.cantidad,
                     ai.precio
                 )).ToList(),

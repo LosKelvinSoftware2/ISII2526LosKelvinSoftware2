@@ -2,10 +2,10 @@
 {
     public class AlquilarItemDTO
     {
-        public AlquilarItemDTO(Herramienta herramienta , int cantidad , float precio)
+        public AlquilarItemDTO(string nombreHerramienta, string materialHerramienta, int cantidad, float precio)
         {
-            nombreHerramienta = herramienta.Nombre;
-            materialHerramienta = herramienta.Material;
+            this.nombreHerramienta = nombreHerramienta;
+            this.materialHerramienta = materialHerramienta;
             this.cantidad = cantidad;
             this.precio = precio;
 
@@ -32,3 +32,4 @@
         }
     }
 }
+
