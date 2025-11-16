@@ -21,13 +21,8 @@
         [Range(1, int.MaxValue)]
         public int TiempoReparacion { get; set; } // días hábiles
 
-        // Relación con Fabricante
-        [Required]
-        [ForeignKey(nameof(FabricanteId))]
-        public int FabricanteId { get; set; }
-
-        
-
+        // Relación con Fabricante       
+        public Fabricante fabricante { get; set; }
         // Relación con ReparacionItem
         public List<ReparacionItem> ReparacionItems { get; set; }
         // Relación con CompraItem

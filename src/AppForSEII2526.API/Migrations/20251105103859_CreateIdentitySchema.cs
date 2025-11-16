@@ -73,9 +73,10 @@ namespace AppForSEII2526.API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    fechaFinal = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    fechaInicio = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    fechaOferta = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    porcentaje = table.Column<float>(type: "real", nullable: false),
+                    fechaFinal = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    fechaInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    fechaOferta = table.Column<DateTime>(type: "datetime2", nullable: false),
                     metodoPago = table.Column<int>(type: "int", nullable: false),
                     dirigidaA = table.Column<int>(type: "int", nullable: true)
                 },
@@ -112,19 +113,20 @@ namespace AppForSEII2526.API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     direccionEnvio = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    fechaAlquiler = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    fechaFin = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    periodo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    fechaAlquiler = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    fechaFin = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    fechaInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    periodo = table.Column<int>(type: "int", nullable: false),
                     precioTotal = table.Column<float>(type: "real", nullable: false),
-                    MetodoPago = table.Column<int>(type: "int", nullable: false),
-                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    ClienteId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    MetodoPago = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Alquiler", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Alquiler_AspNetUsers_ApplicationUserId",
-                        column: x => x.ApplicationUserId,
+                        name: "FK_Alquiler_AspNetUsers_ClienteId",
+                        column: x => x.ClienteId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                 });
@@ -270,14 +272,14 @@ namespace AppForSEII2526.API.Migrations
                     Material = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Precio = table.Column<float>(type: "real", nullable: false),
                     TiempoReparacion = table.Column<int>(type: "int", nullable: false),
-                    FabricanteId = table.Column<int>(type: "int", nullable: false)
+                    fabricanteId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Herramienta", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Herramienta_Fabricante_FabricanteId",
-                        column: x => x.FabricanteId,
+                        name: "FK_Herramienta_Fabricante_fabricanteId",
+                        column: x => x.fabricanteId,
                         principalTable: "Fabricante",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -395,9 +397,9 @@ namespace AppForSEII2526.API.Migrations
                 column: "alquilerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Alquiler_ApplicationUserId",
+                name: "IX_Alquiler_ClienteId",
                 table: "Alquiler",
-                column: "ApplicationUserId");
+                column: "ClienteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -449,9 +451,9 @@ namespace AppForSEII2526.API.Migrations
                 column: "compraId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Herramienta_FabricanteId",
+                name: "IX_Herramienta_fabricanteId",
                 table: "Herramienta",
-                column: "FabricanteId");
+                column: "fabricanteId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OfertaItem_ofertaId",

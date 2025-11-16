@@ -24,6 +24,7 @@ public class ApplicationUser : IdentityUser {
     public List<Reparacion> Reparaciones { get; set; } = new();
 
     // Relación con Compras (uno a muchos)
+    [JsonIgnore]
     public List<Compra> Compras { get; set; } = new();
 
     // Relación con Compras (uno a muchos)
