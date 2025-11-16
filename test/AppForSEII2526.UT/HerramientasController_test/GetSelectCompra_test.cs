@@ -101,42 +101,55 @@ namespace AppForSEII2526.UT.HerramientasControllerTest
             var fabricante3 = new Fabricante { Id = 3, Nombre = "Fabricante3" };
 
             var herramientasDTO = new List<CompraHerramientasDTO>
-            {
-                new CompraHerramientasDTO(1, "Taladro", "Metal", 100.0f, fabricante1),
-                new CompraHerramientasDTO(2, "Martillo", "Plástico", 50.0f, fabricante2),
-                new CompraHerramientasDTO(3, "Sierra", "Madera", 75.0f, fabricante3),
-                new CompraHerramientasDTO(4, "Destornillador", "Metal", 30.0f, fabricante1)
-            };
+    {
+        new CompraHerramientasDTO(1, "Taladro", "Metal", 100.0f, fabricante1),
+        new CompraHerramientasDTO(2, "Martillo", "Plástico", 50.0f, fabricante2),
+        new CompraHerramientasDTO(3, "Sierra", "Madera", 75.0f, fabricante3),
+        new CompraHerramientasDTO(4, "Destornillador", "Metal", 30.0f, fabricante1)
+    };
 
             return new List<object[]>
-            {
-                new object[] { null, null, herramientasDTO.OrderBy(h => h.Id).ToList() },
-                new object[] { "Sierra", null, herramientasDTO.Where(h => h.Nombre.Contains("Sierra")).ToList() },
-                new object[] { null, 75.0f, herramientasDTO.Where(h => h.Precio == 75.0f).ToList() }
-            };
+    {
+        // Sin filtros => devuelve todas las herramientas
+        new object[] { null, null, herramientasDTO.OrderBy(h => h.Id).ToList() },
+
+        // Filtrar por Material "Madera" => devuelve solo Sierra
+        new object[] { "Madera", null, herramientasDTO.Where(h => h.Material == "Madera").ToList() },
+
+        // Filtrar por Precio <= 75 => Taladro (100>75 descartado), Martillo(50), Sierra(75), Destornillador(30)
+        new object[] { null, 75.0f, herramientasDTO.Where(h => h.Precio <= 75.0f).ToList() },
+
+    };
         }
 
         [Theory]
         [MemberData(nameof(TestCasesFor_GetHerramientasDisponiblesParaComprar_OK))]
         [Trait("LevelTesting", "Unit Testing")]
         [Trait("Database", "WithoutFixture")]
-        public async Task GetHerramientasDisponiblesParaComprar_OK_test(string? nombre, float? precio, IList<CompraHerramientasDTO> expected)
+        public async Task GetHerramientasDisponiblesParaComprar_OK_test(string? material, float? precio, IList<CompraHerramientasDTO> expected)
         {
             var mockLogger = new Mock<ILogger<HerramientasController>>();
             ILogger<HerramientasController> logger = mockLogger.Object;
 
             var controller = new HerramientasController(_context, logger);
 
-            var result = await controller.GetHerramientasDisponibles(nombre, precio);
+            var result = await controller.GetHerramientasDisponibles(material, precio);
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var actual = Assert.IsType<List<CompraHerramientasDTO>>(okResult.Value);
 
             Assert.Equal(expected.Count, actual.Count);
 
-            // Comparar por Id de fabricante en lugar de referencia
+            // Comparar por Id y Material en lugar de referencia
             foreach (var expectedItem in expected)
-                Assert.Contains(actual, a => a.Nombre == expectedItem.Nombre && a.fabricante.Id == expectedItem.fabricante.Id);
+                Assert.Contains(actual, a =>
+                    a.Id == expectedItem.Id &&
+                    a.Nombre == expectedItem.Nombre &&
+                    a.Material == expectedItem.Material &&
+                    Math.Abs(a.Precio - expectedItem.Precio) < 0.01f &&
+                    a.fabricante.Id == expectedItem.fabricante.Id
+                );
         }
+
 
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
