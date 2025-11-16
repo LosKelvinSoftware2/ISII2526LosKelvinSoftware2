@@ -148,7 +148,9 @@ namespace AppForSEII2526.API.Controllers
                     cantidad = item.cantidad,
                     precio = herramienta.Precio,
                     herramientaId = herramienta.Id,
-                    herramienta = herramienta
+                    descripcion = $"Compra de {herramienta.Nombre}"
+
+
                 });
                 compra.PrecioTotal += herramienta.Precio * item.cantidad;
             }

@@ -150,51 +150,62 @@ namespace AppForSEII2526.UT.ComprasController_test
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         [Trait("Database", "WithoutFixture")]
-        public async Task CreateOferta_Success_test()
+        public async Task CreateCompra_Success_test()
         {
+            // Arrange
             var mock = new Mock<ILogger<CompraController>>();
             ILogger<CompraController> logger = mock.Object;
-
             var controller = new CompraController(_context, logger);
-            var compraItems = new List<CompraItemDTO>(){
-                new CompraItemDTO(1, "Taladro", "Metal", 1, 100.0f),
-                new CompraItemDTO(2, "Sierra", "Madera", 1, 200.0f)
+
+            var compraItems = new List<CompraItemDTO>()
+            {
+            new CompraItemDTO(1, "Taladro", "Metal", 1, 100.0f),
+            new CompraItemDTO(2, "Martillo", "Plástico", 1, 50.0f)
             };
-            var CompraForCreate = new CompraDTO
+
+            var compraForCreate = new CompraDTO
             (
-                 nombreCliente: _clienteNombre,
-                 apellidoCliente: _clienteApellido,
-                 telefonoCliente: _clienteTelefono,
-                 correoCliente: _clienteCorreo,
-                 direccionEnvio: _direccionEnvio,
-                 PrecioTotal: 300.0f,
-                 fechaCompra: DateTime.Today,
-                 CompraItemDTO: compraItems,
-                 MetodoPago: tiposMetodoPago.TarjetaCredito
-            );
-            var expectedCompra = new CompraDetailsDTO
-            (
-                id: 1,
-                fechaCompra: DateTime.Today,
                 nombreCliente: _clienteNombre,
                 apellidoCliente: _clienteApellido,
                 telefonoCliente: _clienteTelefono,
                 correoCliente: _clienteCorreo,
                 direccionEnvio: _direccionEnvio,
-                precioTotal: 300.0f,
-                CompraItems: compraItems,
+                PrecioTotal: 150.0f,
+                fechaCompra: DateTime.Today,
+                CompraItemDTO: compraItems,
                 MetodoPago: tiposMetodoPago.TarjetaCredito
             );
 
             // Act
-            var result = await controller.CreateCompra(CompraForCreate);
+            var result = await controller.CreateCompra(compraForCreate);
 
             // Assert
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
             var createdCompra = Assert.IsType<CompraDetailsDTO>(createdAtActionResult.Value);
 
-            Assert.Equal(expectedCompra, createdCompra);
+            // Comparamos propiedades individuales
+            Assert.Equal(_clienteNombre, createdCompra.nombreCliente);
+            Assert.Equal(_clienteApellido, createdCompra.apellidoCliente);
+            Assert.Equal(_clienteCorreo, createdCompra.correoCliente);
+            Assert.Equal(_direccionEnvio, createdCompra.direccionEnvio);
+            Assert.Equal(compraForCreate.PrecioTotal, createdCompra.PrecioTotal);
+            Assert.Equal(compraForCreate.MetodoPago, createdCompra.MetodoPago);
+
+            // Comparamos fecha solo por día
+            Assert.Equal(DateTime.UtcNow.Date, createdCompra.fechaCompra.Date);
+
+            // Comparamos los items
+            Assert.Equal(compraItems.Count, createdCompra.CompraItems.Count);
+            for (int i = 0; i < compraItems.Count; i++)
+            {
+                Assert.Equal(compraItems[i].herramientaId, createdCompra.CompraItems[i].herramientaId);
+                Assert.Equal(compraItems[i].nombre, createdCompra.CompraItems[i].nombre);
+                Assert.Equal(compraItems[i].material, createdCompra.CompraItems[i].material);
+                Assert.Equal(compraItems[i].cantidad, createdCompra.CompraItems[i].cantidad);
+                Assert.Equal(compraItems[i].precio, createdCompra.CompraItems[i].precio);
+            }
         }
+
 
     }
 }

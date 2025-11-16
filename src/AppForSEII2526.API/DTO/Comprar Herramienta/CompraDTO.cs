@@ -3,6 +3,11 @@
     public class CompraDTO
     {
 
+        // Constructor vacío necesario para deserialización
+        public CompraDTO() { 
+        
+        }
+
         public CompraDTO(string nombreCliente, string apellidoCliente, double telefonoCliente, string correoCliente, 
             string direccionEnvio, float PrecioTotal,
             DateTime fechaCompra, List<CompraItemDTO> CompraItemDTO, tiposMetodoPago MetodoPago)
