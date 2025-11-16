@@ -2,10 +2,11 @@
 {
     public class AlquilerDTO
     {
-        public AlquilerDTO(ApplicationUser cliente, string direccionEnvio, float precioTotal,
+        public AlquilerDTO(string nombreCliente, string apellidoCliente, string direccionEnvio, float precioTotal,
             DateTime fechaFin, DateTime fechaInicio, List<AlquilarItemDTO> AlquilarItems, tiposMetodoPago MetodoPago)
         {
-            Cliente = cliente;
+            this.nombreCliente = nombreCliente;
+            this.apellidoCliente = apellidoCliente;
             this.direccionEnvio = direccionEnvio;
             this.precioTotal = precioTotal;
             this.fechaFin = fechaFin;
@@ -13,9 +14,8 @@
             this.AlquilarItems = AlquilarItems;
             this.MetodoPago = MetodoPago;
         }
-        // Cliente
-        [JsonIgnore] // No queremos que se muestre toda la info del cliente
-        public ApplicationUser Cliente { get; set; }
+        public String nombreCliente { get; set; }
+        public String apellidoCliente { get; set; }
         [Required]
         public String direccionEnvio { get; set; }
 

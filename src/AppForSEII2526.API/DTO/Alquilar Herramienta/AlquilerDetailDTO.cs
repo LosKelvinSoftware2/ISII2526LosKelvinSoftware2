@@ -3,13 +3,13 @@ namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
 {
     public class AlquilerDetailDTO : AlquilerDTO
     {
-        public AlquilerDetailDTO(int id, DateTime fechaAlquiler, ApplicationUser cliente, string direccionEnvio, float precioTotal,
+        public AlquilerDetailDTO(int id, DateTime fechaAlquiler, string nombreCliente, string apellidoCliente, string direccionEnvio, float precioTotal,
             DateTime fechaFin, DateTime fechaInicio, List<AlquilarItemDTO> AlquilarItems, tiposMetodoPago MetodoPago) :
-            base(cliente, direccionEnvio, precioTotal, fechaFin, fechaInicio, AlquilarItems, MetodoPago)
+            base(nombreCliente, apellidoCliente, direccionEnvio, precioTotal, fechaFin, fechaInicio, AlquilarItems, MetodoPago)
         {
             Id = id;
-            nombreCliente = cliente.Nombre;
-            apellidoCliente = cliente.Apellido;
+            this.nombreCliente = nombreCliente;
+            this.apellidoCliente = apellidoCliente;
             this.fechaAlquiler = fechaAlquiler;
         }
 
@@ -34,8 +34,10 @@ namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
                    nombreCliente == dTO.nombreCliente &&
                    apellidoCliente == dTO.apellidoCliente &&
                    fechaAlquiler == dTO.fechaAlquiler &&
-                   AlquilarItems.SequenceEqual(dTO.AlquilarItems)&&
-                   Cliente.Id == dTO.Cliente.Id;
+                   AlquilarItems.SequenceEqual(dTO.AlquilarItems) &&
+                   nombreCliente == dTO.nombreCliente &&
+                   apellidoCliente == dTO.apellidoCliente;
         }
     }
 }
+
