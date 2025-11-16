@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <Compile Remove="DTO\HerramientaDTOs\**" />
+    <Compile Remove="LogViewer\**" />
     <Content Remove="DTO\HerramientaDTOs\**" />
+    <Content Remove="LogViewer\**" />
     <EmbeddedResource Remove="DTO\HerramientaDTOs\**" />
+    <EmbeddedResource Remove="LogViewer\**" />
     <None Remove="DTO\HerramientaDTOs\**" />
+    <None Remove="LogViewer\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -20,6 +21,18 @@ class Subscriber{
     private readonly IModel _channel;
     //private readonly IBasicProperties _properties;
     
+
+    // Definir una clase para deserializar el log
+    public class LogEntry
+    {
+        public DateTime Timestamp { get; set; }
+        public string? LogLevel { get; set; }
+        public string? Category { get; set; }
+        public int EventId { get; set; }
+        public string? EventName { get; set; }
+        public string? Message { get; set; }
+        public string? Exception { get; set; }
+    }
     
     public Subscriber()
     {
@@ -47,7 +60,7 @@ class Subscriber{
     {
 
         //declarar el exchange de tipo fanout (igual que el usado en la API)
-        _channel.ExchangeDeclare(exchange: _exchangeName, type: _exchangeType);
+        _channel.ExchangeDeclare(_exchangeName, ExchangeType.Fanout, durable: true);
         
         //crear una cola temporal 
         var queueName = _channel.QueueDeclare().QueueName;
@@ -60,10 +73,37 @@ class Subscriber{
 
         //configurar el callback
         consumer.Received += (model, ea) =>  
-        {  
-        var body = ea.Body.ToArray(); //contenido del mensaje (array de bytes) 
-        var message = Encoding.UTF8.GetString(body); //se convierte de vuelta a string 
-        Console.WriteLine($"Nuevo mensaje: {message}");  
+        { 
+        var body = ea.Body.ToArray();
+        var jsonString = Encoding.UTF8.GetString(body);
+                
+        // Deserializar el JSON a un objeto LogEntry
+        var logEntry = JsonSerializer.Deserialize<LogEntry>(jsonString);
+                
+        if (logEntry != null)
+            {
+                // Mostrar la información de forma estructurada
+                Console.WriteLine("=== NUEVO LOG ===");
+                Console.WriteLine($"Timestamp: {logEntry.Timestamp:yyyy-MM-dd HH:mm:ss}");
+                Console.WriteLine($"Level: {logEntry.LogLevel}");
+                Console.WriteLine($"Category: {logEntry.Category}");
+                Console.WriteLine($"EventId: {logEntry.EventId}");
+                Console.WriteLine($"EventName: {logEntry.EventName}");
+                Console.WriteLine($"Message: {logEntry.Message}");
+                    
+                if (!string.IsNullOrEmpty(logEntry.Exception))
+                {
+                    Console.WriteLine($"Exception: {logEntry.Exception}");
+                }
+                    
+                Console.WriteLine("=================");
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.WriteLine("Error: No se pudo deserializar el mensaje");
+                Console.WriteLine($"Contenido crudo: {jsonString}");
+            } 
         };
 
         //iniciar el consumo (BasicConsume)
