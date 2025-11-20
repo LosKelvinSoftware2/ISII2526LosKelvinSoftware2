@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace AppForSEII2526.UT.ComprasController_test
 {
-    public class PostCompra_test : AppForSEII25264SqliteUT
+   /* public class PostCompra_test : AppForSEII25264SqliteUT
     {
         // Datos de prueba
         private const string _clienteNombre = "Maria";
@@ -217,5 +217,5 @@ namespace AppForSEII2526.UT.ComprasController_test
         }
 
 
-    }
+    }*/
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AppForSEII2526.API.Controllers
 {
-    [Route("api/[controller]")]
+   /* [Route("api/[controller]")]
     [ApiController]
     public class CompraController : ControllerBase
     {
@@ -207,7 +207,7 @@ namespace AppForSEII2526.API.Controllers
         }
 
 
-    }
+    }*/
 
 }
 
