@@ -94,6 +94,8 @@ namespace AppForSEII2526.API.Controllers
                 ModelState.AddModelError("Cliente.Apellido", "El apellido es obligatorio");
             if (string.IsNullOrEmpty(alquilerForCreate.direccionEnvio))
                 ModelState.AddModelError("direccionEnvio", "La dirección de envío es obligatoria");
+            if (!alquilerForCreate.direccionEnvio.Contains("Calle"))
+                ModelState.AddModelError("direccionEnvio", "¡Error! La dirección de envío debe empezar por la palabra Calle");
             if (!Enum.IsDefined(typeof(tiposMetodoPago), alquilerForCreate.MetodoPago))
                 ModelState.AddModelError("metodoPago", "El método de pago es obligatorio");
 
