@@ -53,14 +53,15 @@ namespace AppForSEII2526.UT.AlquilerController_test
                 Apellido = "Pérez",
                 correoelectronico = "juanperez@gmail.com"
             };
-            var alquilerAntesHoy = new AlquilerDTO(cliente.Nombre, cliente.Apellido , "Dirección falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(-1), alquilarItemsDTO, tiposMetodoPago.Efectivo);
-            var alquilerFechaFinMenorFechaInicio = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Dirección falsa 123", 150.0f, DateTime.Today.AddDays(3), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
-            var alquilerSinHerramientas = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Dirección falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), new List<AlquilarItemDTO>(), tiposMetodoPago.Efectivo);
-            var alquilerSinNombreCliente = new AlquilerDTO("", cliente.Apellido, "Dirección falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), alquilarItemsDTO, tiposMetodoPago.Efectivo);
-            var alquilerSinApellidoCliente = new AlquilerDTO(cliente.Nombre, "", "Dirección falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), alquilarItemsDTO, tiposMetodoPago.Efectivo);
+            var alquilerAntesHoy = new AlquilerDTO(cliente.Nombre, cliente.Apellido , "Calle falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(-1), alquilarItemsDTO, tiposMetodoPago.Efectivo);
+            var alquilerFechaFinMenorFechaInicio = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Calle falsa 123", 150.0f, DateTime.Today.AddDays(3), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
+            var alquilerSinHerramientas = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Calle falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), new List<AlquilarItemDTO>(), tiposMetodoPago.Efectivo);
+            var alquilerSinNombreCliente = new AlquilerDTO("", cliente.Apellido, "Calle falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), alquilarItemsDTO, tiposMetodoPago.Efectivo);
+            var alquilerSinApellidoCliente = new AlquilerDTO(cliente.Nombre, "", "Calle falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), alquilarItemsDTO, tiposMetodoPago.Efectivo);
             var alquilerSinDireccionEnvio = new AlquilerDTO(cliente.Nombre, cliente.Apellido,"", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), alquilarItemsDTO, tiposMetodoPago.Efectivo);
-            var alquilerSinMetodoPagoValido = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Dirección falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), alquilarItemsDTO, (tiposMetodoPago)999);
-            var alquilerCantidadNegativa = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Dirección falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), new List<AlquilarItemDTO>() {
+            var alquilerConDireccionEnvioErronea = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Dirección falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), alquilarItemsDTO, tiposMetodoPago.Efectivo);
+            var alquilerSinMetodoPagoValido = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Calle falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), alquilarItemsDTO, (tiposMetodoPago)999);
+            var alquilerCantidadNegativa = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Calle falsa 123", 150.0f, DateTime.Today.AddDays(5), DateTime.Today.AddDays(3), new List<AlquilarItemDTO>() {
                 new AlquilarItemDTO(herramientas[0].Nombre, herramientas[0].Material, -1, 100.0f)
             }, tiposMetodoPago.Efectivo);
             var allReturns = new List<object[]>
@@ -71,6 +72,7 @@ namespace AppForSEII2526.UT.AlquilerController_test
                 new object[] { alquilerSinNombreCliente, "El nombre es obligatorio" },
                 new object[] { alquilerSinApellidoCliente, "El apellido es obligatorio" },
                 new object[] { alquilerSinDireccionEnvio, "La dirección de envío es obligatoria" },
+                new object[] { alquilerConDireccionEnvioErronea, "¡Error! La dirección de envío debe empezar por la palabra Calle"},
                 new object[] { alquilerSinMetodoPagoValido, "El método de pago es obligatorio" },
                 new object[] { alquilerCantidadNegativa, "Debe especificarse una cantidad válida para cada herramienta" },
             };
@@ -129,8 +131,8 @@ namespace AppForSEII2526.UT.AlquilerController_test
                 correoelectronico = "juanperez@gmail.com"
 
             };
-            var expectedAlquilerDetailDTO = new AlquilerDetailDTO(1 , DateTime.Today, cliente.Nombre, cliente.Apellido, "Dirección falsa 123", 200.0f, DateTime.Today.AddDays(10), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
-            var alquilerToCreate = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Dirección falsa 123", 200.0f, DateTime.Today.AddDays(10), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
+            var expectedAlquilerDetailDTO = new AlquilerDetailDTO(1 , DateTime.Today, cliente.Nombre, cliente.Apellido, "Calle falsa 123", 200.0f, DateTime.Today.AddDays(10), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
+            var alquilerToCreate = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Calle falsa 123", 200.0f, DateTime.Today.AddDays(10), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
             // Act
             var result = await controller.CreateAlquiler(alquilerToCreate);
             //Assert
