@@ -104,6 +104,17 @@ namespace AppForSEII2526.UT.OfertasController_test
                 ofertaItems
             );
 
+            // El nuevo caso para el examen
+            var ofertaLessThanWeek = new OfertaDTO
+            (
+                10,
+                DateTime.Today.AddDays(5),
+                DateTime.Today,
+                tiposMetodoPago.Efectivo,
+                tiposDiridaOferta.Clientes,
+                ofertaItems
+            );
+
             var ofertaWithInvalidPercentage = new OfertaDTO
             (
                 0,
@@ -128,6 +139,8 @@ namespace AppForSEII2526.UT.OfertasController_test
             {
                 new object[] { ofertaFromBeforeToday, "Error! La fecha de inicio de oferta debe ser al menos mañana" },
                 new object[] { ofertaoBeforeFrom, "Error! La fecha final de oferta debe ser después de la fecha de inicio" },
+                // Las nuevas entradas (el object añadido)
+                new object[] {ofertaLessThanWeek, "Error!, la oferta debe durar al menos una semana" },
                 new object[] { ofertaWithInvalidPercentage, "Error! El porcentaje de descuento debe estar entre 1 y 100" },
                 new object[] { ofertaNoItems, "Error! Hay que incluir al menos una herramienta" }
             };
