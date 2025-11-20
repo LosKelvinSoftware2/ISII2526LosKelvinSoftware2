@@ -15,7 +15,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
         private const string _userName = "marialopez@alu";
         private const string _customerName = "Maria";
         private const string _customerSurname = "Lopez";
-        private const string _phoneNumber = "60033344";
+        private const string _phoneNumber = "+3460033344";
 
         public PostReparacion_test()
         {
@@ -159,6 +159,22 @@ namespace AppForSEII2526.UT.ReparacionController_test
                 }
             };
 
+            //Caso examen
+            // Errornumero detelefono
+            var reparacionNumTelefono = new ReparacionDTO
+            {
+                UserName = _userName,
+                NombreCliente = _customerName,
+                ApellidosCliente = _customerSurname,
+                NumTelefono = "60033344",
+                FechaEntrega = DateTime.Today.AddDays(1),
+                MetodoPago = tiposMetodoPago.TarjetaCredito,
+                ItemsReparacion = new List<ReparacionItemDTO>
+                {
+                    new ReparacionItemDTO(2, 1, "Reparación de martillo")
+                }
+            };
+
             // Caso 3: Cantidad menor o igual a 0
             var reparacionCantidadInvalida = new ReparacionDTO
             {
@@ -223,6 +239,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
             {
                 new object[] { reparacionSinItems, "Error! Debe incluir al menos una herramienta para reparar" },
                 new object[] { reparacionFechaAnterior, "Error! La fecha de entrega debe ser posterior a hoy" },
+                new object[] { reparacionNumTelefono, "Error!, el telefono debe empezar por +34" },
                 new object[] { reparacionCantidadInvalida, "Error! La cantidad de todas las herramientas debe ser al menos 1" },
                 new object[] { reparacionUsuarioNoEncontrado, "Error! Usuario no autenticado o no encontrado" },
                 new object[] { reparacionHerramientaNoExiste, "Error! La herramienta con ese ID no existe" },

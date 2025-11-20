@@ -83,6 +83,11 @@ namespace AppForSEII2526.API.Controllers
             if (reparacionForCreate.FechaEntrega <= DateTime.Today)
                 ModelState.AddModelError("FechaEntrega", "Error! La fecha de entrega debe ser posterior a hoy");
 
+            //Modificacion Examen NumTelefono
+            //string numTe = "+34"+reparacionForCreate.NumTelefono;
+            if (!reparacionForCreate.NumTelefono.StartsWith("+34"))
+                ModelState.AddModelError("NumTelefono", "Error!, el telefono debe empezar por +34");
+
             // Validación de items
             if (reparacionForCreate.ItemsReparacion == null || reparacionForCreate.ItemsReparacion.Count == 0)
                 ModelState.AddModelError("ItemsReparacion", "Error! Debe incluir al menos una herramienta para reparar");
