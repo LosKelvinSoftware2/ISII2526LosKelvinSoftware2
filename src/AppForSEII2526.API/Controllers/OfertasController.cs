@@ -75,6 +75,8 @@ namespace AppForSEII2526.API.Controllers
                 ModelState.AddModelError("RentalDateFrom", "Error! La fecha de inicio de oferta debe ser al menos mañana");
             if (ofertaForCreate.fechaInicio >= ofertaForCreate.fechaFinal)
                 ModelState.AddModelError("RentalDateTo", "Error! La fecha final de oferta debe ser después de la fecha de inicio");
+            if (ofertaForCreate.fechaFinal <= ofertaForCreate.fechaInicio.AddDays(7))
+                ModelState.AddModelError("RentalDateTo", "Error!, la oferta debe durar al menos una semana");
             if (ofertaForCreate.porcentaje <= 0 || ofertaForCreate.porcentaje > 100)
                 ModelState.AddModelError("porcentaje", "Error! El porcentaje de descuento debe estar entre 1 y 100");
             if (ofertaForCreate.ofertaItems.Count == 0)
