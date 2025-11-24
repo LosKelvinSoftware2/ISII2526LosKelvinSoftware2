@@ -19,6 +19,7 @@
         public string nombre { get; set; }
         [Required]
         public string material { get; set; }
+        public string? descripcion { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "La cantidad no puede ser menor de 1.")]
