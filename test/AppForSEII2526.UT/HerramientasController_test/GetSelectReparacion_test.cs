@@ -29,6 +29,8 @@ namespace AppForSEII2526.UT.HerramientasControllerTest
                 new Herramienta(){ Id=2, Nombre="Martillo", Material="Plástico", Precio=50.0f, TiempoReparacion=3, fabricante=fabricante[1]},
                 new Herramienta(){ Id=3, Nombre="Sierra", Material="Madera", Precio=75.0f, TiempoReparacion=4, fabricante=fabricante[2]},
                 new Herramienta(){ Id=4, Nombre="Destornillador", Material="Metal", Precio=30.0f, TiempoReparacion=2, fabricante=fabricante[0]},
+                // una herramienta que NO esté en reparación
+                new Herramienta(){ Id=5, Nombre="Llave Inglesa", Material="Metal", Precio=40.0f, TiempoReparacion=3, fabricante=fabricante[1]},
             };
 
             ApplicationUser user = new ApplicationUser()
@@ -93,25 +95,22 @@ namespace AppForSEII2526.UT.HerramientasControllerTest
             // recordemos que el método actual devuelve las herramientas EN REPARACIÓN
             var herramientasDTO = new List<HerramientaRepaDTO>()
             {
-                new HerramientaRepaDTO(1, "Taladro", "Metal", "Fabricante1", 100.0f, 5),
-                new HerramientaRepaDTO(2, "Martillo", "Plástico", "Fabricante2", 50.0f, 3),
-                new HerramientaRepaDTO(3, "Sierra", "Madera", "Fabricante3", 75.0f, 4),
-                new HerramientaRepaDTO(4, "Destornillador", "Metal", "Fabricante1", 30.0f, 2),
+                new HerramientaRepaDTO(5, "Llave Inglesa", "Metal", "Fabricante2", 40.0f, 3),
             };
 
-            // Como todas las herramientas aparecen en algún ReparacionItem, todas deberían ser retornadas
+            // Sin filtros - solo debería devolver la herramienta disponible
             var tc1 = herramientasDTO.OrderBy(h => h.Id).ToList();
 
-            // Filtrado por nombre parcial
-            var tc2 = herramientasDTO.Where(h => h.Nombre.Contains("Sierra")).ToList();
+            // Filtrado por nombre que NO existe en herramientas disponibles - lista vacía
+            var tc2 = new List<HerramientaRepaDTO>();
 
-            // Filtrado por tiempo de reparación
+            // Filtrado por tiempo de reparación que coincide con la herramienta disponible
             var tc3 = herramientasDTO.Where(h => h.TiempoReparacion == 3).ToList();
 
             return new List<object[]>
             {
                 new object[] { null, null, tc1 },
-                new object[] { "Sierra", null, tc2 },
+                new object[] { "NoExiste", null, tc2 },
                 new object[] { null, 3, tc3 }
             };
         }
@@ -130,14 +129,25 @@ namespace AppForSEII2526.UT.HerramientasControllerTest
             var result = await controller.GetHerramientasDisponiblesParaReparar(nombre, dias);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var actual = Assert.IsType<List<HerramientaRepaDTO>>(okResult.Value);
-            Assert.Equal(expected.Count, actual.Count);
-
-            // Comparamos por nombre y fabricante
-            foreach (var expectedItem in expected)
+            if (expected.Count == 0)
             {
-                Assert.Contains(actual, a => a.Nombre == expectedItem.Nombre && a.Fabricante == expectedItem.Fabricante);
+                var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+                var value = notFoundResult.Value;
+                var mensajeProp = value.GetType().GetProperty("Mensaje");
+                Assert.NotNull(mensajeProp);
+                var mensaje = mensajeProp.GetValue(value)?.ToString();
+                Assert.Equal("No hay herramientas disponibles para reparación.", mensaje);
+            }
+            else
+            {
+                var okResult = Assert.IsType<OkObjectResult>(result.Result);
+                var actual = Assert.IsType<List<HerramientaRepaDTO>>(okResult.Value);
+                Assert.Equal(expected.Count, actual.Count);
+
+                foreach (var expectedItem in expected)
+                {
+                    Assert.Contains(actual, a => a.Nombre == expectedItem.Nombre && a.Fabricante == expectedItem.Fabricante);
+                }
             }
         }
 

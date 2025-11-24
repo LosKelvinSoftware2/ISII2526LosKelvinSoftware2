@@ -24,7 +24,7 @@ namespace AppForSEII2526.API.Controllers
         [Route("[action]")]
         [ProducesResponseType(typeof(List<ReparacionDetailsDTO>), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<ActionResult> GetReparacionDetails()
+        public async Task<ActionResult> GetReparacionDetails(int id)
         {
             if (_context.Reparacion == null)
             {
@@ -33,6 +33,7 @@ namespace AppForSEII2526.API.Controllers
             }
 
             var reparaciones = await _context.Reparacion
+                .Where(r => r.Id == id)
                 .Include(r => r.Cliente)
                 .Include(r => r.ItemsReparacion)
                     .ThenInclude(ri => ri.Herramienta)
