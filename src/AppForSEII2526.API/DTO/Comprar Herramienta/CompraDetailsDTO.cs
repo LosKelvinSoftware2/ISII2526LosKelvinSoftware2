@@ -1,16 +1,12 @@
-﻿using AppForSEII2526.API.DTO.Alquilar_Herramienta;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
-
-namespace AppForSEII2526.API.DTO.Comprar_Herramienta
+﻿namespace AppForSEII2526.API.DTO.Comprar_Herramienta
 {
     public class CompraDetailsDTO : CompraDTO
     {
-        public CompraDetailsDTO(int id, DateTime fechaCompra, string nombreCliente, string apellidoCliente, 
-            double telefonoCliente, string correoCliente, string direccionEnvio, float precioTotal, string descripcion,
+        public CompraDetailsDTO(int id, DateTime fechaCompra, string nombreCliente, string apellidoCliente,
+            double telefonoCliente, string correoCliente, string direccionEnvio, float precioTotal,
             List<CompraItemDTO> CompraItems, tiposMetodoPago MetodoPago) :
-            base(nombreCliente, apellidoCliente, telefonoCliente, correoCliente, direccionEnvio, 
-                precioTotal, descripcion, fechaCompra, CompraItems, MetodoPago)
+            base(nombreCliente, apellidoCliente, telefonoCliente, correoCliente, direccionEnvio,
+                precioTotal, fechaCompra, CompraItems, MetodoPago)
         {
             Id = id;
         }

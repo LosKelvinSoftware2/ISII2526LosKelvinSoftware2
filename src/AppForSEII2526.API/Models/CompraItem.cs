@@ -7,6 +7,7 @@
         [Required]
         public int cantidad { get; set; }
 
+        [Required]
         [MaxLength(300)]
         public string descripcion { get; set; }
 
@@ -24,5 +25,5 @@
 
 
 
-        }
-}       
+    }
+}

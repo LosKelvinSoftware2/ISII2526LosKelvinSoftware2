@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AppForSEII2526.API.Controllers
 {
-   /* [Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class CompraController : ControllerBase
     {
@@ -48,7 +48,6 @@ namespace AppForSEII2526.API.Controllers
                     c.Cliente.correoelectronico,
                     c.direccionEnvio,
                     c.PrecioTotal,
-                    c.descripcion,
                     c.CompraItems.Select(ci => new CompraItemDTO(
                         ci.herramienta.Id,
                         ci.herramienta.Nombre,
@@ -111,19 +110,6 @@ namespace AppForSEII2526.API.Controllers
                 }
             }
 
-            // Modificacion para examen: Validar descripción con cantidad igual a 3
-
-            if (dto.CompraItems != null)
-            {
-                foreach (var item in dto.CompraItems)
-                {
-                    if (item.cantidad == 3 && string.IsNullOrEmpty(dto.descripcion))
-                    {
-                        ModelState.AddModelError("Descripcion", "¡Error! Estas comprando demasiadas herramientas sin descripcion.");
-                    }
-                }
-            }
-
             if (ModelState.ErrorCount > 0)
             {
                 return BadRequest(new ValidationProblemDetails(ModelState));
@@ -142,11 +128,10 @@ namespace AppForSEII2526.API.Controllers
                     Nombre = dto.nombreCliente,
                     Apellido = dto.apellidoCliente,
                     telefono = dto.telefonoCliente,
-                    correoelectronico = dto.correoCliente
+                    correoelectronico = dto.correoCliente,
                 },
                 direccionEnvio = dto.direccionEnvio,
                 fechaCompra = DateTime.UtcNow,
-                descripcion = dto.descripcion,
                 MetodoPago = dto.MetodoPago,
                 CompraItems = new List<CompraItem>()
             };
@@ -192,7 +177,6 @@ namespace AppForSEII2526.API.Controllers
                 compra.Cliente.correoelectronico,
                 compra.direccionEnvio,
                 compra.PrecioTotal,
-                compra.descripcion,
                 compra.CompraItems.Select(ci => new CompraItemDTO(
                     ci.herramienta.Id,
                     ci.herramienta.Nombre,
@@ -207,7 +191,6 @@ namespace AppForSEII2526.API.Controllers
         }
 
 
-    }*/
+    }
 
 }
-

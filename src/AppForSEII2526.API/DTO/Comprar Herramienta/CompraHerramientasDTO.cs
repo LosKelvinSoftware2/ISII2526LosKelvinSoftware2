@@ -7,7 +7,7 @@
         {
             Id = id;
             Nombre = nombre;
-            Material = material;        
+            Material = material;
             Precio = precio;
             this.fabricante = fabricante;
             CompraItems = new List<CompraItem>();
