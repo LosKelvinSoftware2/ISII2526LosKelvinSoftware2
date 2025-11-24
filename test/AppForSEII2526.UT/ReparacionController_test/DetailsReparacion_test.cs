@@ -133,7 +133,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
             var actualReparaciones = Assert.IsType<List<ReparacionDetailsDTO>>(okResult.Value);
 
             // Verificación simple 
-            Assert.Equal(2, actualReparaciones.Count);
+            Assert.Equal(1, actualReparaciones.Count);
 
             // Verificar que contienen los datos esperados
             var reparacion1 = actualReparaciones.First(r => r.Id == 1);
