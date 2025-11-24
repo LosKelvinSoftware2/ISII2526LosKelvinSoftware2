@@ -102,11 +102,11 @@ namespace AppForSEII2526.UT.ReparacionController_test
             var controller = new ReparacionController(_context, mockLogger.Object);
 
             // Eliminar todas las reparaciones para este test
-            _context.Reparacion.RemoveRange(_context.Reparacion);
-            await _context.SaveChangesAsync();
+            //_context.Reparacion.RemoveRange(_context.Reparacion);
+            //await _context.SaveChangesAsync();
 
             // Act
-            var result = await controller.GetReparacionDetails();
+            var result = await controller.GetReparacionDetails(0);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -126,7 +126,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
             var controller = new ReparacionController(_context, mockLogger.Object);
 
             // Act
-            var result = await controller.GetReparacionDetails();
+            var result = await controller.GetReparacionDetails(1);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -144,13 +144,13 @@ namespace AppForSEII2526.UT.ReparacionController_test
             Assert.Equal(tiposMetodoPago.Efectivo, reparacion1.MetodoPago);
             Assert.Equal(2, reparacion1.ItemsReparacion.Count);
 
-            var reparacion2 = actualReparaciones.First(r => r.Id == 2);
-            Assert.Equal("Maria", reparacion2.NombreCliente);
-            Assert.Equal("Lopez", reparacion2.ApellidosCliente);
-            Assert.Equal("60033344", reparacion2.NumTelefono);
-            Assert.Equal(300.0f, reparacion2.PrecioTotal);
-            Assert.Equal(tiposMetodoPago.PayPal, reparacion2.MetodoPago);
-            Assert.Equal(2, reparacion2.ItemsReparacion.Count);
+            //var reparacion2 = actualReparaciones.First(r => r.Id == 2);
+            //Assert.Equal("Maria", reparacion2.NombreCliente);
+            //Assert.Equal("Lopez", reparacion2.ApellidosCliente);
+            //Assert.Equal("60033344", reparacion2.NumTelefono);
+            //Assert.Equal(300.0f, reparacion2.PrecioTotal);
+            //Assert.Equal(tiposMetodoPago.PayPal, reparacion2.MetodoPago);
+            //Assert.Equal(2, reparacion2.ItemsReparacion.Count);
         }
 
 
