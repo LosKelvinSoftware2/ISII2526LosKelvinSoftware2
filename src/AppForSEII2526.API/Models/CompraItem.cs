@@ -7,9 +7,9 @@
         [Required]
         public int cantidad { get; set; }
 
-        [Required]
+
         [MaxLength(300)]
-        public string descripcion { get; set; }
+        public string? descripcion { get; set; }
 
         [Required]
         [Range(0, float.MaxValue, ErrorMessage = "El precio no puede ser negativo.")]

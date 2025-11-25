@@ -115,12 +115,31 @@ namespace AppForSEII2526.UT.ComprasController_test
                 tiposMetodoPago.PayPal
             );
 
+            // EXAMEN Descripción inválida (nula) con cantidad = 3
+            var compraDescripcionInvalida = new CompraDTO(
+                _clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
+                _direccionEnvio, 150f, DateTime.Today.AddDays(1),
+                new List<CompraItemDTO>
+                {
+                    new CompraItemDTO(1, "Taladro", "Metal", 3, 100)
+                    {
+                        descripcion = null // descripción vacía/nula
+                     }
+                },
+                tiposMetodoPago.Efectivo
+             );
+
+
+
+
             return new List<object[]>
             {
                 new object[] { compraSinItems, "Debe haber al menos una herramienta para comprar" },
                 new object[] { compraFechaIncorrecta, "La compra no puede realizarse en una fecha anterior a hoy" },
                 new object[] { compraCantidadIncorrecta, "Debe especificarse una cantidad válida para cada herramienta" },
+                new object[] { compraDescripcionInvalida, "¡Error! Estás comprando demasiadas herramientas sin descripción" }
             };
+
         }
 
         [Theory]
@@ -146,7 +165,7 @@ namespace AppForSEII2526.UT.ComprasController_test
             Assert.StartsWith(errorExpected, errorActual);
         }
 
-        // --- SUCCESS TEST SE MANTIENE IGUAL ---
+        // --- SUCCESS TEST ---
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         [Trait("Database", "WithoutFixture")]
