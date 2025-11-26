@@ -1,0 +1,122 @@
+﻿@page "/Compra/SelectHerramientaCompra"
+
+@using AppForSEII2526.Web.API
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<SelectHerramientaCompra> logger
+@inject "NombreContenedor" compraState
+
+
+<h3>SelectHerramientaCompra</h3>
+
+
+<div class="container-fluid">
+    <div class="row" hidden="@hideErrors">
+        <p>Los errores van aquí</p>
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div class="row">
+                <!-- <p>Filtros aquí</p> -->
+
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Material</span>
+                        <input type="text" id="inputMaterial" @bind=herramientaMaterial class="form-control" placeholder="Material" aria-label="Material" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Precio</span>
+                        <input type="text" id="inputPrecio" @bind=herramientaPrecio class="form-control" placeholder="Precio" aria-label="Precio" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+
+                <div class="col">
+                    <button type="button" class="btn btn-primary" @onclick=@SearchHerramienta id="SearchHerramientas">Search herramientas</button>
+                </div>
+
+            </div>
+            <div class="row">
+                <!--<p>Lista de herramientas</p> -->
+                 @if (herramientas == null) {
+                    <p>Loading movies....</p>
+                }
+                else
+                {
+                    <div class="mh-100 table-responsive">
+                        <table class="table table-condensed table-hover" id="TablaDeHerramientas">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Fabricante</th>
+                                    <th>Material</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in compra)
+                                {
+                                    <tr id="MovieData_@item.Nombre">
+                                        <td>@item.Fabricante</td>
+                                        <td>@item.Material</td>
+                                        <td>@item.Precio</td>
+                                        <td>
+                                            <button class="btn btn-outline-secondary" id="HerramientaParaComprar@item.Nombre" @onclick="@(() => AddCompra(item))">Add</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                
+                }
+
+            </div>
+        </div>
+        <div class="col-2">
+            <p>Carrito</p>
+        </div>
+
+    </div>
+
+</div>
+
+
+@code {
+
+    private ICollection<CompraHerramientasDTO> herramientas;
+    private bool hideErrors { get { return errors.Length == 0; } }
+    private string errors = "";
+    private string herramientaMaterial { get; set; }
+    private string herramientaPrecio { get; set; }
+
+    private CompraDTO compra => compraState.Compra;
+
+    private bool hiddenRentingCart = true;
+
+    private void AddCompra(CompraDTO compra) {
+        compraState.CreateCompra(compra);
+    }
+
+    private void RemoveCompraItem(CompraItemDTO item) {
+        compraState.RemoveRentalItemToRent(item);
+        if (compra.CompraItems.Count == 0) hiddenRentingCart = true;
+    }
+
+    public async void SearchHerramienta()
+    {
+        try
+        {
+            herramientas = await apiclient.GetHerramientasDisponibles(herramientaMaterial, herramientaPrecio);
+
+        }
+        catch (ApiException ex)
+        {
+            logger.LogError($"{DateTime.Now} Error: {ex}");
+            errors = "Error while connecting to the system";
+        }
+        StateHasChanged();
+    }
+
+
+}
