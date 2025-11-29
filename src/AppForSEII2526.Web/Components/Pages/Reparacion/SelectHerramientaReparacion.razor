@@ -1,0 +1,125 @@
+﻿@page "/Reparacion/SelectHerramientaReparacion"
+
+@using AppForSEII2526.Web.API
+@inject AppForMoviesAPIClient apiclient
+@inject ILogger<SelectHerramientaReparacion> logger
+@inject SelectHerramientaReparacion ReparacionState
+
+<h3>SelectHerramientaReparacion</h3>
+
+<div class="container-fluid">
+    <div class="row" hidden="@hideErrors">
+        <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+            <p id="ErrorsShown">Errors: @errors</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div class="row">
+                <p>Muestro los filtros</p>
+                <!-- Filtros debajo-->
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Title</span>
+                        <input type="text" id="inputTitle" @bind=NombreHerrami class="form-control" placeholder="Nombre" aria-label="NOMBRE" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Genre</span>
+                        <input type="text" id="inputGenre" @bind=diasRepa class="form-control" placeholder="Dias" aria-label="DIAS" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <!-- Boton debajo-->
+                <div class="col">
+                    <button type="button" class="btn btn-primary" @onclick=@SearchHerramienta id="searchMovies">Search Herramienta</button>
+                </div>
+            </div>
+            <div class="row">
+                <p>muestro la lista de herramientas</p>
+                @if (Herramienta == null)
+                {
+                    <p>Loading movies....</p>
+                }
+                else
+                {
+                    <div class="mh-100 table-responsive">
+                        <table class="table table-condensed table-hover" id="TableOfHerramienta">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Material</th>
+                                    <th>Precio</th>
+                                    <th>Fabricante</th>
+                                    <th>Tiempo Reparacion</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var h in Herramienta)
+                                {
+                                    <tr id="MovieData_@h.id">
+                                        <td>@h.id</td>
+                                        <td>@h.Material</td>
+                                        <td>@h.Precio</td>
+                                        <td>@h.Fabricante</td>
+                                        <td>@h.TiempoReparacion</td>
+                                        <td>
+                                            <button class="btn btn-outline-secondary" id="HerramientaToRent_@h.Title" @onclick="@(() => AddMovie(h))">Add</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                }
+            </div>
+        </div>
+        <div class="col-2">
+            <p>here i will show the renting cart</p>
+        </div>
+
+    </div>
+
+</div>
+
+
+@code {
+    private ICollection<HerramientaRepaDTO> Herramienta;
+    private bool hideErrors { get { return errors.Length == 0; } }
+    private string errors = "";
+    private string NombreHerrami { get; set; }
+    private string diasRepa { get; set; }
+
+    private ReparacionDTO repa => ReparacionState.Reparacion;
+
+    private bool hiddenRentingCart = true;
+
+    private void AddReparacion(HerramientaRepaDTO herramienta)
+    {
+        ReparacionState.AddHerramientaToReparacion(herramienta);
+    }
+
+    private void RemoveReparacionItem(ReparacionItemDTO item)
+    {
+        ReparacionState.RemoveRentalItemToRent(item);
+        if (repa.RentalItems.Count == 0) hiddenRentingCart = true;
+    }
+
+    public async void SearchHerramienta()
+    {
+        try
+        {
+            Herramienta = await apiclient.GetHerramientasDisponiblesParaReparar(NombreHerrami, diasRepa);
+            errors = "";
+
+        }
+        catch (ApiException ex)
+        {
+            logger.LogError($"{DateTime.Now} Error: {ex}");
+            errors = "Error while connecting to the system";
+        }
+        StateHasChanged();
+    }
+}
