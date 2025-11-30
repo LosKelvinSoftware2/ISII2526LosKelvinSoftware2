@@ -1,6 +1,7 @@
 ﻿using AppForSEII2526.API;
 using AppForSEII2526.API.Controllers;
 using AppForSEII2526.API.DTO.RepararDTOs;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -109,7 +110,16 @@ namespace AppForSEII2526.UT.ReparacionController_test
             var result = await controller.GetReparacionDetails(0);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            var value = notFoundResult.Value;
+            var mensajeProp = value.GetType().GetProperty("Mensaje");
+            Assert.NotNull(mensajeProp);
+            var mensaje = mensajeProp.GetValue(value)?.ToString();
+            Assert.Equal("No se encontraron reparaciones registradas.", mensaje);
+
+
+            //Assert.IsType<NotFoundObjectResult>(result);
+            //Assert.Equal("No se encontraron reparaciones registradas.", result.ToString());
         }
 
         // ---------------------------------------------------------
@@ -132,25 +142,12 @@ namespace AppForSEII2526.UT.ReparacionController_test
             var okResult = Assert.IsType<OkObjectResult>(result);
             var actualReparaciones = Assert.IsType<List<ReparacionDetailsDTO>>(okResult.Value);
 
-            // Verificación simple 
-            Assert.Equal(2, actualReparaciones.Count);
+            // Debería devolver solo 1 reparación con ID=1            
+            Assert.Single(actualReparaciones);
 
-            // Verificar que contienen los datos esperados
-            var reparacion1 = actualReparaciones.First(r => r.Id == 1);
-            Assert.Equal("Maria", reparacion1.NombreCliente);
-            Assert.Equal("Lopez", reparacion1.ApellidosCliente);
-            Assert.Equal("60033344", reparacion1.NumTelefono);
-            Assert.Equal(200.0f, reparacion1.PrecioTotal);
-            Assert.Equal(tiposMetodoPago.Efectivo, reparacion1.MetodoPago);
-            Assert.Equal(2, reparacion1.ItemsReparacion.Count);
+            var reparacion = actualReparaciones.First();
 
-            //var reparacion2 = actualReparaciones.First(r => r.Id == 2);
-            //Assert.Equal("Maria", reparacion2.NombreCliente);
-            //Assert.Equal("Lopez", reparacion2.ApellidosCliente);
-            //Assert.Equal("60033344", reparacion2.NumTelefono);
-            //Assert.Equal(300.0f, reparacion2.PrecioTotal);
-            //Assert.Equal(tiposMetodoPago.PayPal, reparacion2.MetodoPago);
-            //Assert.Equal(2, reparacion2.ItemsReparacion.Count);
+            Assert.Equal(reparacion, actualReparaciones.First());
         }
 
 

@@ -78,7 +78,7 @@ namespace AppForSEII2526.API.Controllers
                 .ToListAsync();
 
             var herramientas = await _context.Herramienta
-                .Where(h => (NombreHerramienta == null || h.Nombre.Contains(NombreHerramienta)) && (DiaReparacion == null || h.TiempoReparacion == DiaReparacion)
+                .Where(h => (NombreHerramienta == null || h.Nombre.Contains(NombreHerramienta)) && (DiaReparacion == null || h.TiempoReparacion <= DiaReparacion)
                     && (!herramientasEnReparacion.Contains(h.Id))
                 )
                 .Include(h => h.fabricante)
