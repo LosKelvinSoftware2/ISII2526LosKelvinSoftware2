@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace AppForSEII2526.UT.ComprasController_test
 {
-   /* public class PostCompra_test : AppForSEII25264SqliteUT
+    public class PostCompra_test : AppForSEII25264SqliteUT
     {
         // Datos de prueba
         private const string _clienteNombre = "Maria";
@@ -95,14 +95,14 @@ namespace AppForSEII2526.UT.ComprasController_test
             // 1️ Sin items
             var compraSinItems = new CompraDTO(
                 _clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
-                _direccionEnvio, 0f, "a",  DateTime.Today.AddDays(1),
+                _direccionEnvio, 0f, DateTime.Today.AddDays(1),
                 new List<CompraItemDTO>(), tiposMetodoPago.Efectivo
             );
 
             // 2️ Fecha anterior a hoy
             var compraFechaIncorrecta = new CompraDTO(
                 _clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
-                _direccionEnvio, 150f, "a",  DateTime.Today.AddDays(-1),
+                _direccionEnvio, 150f, DateTime.Today.AddDays(-1),
                 new List<CompraItemDTO> { compraItemsValid[0] },
                 tiposMetodoPago.TarjetaCredito
             );
@@ -110,26 +110,36 @@ namespace AppForSEII2526.UT.ComprasController_test
             // 3️ Cantidad inválida
             var compraCantidadIncorrecta = new CompraDTO(
                 _clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
-                _direccionEnvio, 50f,"a", DateTime.Today.AddDays(1),
+                _direccionEnvio, 50f, DateTime.Today.AddDays(1),
                 new List<CompraItemDTO> { new CompraItemDTO(2, "Martillo", "Plástico", 0, 50) },
                 tiposMetodoPago.PayPal
             );
 
-            // Examen Sin descripcion
-            var compraSinDescripcion = new CompraDTO(
+            // EXAMEN Descripción inválida (nula) con cantidad = 3
+            var compraDescripcionInvalida = new CompraDTO(
                 _clienteNombre, _clienteApellido, _clienteTelefono, _clienteCorreo,
-                _direccionEnvio, 50f, "", DateTime.Today.AddDays(1),
-                new List<CompraItemDTO> { new CompraItemDTO(2, "Martillo", "Plástico", 0, 50) },
-                tiposMetodoPago.PayPal
-            );
+                _direccionEnvio, 150f, DateTime.Today.AddDays(1),
+                new List<CompraItemDTO>
+                {
+                    new CompraItemDTO(1, "Taladro", "Metal", 3, 100)
+                    {
+                        descripcion = null // descripción vacía/nula
+                     }
+                },
+                tiposMetodoPago.Efectivo
+             );
+
+
+
 
             return new List<object[]>
             {
                 new object[] { compraSinItems, "Debe haber al menos una herramienta para comprar" },
                 new object[] { compraFechaIncorrecta, "La compra no puede realizarse en una fecha anterior a hoy" },
                 new object[] { compraCantidadIncorrecta, "Debe especificarse una cantidad válida para cada herramienta" },
-                new object[] { compraSinDescripcion, "¡Error! Estas comprando demasiadas herramientas sin descripcion." }
+                new object[] { compraDescripcionInvalida, "¡Error! Estás comprando demasiadas herramientas sin descripción" }
             };
+
         }
 
         [Theory]
@@ -155,7 +165,7 @@ namespace AppForSEII2526.UT.ComprasController_test
             Assert.StartsWith(errorExpected, errorActual);
         }
 
-        // --- SUCCESS TEST SE MANTIENE IGUAL ---
+        // --- SUCCESS TEST ---
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         [Trait("Database", "WithoutFixture")]
@@ -180,7 +190,6 @@ namespace AppForSEII2526.UT.ComprasController_test
                 correoCliente: _clienteCorreo,
                 direccionEnvio: _direccionEnvio,
                 PrecioTotal: 150.0f,
-                descripcion: "a",
                 fechaCompra: DateTime.Today,
                 CompraItemDTO: compraItems,
                 MetodoPago: tiposMetodoPago.TarjetaCredito
@@ -217,5 +226,5 @@ namespace AppForSEII2526.UT.ComprasController_test
         }
 
 
-    }*/
+    }
 }

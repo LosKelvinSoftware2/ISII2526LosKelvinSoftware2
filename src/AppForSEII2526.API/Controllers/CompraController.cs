@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AppForSEII2526.API.Controllers
 {
-   /* [Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class CompraController : ControllerBase
     {
@@ -20,15 +20,12 @@ namespace AppForSEII2526.API.Controllers
         }
 
         // GET: api/Compra/{id}
-
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(CompraDetailsDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-
         public async Task<ActionResult> GetCompraDetails(int id)
         {
-
             if (_context.Compra == null)
             {
                 _logger.LogError("Error: Compra table does not exist");
@@ -48,7 +45,6 @@ namespace AppForSEII2526.API.Controllers
                     c.Cliente.correoelectronico,
                     c.direccionEnvio,
                     c.PrecioTotal,
-                    c.descripcion,
                     c.CompraItems.Select(ci => new CompraItemDTO(
                         ci.herramienta.Id,
                         ci.herramienta.Nombre,
@@ -67,31 +63,23 @@ namespace AppForSEII2526.API.Controllers
             }
 
             return Ok(compra);
-
-
-
         }
 
-
         // POST: api/Compra/CrearCompra
-
         [HttpPost]
         [Route("[action]")]
-        [ProducesResponseType(typeof(CompraDetailsDTO), (int)HttpStatusCode.Created)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
+        [ProducesResponseType(typeof(CompraDetailsDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> CreateCompra(CompraDTO dto)
         {
-            // Ajuste mínimo: permitir compras del mismo día
-            // No permitir fechas anteriores a hoy (aceptar hoy y futuras)
+            // Validaciones básicas
             if (dto.fechaCompra < DateTime.Today)
                 ModelState.AddModelError("FechaCompra", "La compra no puede realizarse en una fecha anterior a hoy");
 
-            // Comprobamos que hay al menos una herramienta
             if (dto.CompraItems == null || dto.CompraItems.Count == 0)
                 ModelState.AddModelError("CompraItems", "Debe haber al menos una herramienta para comprar");
 
-            // Validar datos del cliente
             if (string.IsNullOrEmpty(dto.nombreCliente))
                 ModelState.AddModelError("Cliente.Nombre", "El nombre es obligatorio");
             if (string.IsNullOrEmpty(dto.apellidoCliente))
@@ -111,30 +99,27 @@ namespace AppForSEII2526.API.Controllers
                 }
             }
 
-            // Modificacion para examen: Validar descripción con cantidad igual a 3
-
+            // EXAMEN Descripciones nulas: cantidad = 3 y descripción vacía
             if (dto.CompraItems != null)
             {
                 foreach (var item in dto.CompraItems)
                 {
-                    if (item.cantidad == 3 && string.IsNullOrEmpty(dto.descripcion))
+                    if (string.IsNullOrWhiteSpace(item.descripcion) && item.cantidad == 3)
                     {
-                        ModelState.AddModelError("Descripcion", "¡Error! Estas comprando demasiadas herramientas sin descripcion.");
+                        ModelState.AddModelError("Descripcion", "¡Error! Estás comprando demasiadas herramientas sin descripción");
                     }
                 }
             }
 
             if (ModelState.ErrorCount > 0)
-            {
                 return BadRequest(new ValidationProblemDetails(ModelState));
-            }
 
             var herramientasNombre = dto.CompraItems.Select(ci => ci.nombre).ToList();
             var herramientasLista = await _context.Herramienta
                 .Where(h => herramientasNombre.Contains(h.Nombre))
                 .ToListAsync();
 
-            // Crear Cliente solo si no existe (manteniendo tu lógica)
+            // Crear compra
             var compra = new Compra
             {
                 Cliente = new ApplicationUser
@@ -142,11 +127,10 @@ namespace AppForSEII2526.API.Controllers
                     Nombre = dto.nombreCliente,
                     Apellido = dto.apellidoCliente,
                     telefono = dto.telefonoCliente,
-                    correoelectronico = dto.correoCliente
+                    correoelectronico = dto.correoCliente,
                 },
                 direccionEnvio = dto.direccionEnvio,
                 fechaCompra = DateTime.UtcNow,
-                descripcion = dto.descripcion,
                 MetodoPago = dto.MetodoPago,
                 CompraItems = new List<CompraItem>()
             };
@@ -163,25 +147,17 @@ namespace AppForSEII2526.API.Controllers
                     cantidad = item.cantidad,
                     precio = herramienta.Precio,
                     herramientaId = herramienta.Id,
-                    descripcion = $"Compra de {herramienta.Nombre}"
-
-
+                    //Ponemos unan descripción por defecto si no se proporciona una (ya que está definida como obligatoria)
+                    descripcion = item.descripcion
                 });
+
                 compra.PrecioTotal += herramienta.Precio * item.cantidad;
             }
 
             _context.Compra.Add(compra);
 
-            try
-            {
                 await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                ModelState.AddModelError("Compra", $"Error! Ha ocurrido un error");
-                return Conflict("Error" + ex.Message);
-            }
+            
 
             var compraDTO = new CompraDetailsDTO(
                 compra.Id,
@@ -192,7 +168,6 @@ namespace AppForSEII2526.API.Controllers
                 compra.Cliente.correoelectronico,
                 compra.direccionEnvio,
                 compra.PrecioTotal,
-                compra.descripcion,
                 compra.CompraItems.Select(ci => new CompraItemDTO(
                     ci.herramienta.Id,
                     ci.herramienta.Nombre,
@@ -205,9 +180,5 @@ namespace AppForSEII2526.API.Controllers
 
             return CreatedAtAction(nameof(GetCompraDetails), new { id = compra.Id }, compraDTO);
         }
-
-
-    }*/
-
+    }
 }
-

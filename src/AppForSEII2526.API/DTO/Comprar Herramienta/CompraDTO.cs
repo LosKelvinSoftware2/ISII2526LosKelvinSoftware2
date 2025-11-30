@@ -4,12 +4,13 @@
     {
 
         // Constructor vacío necesario para deserialización
-        public CompraDTO() { 
-        
+        public CompraDTO()
+        {
+
         }
 
-        public CompraDTO(string nombreCliente, string apellidoCliente, double telefonoCliente, string correoCliente, 
-            string direccionEnvio, float PrecioTotal, string descripcion,
+        public CompraDTO(string nombreCliente, string apellidoCliente, double telefonoCliente, string correoCliente,
+            string direccionEnvio, float PrecioTotal,
             DateTime fechaCompra, List<CompraItemDTO> CompraItemDTO, tiposMetodoPago MetodoPago)
         {
             this.nombreCliente = nombreCliente;
@@ -19,10 +20,9 @@
             this.correoCliente = correoCliente;
             this.direccionEnvio = direccionEnvio;
             this.PrecioTotal = PrecioTotal;
-            this.descripcion = descripcion;
             this.MetodoPago = MetodoPago;
             this.CompraItems = CompraItemDTO;
-            
+
         }
 
         //Vinculación con el usuario (cliente autenticado)
@@ -44,8 +44,6 @@
         [Required]
         [Range(0, float.MaxValue, ErrorMessage = "El precio total no puede ser negativo.")]
         public float PrecioTotal { get; set; }
-
-        public string descripcion { get; set; }
 
         [Required]
         public DateTime fechaCompra { get; set; }

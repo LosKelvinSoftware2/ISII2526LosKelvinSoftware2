@@ -14,9 +14,7 @@
         public string direccionEnvio { get; set; }
 
         [Required]
-        public DateTime fechaCompra { get; set; } 
-
-        public string descripcion { get; set; }
+        public DateTime fechaCompra { get; set; }
 
         [Required]
         [Range(0, float.MaxValue, ErrorMessage = "El precio total no puede ser negativo.")]
@@ -29,6 +27,6 @@
         [Required]
         public tiposMetodoPago MetodoPago { get; set; }
 
-        
+
     }
 }
