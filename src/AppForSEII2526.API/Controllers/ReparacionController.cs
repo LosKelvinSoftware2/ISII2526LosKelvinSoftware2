@@ -61,7 +61,7 @@ namespace AppForSEII2526.API.Controllers
             if (reparaciones == null || reparaciones.Count == 0)
             {
                 _logger.LogWarning("No se encontraron reparaciones registradas.");
-                return NotFound();
+                return NotFound(new { Mensaje = "No se encontraron reparaciones registradas." });
             }
 
             return Ok(reparaciones);
@@ -96,6 +96,12 @@ namespace AppForSEII2526.API.Controllers
             // Validación de cantidades (Flujo Alternativo 5)
             if (reparacionForCreate.ItemsReparacion != null && reparacionForCreate.ItemsReparacion.Any(item => item.Cantidad <= 0))
                 ModelState.AddModelError("ItemsReparacion", "Error! La cantidad de todas las herramientas debe ser al menos 1");
+
+            // Validar método de pago
+            if (!Enum.IsDefined(typeof(tiposMetodoPago), reparacionForCreate.MetodoPago))
+            {
+                ModelState.AddModelError("MetodoPago", "Error! Método de pago no válido");
+            }
 
             if (ModelState.ErrorCount > 0)
                 return BadRequest(new ValidationProblemDetails(ModelState));

@@ -2,6 +2,30 @@
 {
     public class ReparacionDTO
     {
+        public ReparacionDTO() { }
+
+        public ReparacionDTO(string nombreCliente, string apellidosCliente, string? numTelefono,
+                           DateTime fechaEntrega, tiposMetodoPago metodoPago)
+        {
+            
+            NombreCliente = nombreCliente;
+            ApellidosCliente = apellidosCliente;
+            NumTelefono = numTelefono;
+            FechaEntrega = fechaEntrega;
+            MetodoPago = metodoPago;
+        }
+
+        public ReparacionDTO(string userName, string nombreCliente, string apellidosCliente, string? numTelefono,
+                           DateTime fechaEntrega, tiposMetodoPago metodoPago, List<ReparacionItemDTO> itemsReparacion)
+        {
+            UserName = userName;
+            NombreCliente = nombreCliente;
+            ApellidosCliente = apellidosCliente;
+            NumTelefono = numTelefono;
+            FechaEntrega = fechaEntrega;
+            MetodoPago = metodoPago;
+            ItemsReparacion = itemsReparacion;
+        }
         [Required, MaxLength(100)]
         public string UserName { get; set; }  // Nuevo campo para buscar el usuario
 

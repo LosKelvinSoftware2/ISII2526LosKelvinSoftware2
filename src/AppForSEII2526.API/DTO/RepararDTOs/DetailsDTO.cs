@@ -2,9 +2,13 @@
 
 namespace AppForSEII2526.API.DTO.RepararDTOs
 {
-    public class ReparacionDetailsDTO
+    public class ReparacionDetailsDTO : ReparacionDTO
     {
-        public ReparacionDetailsDTO(int id, string nombreCliente, string apellidosCliente, string? numTelefono, DateTime fechaEntrega, DateTime fechaRecogida, float precioTotal, tiposMetodoPago metodoPago, List<ReparacionItemDetailsDTO> itemsReparacion)
+        public ReparacionDetailsDTO() { }
+
+        public ReparacionDetailsDTO(int id, string nombreCliente, string apellidosCliente, string? numTelefono,
+                                  DateTime fechaEntrega, DateTime fechaRecogida, float precioTotal,
+                                  tiposMetodoPago metodoPago, List<ReparacionItemDetailsDTO> itemsReparacion)
         {
             Id = id;
             NombreCliente = nombreCliente;
@@ -14,20 +18,15 @@ namespace AppForSEII2526.API.DTO.RepararDTOs
             FechaRecogida = fechaRecogida;
             PrecioTotal = precioTotal;
             MetodoPago = metodoPago;
-            ItemsReparacion = itemsReparacion;
+            ItemsReparacionDetails = itemsReparacion;
         }
 
-
         public int Id { get; set; }
-        public string NombreCliente { get; set; }
-        public string ApellidosCliente { get; set; }
-        public string? NumTelefono { get; set; }
-        public DateTime FechaEntrega { get; set; }
         public DateTime FechaRecogida { get; set; }
         public float PrecioTotal { get; set; }
-        public tiposMetodoPago MetodoPago { get; set; }
 
-        public List<ReparacionItemDetailsDTO> ItemsReparacion { get; set; }
+        // Propiedad adicional para mantener compatibilidad con el DTO de items específico
+        public List<ReparacionItemDetailsDTO> ItemsReparacionDetails { get; set; }
 
         public override bool Equals(object? obj)
         {
@@ -40,7 +39,7 @@ namespace AppForSEII2526.API.DTO.RepararDTOs
                    FechaRecogida == dTO.FechaRecogida &&
                    PrecioTotal == dTO.PrecioTotal &&
                    MetodoPago == dTO.MetodoPago &&
-                   EqualityComparer<List<ReparacionItemDetailsDTO>>.Default.Equals(ItemsReparacion, dTO.ItemsReparacion);
+                   EqualityComparer<List<ReparacionItemDetailsDTO>>.Default.Equals(ItemsReparacionDetails, dTO.ItemsReparacionDetails);
         }
     }
 
@@ -67,5 +66,6 @@ namespace AppForSEII2526.API.DTO.RepararDTOs
                    Cantidad == dTO.Cantidad &&
                    Descripcion == dTO.Descripcion;
         }
+
     }
 }
