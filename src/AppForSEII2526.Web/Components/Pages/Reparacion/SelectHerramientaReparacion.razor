@@ -1,9 +1,10 @@
 ﻿@page "/Reparacion/SelectHerramientaReparacion"
 
 @using AppForSEII2526.Web.API
-@inject AppForMoviesAPIClient apiclient
+@inject AppForSEII2526APIClient apiclient
 @inject ILogger<SelectHerramientaReparacion> logger
-@inject SelectHerramientaReparacion ReparacionState
+@inject ReparacionStateContainer ReparacionState
+@inject NavigationManager navigation
 
 <h3>SelectHerramientaReparacion</h3>
 
@@ -48,23 +49,26 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Nombre</th>
                                     <th>Material</th>
                                     <th>Precio</th>
                                     <th>Fabricante</th>
-                                    <th>Tiempo Reparacion</th>                                    
+                                    <th>Tiempo Reparacion</th>
+                                    <th>Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var h in Herramienta)
                                 {
-                                    <tr id="MovieData_@h.id">
-                                        <td>@h.id</td>
+                                    <tr id="HerramientaRow_@h.Id">
+                                        <td>@h.Id</td>
+                                        <td>@h.Nombre</td>
                                         <td>@h.Material</td>
                                         <td>@h.Precio</td>
                                         <td>@h.Fabricante</td>
                                         <td>@h.TiempoReparacion</td>
                                         <td>
-                                            <button class="btn btn-outline-secondary" id="HerramientaToRent_@h.Title" @onclick="@(() => AddMovie(h))">Add</button>
+                                            <button class="btn btn-outline-secondary" id="BtnAdd_@h.Id" @onclick="@(() => AddReparacion(h))">Añadir</button>
                                         </td>
                                     </tr>
                                 }
@@ -76,21 +80,34 @@
                 }
             </div>
         </div>
-        <div class="col-2">
-            <p>here i will show the renting cart</p>
-        </div>
-
+        <div class="col-2" hidden="@hideRentingCart">
+            <div class="row">
+                <h3>Shopping Cart</h3>
+            </div>
+            @foreach (ReparacionItemDTO item in repa.ItemsReparacion)
+            {
+                <div class="row">
+                    <button type="button" class="btn btn-light" id="removeHerramienta_@item.NombreHerramienta"@onclick="@(() => RemoveReparacionItem(item))">
+                        
+                        x @item.NombreHerramienta - @item.Precio €</button>
+                </div>
+            }
+            <div class="row">
+                <button type="button" class="btn btn-primary" id="processBtn" @onclick=@TramitarReparacion>Tramitar Reparación</button>
+            </div>
+        </div
     </div>
 
 </div>
 
 
 @code {
+    private bool hideRentingCart { get { return repa.ItemsReparacion.Count == 0; } }
     private ICollection<HerramientaRepaDTO> Herramienta;
     private bool hideErrors { get { return errors.Length == 0; } }
     private string errors = "";
     private string NombreHerrami { get; set; }
-    private string diasRepa { get; set; }
+    private int diasRepa { get; set; }
 
     private ReparacionDTO repa => ReparacionState.Reparacion;
 
@@ -103,15 +120,15 @@
 
     private void RemoveReparacionItem(ReparacionItemDTO item)
     {
-        ReparacionState.RemoveRentalItemToRent(item);
-        if (repa.RentalItems.Count == 0) hiddenRentingCart = true;
+        ReparacionState.RemoveItemFromReparacion(item);
+        if (repa.ItemsReparacion.Count == 0) hiddenRentingCart = true;
     }
 
     public async void SearchHerramienta()
     {
         try
         {
-            Herramienta = await apiclient.GetHerramientasDisponiblesParaReparar(NombreHerrami, diasRepa);
+            Herramienta = await apiclient.GetHerramientasDisponiblesParaRepararAsync(NombreHerrami, diasRepa);
             errors = "";
 
         }
@@ -122,4 +139,10 @@
         }
         StateHasChanged();
     }
+
+    private void TramitarReparacion()
+    {
+        navigation.NavigateTo("/Reparacion/SelectHerramientaReparacion");
+    }
+
 }

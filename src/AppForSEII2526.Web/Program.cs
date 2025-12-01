@@ -1,9 +1,13 @@
+using AppForSEII2526.Web;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AppForSEII2526.Web.Components;
 using AppForSEII2526.Web.Components.Account;
 using AppForSEII2526.Web.Data;
+using AppForSEII2526.Web.API;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,12 +32,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentityCore<AppForSEII2526.Web.Data.ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddSingleton<IEmailSender<AppForSEII2526.Web.Data.ApplicationUser>, IdentityNoOpEmailSender>();
+
+string? URI2API = builder.Configuration.GetValue(typeof(string), "AppForSEII2526_API") as string;
+
+//the environment variable is defined in Portal Azure
+builder.Services.AddScoped<AppForSEII2526APIClient>(sp => new AppForSEII2526APIClient(URI2API, new HttpClient()));
 
 var app = builder.Build();
 
