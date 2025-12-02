@@ -1,4 +1,6 @@
-﻿namespace AppForSEII2526.API.DTO.Comprar_Herramienta
+﻿using NuGet.ContentModel;
+
+namespace AppForSEII2526.API.DTO.Comprar_Herramienta
 {
     public class CompraDTO
     {
@@ -59,7 +61,10 @@
 
         protected bool CompararFechas(DateTime fecha1, DateTime fecha2)
         {
-            return (fecha1.Subtract(fecha2) < new TimeSpan(0, 1, 0));
+            //Dan igual las horas y minutos, solo contamos dias
+            return fecha1.Year == fecha2.Year &&
+                   fecha1.Month == fecha2.Month &&
+                   fecha1.Day == fecha2.Day;
         }
     }
 }

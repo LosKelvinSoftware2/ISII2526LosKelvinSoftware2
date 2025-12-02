@@ -121,20 +121,7 @@ namespace AppForSEII2526.UT.ComprasController_test
             var okResult = Assert.IsType<OkObjectResult>(result);
             var dto = Assert.IsType<CompraDetailsDTO>(okResult.Value);
 
-            Assert.Equal(NombreCliente, dto.nombreCliente);
-            Assert.Equal(ApellidoCliente, dto.apellidoCliente);
-            Assert.Equal(CorreoCliente, dto.correoCliente);
-            Assert.Equal(200.0f, dto.PrecioTotal);
-            Assert.Equal(tiposMetodoPago.Efectivo, dto.MetodoPago);
-
-            Assert.Equal(2, dto.CompraItems.Count);
-            Assert.Equal(NombreHerramienta1, dto.CompraItems[0].nombre);
-            Assert.Equal(1, dto.CompraItems[0].cantidad);
-            Assert.Equal(10.0f, dto.CompraItems[0].precio);
-
-            Assert.Equal(NombreHerramienta2, dto.CompraItems[1].nombre);
-            Assert.Equal(2, dto.CompraItems[1].cantidad);
-            Assert.Equal(15.0f, dto.CompraItems[1].precio);
+            result.Equals(dto);
         }
     }
 }
