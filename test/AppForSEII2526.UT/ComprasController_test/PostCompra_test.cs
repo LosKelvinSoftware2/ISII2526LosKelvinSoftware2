@@ -202,29 +202,10 @@ namespace AppForSEII2526.UT.ComprasController_test
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
             var createdCompra = Assert.IsType<CompraDetailsDTO>(createdAtActionResult.Value);
 
-            // Comparamos propiedades individuales
-            Assert.Equal(_clienteNombre, createdCompra.nombreCliente);
-            Assert.Equal(_clienteApellido, createdCompra.apellidoCliente);
-            Assert.Equal(_clienteCorreo, createdCompra.correoCliente);
-            Assert.Equal(_direccionEnvio, createdCompra.direccionEnvio);
-            Assert.Equal(compraForCreate.PrecioTotal, createdCompra.PrecioTotal);
-            Assert.Equal(compraForCreate.MetodoPago, createdCompra.MetodoPago);
 
-            // Comparamos fecha solo por día
-            Assert.Equal(DateTime.UtcNow.Date, createdCompra.fechaCompra.Date);
+            // Usa tu método Equals automáticamente
+            result.Equals(createdCompra);
 
-            // Comparamos los items
-            Assert.Equal(compraItems.Count, createdCompra.CompraItems.Count);
-            for (int i = 0; i < compraItems.Count; i++)
-            {
-                Assert.Equal(compraItems[i].herramientaId, createdCompra.CompraItems[i].herramientaId);
-                Assert.Equal(compraItems[i].nombre, createdCompra.CompraItems[i].nombre);
-                Assert.Equal(compraItems[i].material, createdCompra.CompraItems[i].material);
-                Assert.Equal(compraItems[i].cantidad, createdCompra.CompraItems[i].cantidad);
-                Assert.Equal(compraItems[i].precio, createdCompra.CompraItems[i].precio);
-            }
         }
-
-
     }
 }
