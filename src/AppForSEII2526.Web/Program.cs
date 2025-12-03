@@ -40,9 +40,12 @@ builder.Services.AddIdentityCore<AppForSEII2526.Web.Data.ApplicationUser>(option
 builder.Services.AddSingleton<IEmailSender<AppForSEII2526.Web.Data.ApplicationUser>, IdentityNoOpEmailSender>();
 
 string? URI2API = builder.Configuration.GetValue(typeof(string), "AppForSEII2526_API") as string;
-
+//Descomentar cuando tengamos AZULE funcionando ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //the environment variable is defined in Portal Azure
-builder.Services.AddScoped<AppForSEII2526APIClient>(sp => new AppForSEII2526APIClient(URI2API, new HttpClient()));
+//builder.Services.AddScoped<AppForSEII2526APIClient>(sp => new AppForSEII2526APIClient(URI2API, new HttpClient()));
+
+//SAELICES abajo
+builder.Services.AddScoped<ReparacionStateContainer>();
 
 var app = builder.Build();
 

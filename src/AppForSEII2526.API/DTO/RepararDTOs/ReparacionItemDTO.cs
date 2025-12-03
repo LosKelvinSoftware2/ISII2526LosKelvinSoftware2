@@ -37,7 +37,7 @@
         [Required, Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser al menos 1.")]
         public int Cantidad { get; set; }
 
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
 
         [Required, Range(1, int.MaxValue, ErrorMessage = "La herramienta es obligatoria.")]
         public int HerramientaId { get; set; }

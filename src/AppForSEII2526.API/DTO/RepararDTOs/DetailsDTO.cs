@@ -2,45 +2,51 @@
 
 namespace AppForSEII2526.API.DTO.RepararDTOs
 {
-    public class ReparacionDetailsDTO : ReparacionDTO
+    public class ReparacionDetailsDTO : ReparacionDTO, IEquatable<ReparacionDetailsDTO?>
     {
         public ReparacionDetailsDTO() { }
 
         public ReparacionDetailsDTO(int id, string nombreCliente, string apellidosCliente, string? numTelefono,
                                   DateTime fechaEntrega, DateTime fechaRecogida, float precioTotal,
-                                  tiposMetodoPago metodoPago, List<ReparacionItemDTO> itemsReparacion)
+                                  tiposMetodoPago metodoPago, List<ReparacionItemDTO> itemsReparacion) :
+                                base(nombreCliente, apellidosCliente, numTelefono, fechaEntrega, metodoPago, itemsReparacion)
         {
             Id = id;
-            NombreCliente = nombreCliente;
-            ApellidosCliente = apellidosCliente;
-            NumTelefono = numTelefono;
             FechaEntrega = fechaEntrega;
             FechaRecogida = fechaRecogida;
             PrecioTotal = precioTotal;
             MetodoPago = metodoPago;
-            ItemsReparacionDetails = itemsReparacion;
         }
 
         public int Id { get; set; }
         public DateTime FechaRecogida { get; set; }
         public float PrecioTotal { get; set; }
 
-        // Propiedad adicional para mantener compatibilidad con el DTO de items específico
-        public List<ReparacionItemDTO> ItemsReparacionDetails { get; set; }
-
         public override bool Equals(object? obj)
         {
-            return obj is ReparacionDetailsDTO dTO &&
-                   Id == dTO.Id &&
-                   NombreCliente == dTO.NombreCliente &&
-                   ApellidosCliente == dTO.ApellidosCliente &&
-                   NumTelefono == dTO.NumTelefono &&
-                   FechaEntrega == dTO.FechaEntrega &&
-                   FechaRecogida == dTO.FechaRecogida &&
-                   PrecioTotal == dTO.PrecioTotal &&
-                   MetodoPago == dTO.MetodoPago &&
-                   EqualityComparer<List<ReparacionItemDTO>>.Default.Equals(ItemsReparacionDetails, dTO.ItemsReparacionDetails);
+            return Equals(obj as ReparacionDetailsDTO);
         }
+
+        public bool Equals(ReparacionDetailsDTO? other)
+        {
+            return other is not null &&
+                   base.Equals(other) &&
+                   UserName == other.UserName &&
+                   NombreCliente == other.NombreCliente &&
+                   ApellidosCliente == other.ApellidosCliente &&
+                   NumTelefono == other.NumTelefono &&
+                   FechaEntrega == other.FechaEntrega &&
+                   MetodoPago == other.MetodoPago &&
+                   EqualityComparer<List<ReparacionItemDTO>>.Default.Equals(ItemsReparacion, other.ItemsReparacion) &&
+                   Id == other.Id &&
+                   FechaRecogida == other.FechaRecogida &&
+                   PrecioTotal == other.PrecioTotal;
+        }
+
+        // Propiedad adicional para mantener compatibilidad con el DTO de items específico
+        //public List<ReparacionItemDTO> ItemsReparacionDetails { get; set; }
+
+
     }
 
     //public class ReparacionItemDetailsDTO
