@@ -27,8 +27,8 @@ namespace AppForSEII2526.API.Models
         // Conexiones otras tablas
         public List<OfertaItem> ofertaItems { get; set; }
 
-        [Required]
-        public tiposMetodoPago metodoPago { get; set; }
+        [Required(ErrorMessage = "Por favor, elige el método de pago")]
+        public tiposMetodoPago? MetodoPago { get; set; }
 
         // La interrogación significa que puede ser nulo
         public tiposDiridaOferta? dirigidaA { get; set; }

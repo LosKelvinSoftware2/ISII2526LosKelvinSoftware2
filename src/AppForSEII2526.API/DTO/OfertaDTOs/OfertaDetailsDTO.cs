@@ -1,13 +1,15 @@
-﻿namespace AppForSEII2526.API.DTO.OfertaDTOs
+﻿
+
+
+
+namespace AppForSEII2526.API.DTO.OfertaDTOs
 {
     public class OfertaDetailsDTO: OfertaDTO
     {
-        public OfertaDetailsDTO(int Id, float porcentaje, DateTime fechaInicio, DateTime fechaFinal, DateTime fechaOferta,
-            tiposMetodoPago metodoPago, tiposDiridaOferta? dirigidaA, IList<OfertaItemDTO> ofertaItems):
-            base(porcentaje, fechaFinal, fechaInicio, metodoPago, dirigidaA, ofertaItems)
+        public OfertaDetailsDTO(DateTime fechaInicio, DateTime fechaFinal, DateTime fechaOferta,
+            tiposMetodoPago? metodoPago, tiposDiridaOferta? dirigidaA, List<OfertaItemDTO> ofertaItems):
+            base(fechaFinal, fechaInicio, metodoPago, dirigidaA, ofertaItems)
         {
-            this.Id = Id;
-            this.porcentaje = porcentaje;
             this.fechaInicio = fechaInicio;
             this.fechaFinal = fechaFinal;
             this.fechaOferta = fechaOferta;
@@ -19,26 +21,18 @@
         public override bool Equals(object? obj)
         {
             return obj is OfertaDetailsDTO dTO &&
-                   porcentaje == dTO.porcentaje &&
+                   base.Equals(obj) &&
+                   fechaFinal == dTO.fechaFinal &&
+                   fechaInicio == dTO.fechaInicio &&
                    fechaOferta == dTO.fechaOferta &&
-                   Id == dTO.Id;
+                   ofertaItems.SequenceEqual(dTO.ofertaItems) &&
+                   metodoPago == dTO.metodoPago &&
+                   dirigidaA == dTO.dirigidaA;
         }
 
-        public int Id { get; set; }
-
-        public float porcentaje { get; set; }
-
-        public DateTime fechaInicio { get; set; }
-
-        public DateTime fechaFinal { get; set; }
-        public DateTime fechaOferta { get; set; }
-
-        public tiposMetodoPago metodoPago { get; set; }
-
-        public tiposDiridaOferta? dirigidaA { get; set; }
-
-        public IList<OfertaItemDTO> ofertaItems { get; set; }
-
-        
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(fechaInicio, fechaFinal, fechaOferta, metodoPago, dirigidaA, ofertaItems);
+        }
     }
 }

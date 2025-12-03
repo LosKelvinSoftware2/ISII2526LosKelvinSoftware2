@@ -4,7 +4,7 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
     public class HerramientaForOfertaDTO
     {
         public HerramientaForOfertaDTO(int id, string nombre, string material, 
-            float precio, Fabricante fabricante)
+            float precio, String fabricante)
         {
             Id = id;
             Nombre = nombre;
@@ -30,7 +30,7 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
         public float Precio { get; set; }
 
         // Relación con Fabricante
-        public Fabricante fabricante { get; set; }
+        public string fabricante { get; set; }
 
         public override bool Equals(object? obj)
         {
@@ -39,7 +39,7 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
                    Nombre == dTO.Nombre &&
                    Material == dTO.Material &&
                    Precio == dTO.Precio &&
-                   fabricante.Id == dTO.fabricante.Id;
+                   fabricante == dTO.fabricante;
         }
         // Relación con ReparacionItem
 

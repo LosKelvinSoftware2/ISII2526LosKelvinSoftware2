@@ -38,14 +38,16 @@ namespace AppForSEII2526.UT.OfertasController_test
                     Id = 1,
                     Nombre = herramientaNombre1,
                     Material = "Metal",
-                    fabricante = fabricantes[0]
+                    fabricante = fabricantes[0],
+                    Precio = 100
                 },
                 new Herramienta
                 {
                     Id = 2,
                     Nombre = herramientaNombre2,
                     Material = "Madera",
-                    fabricante = fabricantes[1]
+                    fabricante = fabricantes[1],
+                    Precio = 200
                 }
             };
 
@@ -56,7 +58,7 @@ namespace AppForSEII2526.UT.OfertasController_test
                 fechaInicio = DateTime.Today,
                 fechaFinal = DateTime.Today.AddMonths(1),
                 fechaOferta = DateTime.Today.AddDays(1),
-                metodoPago = tiposMetodoPago.TarjetaCredito,
+                MetodoPago = tiposMetodoPago.TarjetaCredito,
                 dirigidaA = tiposDiridaOferta.Clientes,
                 ofertaItems = new List<OfertaItem>()
                 {
@@ -80,13 +82,21 @@ namespace AppForSEII2526.UT.OfertasController_test
         {
 
             var ofertaItems = new List<OfertaItemDTO>(){
-                new OfertaItemDTO(1, 90, "Taladro", "Metal", "Bosch", 100),
-                new OfertaItemDTO(2, 170, "Sierra", "Madera", "Black&Decker", 200)
+                new OfertaItemDTO(10, 90, "Taladro", "Metal", "Bosch", 100),
+                new OfertaItemDTO(15, 170, "Sierra", "Madera", "Black&Decker", 200)
             };
+
+            var ofertaWithNoDate = new OfertaDTO
+            (
+                DateTime.MinValue,
+                DateTime.MinValue,
+                tiposMetodoPago.Efectivo,
+                tiposDiridaOferta.Clientes,
+                ofertaItems
+            );
 
             var ofertaFromBeforeToday = new OfertaDTO
             (
-                10,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(-1),
                 tiposMetodoPago.Efectivo,
@@ -96,7 +106,6 @@ namespace AppForSEII2526.UT.OfertasController_test
 
             var ofertaoBeforeFrom = new OfertaDTO
             (
-                10,
                 DateTime.Today,
                 DateTime.Today.AddMonths(1),
                 tiposMetodoPago.Efectivo,
@@ -107,7 +116,6 @@ namespace AppForSEII2526.UT.OfertasController_test
             // El nuevo caso para el examen
             var ofertaLessThanWeek = new OfertaDTO
             (
-                10,
                 DateTime.Today.AddDays(5),
                 DateTime.Today,
                 tiposMetodoPago.Efectivo,
@@ -115,19 +123,30 @@ namespace AppForSEII2526.UT.OfertasController_test
                 ofertaItems
             );
 
-            var ofertaWithInvalidPercentage = new OfertaDTO
+            var ofertaWithNoPercentage = new OfertaDTO
             (
-                0,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(1),
                 tiposMetodoPago.Efectivo,
                 tiposDiridaOferta.Clientes,
-                ofertaItems
+                new List<OfertaItemDTO>(){
+                    new OfertaItemDTO(null, 90, "Taladro", "Metal", "Bosch", 100),
+                }
+            );
+
+            var ofertaWithInvalidPercentage = new OfertaDTO
+            (
+                DateTime.Today.AddMonths(1),
+                DateTime.Today.AddDays(1),
+                tiposMetodoPago.Efectivo,
+                tiposDiridaOferta.Clientes,
+                new List<OfertaItemDTO>(){
+                    new OfertaItemDTO(400, 0, "Taladro", "Metal", "Bosch", 100),
+                }
             );
 
             var ofertaNoItems = new OfertaDTO
             (
-                10,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(1),
                 tiposMetodoPago.Efectivo,
@@ -135,14 +154,27 @@ namespace AppForSEII2526.UT.OfertasController_test
                 new List<OfertaItemDTO>()
             );
 
+            var ofertaWithNoPaymentMethod = new OfertaDTO
+            (
+                DateTime.Today.AddMonths(1),
+                DateTime.Today.AddDays(1),
+                null,
+                tiposDiridaOferta.Clientes,
+                ofertaItems
+            );
+
             var allTests = new List<object[]>
             {
+                new object[] { ofertaWithNoDate, "Error! Las fechas no pueden estar vacías o en formato incorrecto." },
                 new object[] { ofertaFromBeforeToday, "Error! La fecha de inicio de oferta debe ser al menos mañana" },
                 new object[] { ofertaoBeforeFrom, "Error! La fecha final de oferta debe ser después de la fecha de inicio" },
                 // Las nuevas entradas (el object añadido)
-                new object[] {ofertaLessThanWeek, "Error!, la oferta debe durar al menos una semana" },
+                new object[] { ofertaLessThanWeek, "Error!, la oferta debe durar al menos una semana" },
+                new object[] { ofertaWithNoPercentage, "Error! El porcentaje es obligatorio para la herramienta Taladro." },
                 new object[] { ofertaWithInvalidPercentage, "Error! El porcentaje de descuento debe estar entre 1 y 100" },
-                new object[] { ofertaNoItems, "Error! Hay que incluir al menos una herramienta" }
+                new object[] { ofertaNoItems, "Error! Hay que incluir al menos una herramienta" },
+                new object[] { ofertaWithNoPaymentMethod, "Error! El método de pago es obligatorio." },
+
             };
 
             return allTests;
@@ -181,13 +213,12 @@ namespace AppForSEII2526.UT.OfertasController_test
             ILogger<OfertasController> logger = mock.Object;
 
             var controller = new OfertasController(_context, logger);
-            var ofertaItems = new List<OfertaItemDTO>(){
-                new OfertaItemDTO(1, 90, "Taladro", "Metal", "Bosch", 100),
-                new OfertaItemDTO(2, 170, "Sierra", "Madera", "Black&Decker", 200)
+            var ofertaItems = new List<OfertaItemDTO>{
+                new OfertaItemDTO(10, 90, "Taladro", "Metal", "Bosch", 100),
+                new OfertaItemDTO(15, 170, "Sierra", "Madera", "Black&Decker", 200)
             };
             var ofertaForCreate = new OfertaDTO
             (
-                10,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(1),
                 tiposMetodoPago.Efectivo,
@@ -196,8 +227,6 @@ namespace AppForSEII2526.UT.OfertasController_test
             );
             var expectedOferta = new OfertaDetailsDTO
             (
-                2, // ID esperado de la nueva oferta
-                10,
                 DateTime.Today.AddDays(1),
                 DateTime.Today.AddMonths(1),
                 DateTime.Today,

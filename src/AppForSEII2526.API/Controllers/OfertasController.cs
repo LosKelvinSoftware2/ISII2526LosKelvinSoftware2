@@ -3,6 +3,7 @@ using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -36,22 +37,19 @@ namespace AppForSEII2526.API.Controllers
                     .Include(o => o.ofertaItems)
                         .ThenInclude(oi => oi.herramienta)
                 .Select(o => new OfertaDetailsDTO(
-                    o.Id,
-                    o.porcentaje,
                     o.fechaInicio,
                     o.fechaFinal,
                     o.fechaOferta,
-                    o.metodoPago,
+                    o.MetodoPago,
                     o.dirigidaA,
                     o.ofertaItems.Select(oi => new OfertaItemDTO(
-                        oi.herramientaId,
+                        oi.porcentaje,
                         oi.precioFinal,
                         oi.herramienta.Nombre,
                         oi.herramienta.Material,
                         oi.herramienta.fabricante.Nombre,
                         oi.herramienta.Precio
-                    )).ToList<OfertaItemDTO>()
-                ))
+                    )).ToList<OfertaItemDTO>()))
                 .FirstOrDefaultAsync();
 
             if (oferta == null)
@@ -70,15 +68,17 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
         public async Task<ActionResult> CreateOferta (OfertaDTO ofertaForCreate)
-        {
+        {   
+            if (ofertaForCreate.fechaInicio == DateTime.MinValue || ofertaForCreate.fechaFinal == DateTime.MinValue)
+                ModelState.AddModelError("DateError", "Error! Las fechas no pueden estar vacías o en formato incorrecto.");
+            if (!ofertaForCreate.metodoPago.HasValue)
+                ModelState.AddModelError("MetodoPago", "Error! El método de pago es obligatorio.");
             if (ofertaForCreate.fechaInicio <= DateTime.Today)
                 ModelState.AddModelError("RentalDateFrom", "Error! La fecha de inicio de oferta debe ser al menos mañana");
             if (ofertaForCreate.fechaInicio >= ofertaForCreate.fechaFinal)
                 ModelState.AddModelError("RentalDateTo", "Error! La fecha final de oferta debe ser después de la fecha de inicio");
             if (ofertaForCreate.fechaFinal <= ofertaForCreate.fechaInicio.AddDays(7))
                 ModelState.AddModelError("RentalDateTo", "Error!, la oferta debe durar al menos una semana");
-            if (ofertaForCreate.porcentaje <= 0 || ofertaForCreate.porcentaje > 100)
-                ModelState.AddModelError("porcentaje", "Error! El porcentaje de descuento debe estar entre 1 y 100");
             if (ofertaForCreate.ofertaItems.Count == 0)
                 ModelState.AddModelError("RentalItems", "Error! Hay que incluir al menos una herramienta");
 
@@ -91,13 +91,19 @@ namespace AppForSEII2526.API.Controllers
             }
 
             // --- 2. Validación de Existencia de Herramientas ---
-            var herramientaIds = ofertaForCreate.ofertaItems.Select(oi => oi.herramientaId).Distinct().ToList();
+            var herramientaNombres = ofertaForCreate.ofertaItems.Select(oi => oi.nombre).ToList();
 
             // Obtener los datos de las herramientas necesarias (Nombre, Material, Fabricante, Precio Original)
             var herramientas = await _context.Herramienta
-                .Include(h => h.fabricante) 
-                .Where(h => herramientaIds.Contains(h.Id))
-                .ToDictionaryAsync(h => h.Id);
+                .Where(h => herramientaNombres.Contains(h.Nombre))
+                .Include(h => h.fabricante)
+                .Select(h => new HerramientaForOfertaDTO(
+                    h.Id,
+                    h.Nombre,
+                    h.Material,
+                    h.Precio,
+                    h.fabricante.Nombre
+                )).ToListAsync();
 
 
             // --- 3. Construcción de Entidades (Modelos de DB) ---
@@ -105,28 +111,44 @@ namespace AppForSEII2526.API.Controllers
             // Crear la entidad Oferta principal
             var nuevaOferta = new Oferta
             {
-                porcentaje = ofertaForCreate.porcentaje,
                 fechaInicio = ofertaForCreate.fechaInicio,
                 fechaFinal = ofertaForCreate.fechaFinal,
-                fechaOferta = DateTime.Today, // La fecha de creación es ahora
-                metodoPago = ofertaForCreate.metodoPago,
+                fechaOferta = ofertaForCreate.fechaOferta, // La fecha de creación es ahora
+                MetodoPago = ofertaForCreate.metodoPago,
                 dirigidaA = ofertaForCreate.dirigidaA,
                 // Las propiedades de precio/porcentaje pueden variar.
             };
             // Crear las entidades OfertaItem y adjuntarlas a la Oferta
             foreach (var item in ofertaForCreate.ofertaItems)
             {
-                var herramienta = herramientas[item.herramientaId];
+                if (!item.porcentaje.HasValue)
+                {
+                    ModelState.AddModelError("Porcentaje", $"Error! El porcentaje es obligatorio para la herramienta {item.nombre}.");
+                    return BadRequest(new ValidationProblemDetails(ModelState));
+                }
+                if (item.porcentaje < 1 || item.porcentaje > 100)
+                {
+                    ModelState.AddModelError("Porcentaje", "Error! El porcentaje de descuento debe estar entre 1 y 100");
+                    return BadRequest(new ValidationProblemDetails(ModelState));
+                }
+
+                var herramienta = herramientas.FirstOrDefault(h => h.Nombre == item.nombre);
+
+                if (herramienta == null)
+                {
+                    ModelState.AddModelError("Herramienta", $"Error! La herramienta {item.nombre} no existe en la base de datos.");
+                    return BadRequest(new ValidationProblemDetails(ModelState));
+                }
 
                 // Cálculo del precio con la oferta (asumiendo que Precio en Herramienta es el original)
                 float precioOriginal = herramienta.Precio;
-                float porcentaje = ofertaForCreate.porcentaje / 100.0f; // Convertir a decimal
+                float porcentaje = item.porcentaje.Value / 100f; // Convertir a decimal
                 float precioFinal = precioOriginal - (precioOriginal * porcentaje);
 
                 nuevaOferta.ofertaItems.Add(new OfertaItem
                 {
-                    herramientaId = item.herramientaId,
-                    porcentaje = ofertaForCreate.porcentaje, // Guardamos el porcentaje en DB si es necesario
+                    herramientaId = herramienta.Id,
+                    porcentaje = item.porcentaje, // Guardamos el porcentaje en DB si es necesario
                     precioFinal = precioFinal, // El precio ya rebajado
                 });
             }
@@ -148,24 +170,21 @@ namespace AppForSEII2526.API.Controllers
             // --- 5. Respuesta Exitosa (Flujo Básico 7) ---
 
             // Crear un DTO de respuesta que contenga los detalles finales 
-            
-
             var ofertaDetail = new OfertaDetailsDTO(
-                nuevaOferta.Id,
-                nuevaOferta.porcentaje,
                 nuevaOferta.fechaInicio,
                 nuevaOferta.fechaFinal,
                 nuevaOferta.fechaOferta,
-                nuevaOferta.metodoPago,
+                nuevaOferta.MetodoPago,
                 nuevaOferta.dirigidaA,
                 nuevaOferta.ofertaItems.Select(oi => new OfertaItemDTO(
-                    oi.herramientaId,
+                    oi.porcentaje,
                     oi.precioFinal,
-                    herramientas[oi.herramientaId].Nombre,
-                    herramientas[oi.herramientaId].Material,
-                    herramientas[oi.herramientaId].fabricante.Nombre,
-                    herramientas[oi.herramientaId].Precio
-            )).ToList());
+                    herramientas.First(h => h.Id == oi.herramientaId).Nombre,
+                    herramientas.First(h => h.Id == oi.herramientaId).Material,
+                    herramientas.First(h => h.Id == oi.herramientaId).fabricante,
+                    herramientas.First(h => h.Id == oi.herramientaId).Precio
+                )).ToList()
+            );
 
             // Devuelve el código 201 Created y la ubicación del recurso recién creado
             return CreatedAtAction("GetOferta", new { id = nuevaOferta.Id }, ofertaDetail);
