@@ -1,7 +1,8 @@
-﻿
-using AppForSEII2526.API;
+﻿using AppForSEII2526.API;
 using AppForSEII2526.API.Controllers;
 using AppForSEII2526.API.DTO.OfertaDTOs;
+using AppForSEII2526.API.Models;
+using Humanizer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,8 @@ namespace AppForSEII2526.UT.OfertasController_test
                 Id = 1,
                 Nombre = "Taladro",
                 Material = "Metal",
-                fabricante = fabricante
+                fabricante = fabricante,
+                Precio = 100
             };
 
             var ofertaItems = new List<OfertaItem>()
@@ -46,9 +48,11 @@ namespace AppForSEII2526.UT.OfertasController_test
                 fechaInicio = DateTime.Today,
                 fechaFinal = DateTime.Today.AddMonths(1),
                 fechaOferta = DateTime.Today.AddDays(1),
-                ofertaItems = ofertaItems
+                ofertaItems = ofertaItems,
+                MetodoPago = tiposMetodoPago.TarjetaCredito
             };
-                
+            
+
             _context.Fabricante.Add(fabricante);
             _context.Herramienta.Add(herramienta);
             _context.OfertaItem.AddRange(ofertaItems);
@@ -87,27 +91,25 @@ namespace AppForSEII2526.UT.OfertasController_test
             var controller = new OfertasController(_context, logger);
 
 
-            var expectedOferta = new OfertaDetailsDTO
-            (
-                1,
-                10,
-                DateTime.Today,
-                DateTime.Today.AddMonths(1),
-                DateTime.Today.AddDays(1),
+            DateTime Unspec(DateTime d) => DateTime.SpecifyKind(d, DateTimeKind.Unspecified);
+
+            var expectedOferta = new OfertaDetailsDTO(
+                Unspec(DateTime.Today),
+                Unspec(DateTime.Today.AddMonths(1)),
+                Unspec(DateTime.Today.AddDays(1)),
                 tiposMetodoPago.TarjetaCredito,
                 null,
-                new List<OfertaItemDTO>
-                {
-                    new OfertaItemDTO(
-                        1,
-                        90,
-                        "Taladro",
-                        "Metal",
-                        "Bosch",
-                        100
-                    )
-
-                }
+                new List<OfertaItemDTO>()
+            );
+            expectedOferta.ofertaItems.Add(
+                new OfertaItemDTO(
+                    10,
+                    90,
+                    "Taladro",
+                    "Metal",
+                    "Bosch",
+                    100
+                )
             );
 
             // Act

@@ -1,12 +1,14 @@
-﻿namespace AppForSEII2526.API.DTO.OfertaDTOs
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+
+namespace AppForSEII2526.API.DTO.OfertaDTOs
 {
     public class OfertaItemDTO
     {
-
-        public OfertaItemDTO(int herramientaId, float precioFinal, string nombre, string material,
+        
+        public OfertaItemDTO(float? porcentaje, float precioFinal, string nombre, string material,
             string Fabricante, float precioOriginal)
         {
-            this.herramientaId = herramientaId;
+            this.porcentaje = porcentaje;
             this.precioFinal = precioFinal;
             this.nombre = nombre;
             this.material = material;
@@ -20,9 +22,7 @@
             return obj is OfertaItemDTO dTO &&
                    precioFinal == dTO.precioFinal &&
                    precioOriginal == dTO.precioOriginal &&
-                   nombre == dTO.nombre &&
-                   herramientaId == dTO.herramientaId &&
-                   ofertaId == dTO.ofertaId;
+                   nombre == dTO.nombre;
         }
 
 
@@ -38,14 +38,10 @@
 
         public string material { get; set; }
 
+        [Required(ErrorMessage = "Por favor, introduce el porcentaje de descuento")]
+        [Range(0.0, 100.0, ErrorMessage = "El porcentaje debe estar entre 0 y 100.")]
+        public float? porcentaje { get; set; }
 
 
-        // FK hacia Herramienta
-        public int herramientaId { get; set; }
-
-        // FK hacia Reparacion
-        public int ofertaId { get; set; }
-
-       
     }
 }
