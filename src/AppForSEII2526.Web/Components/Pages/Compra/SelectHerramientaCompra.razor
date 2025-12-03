@@ -4,14 +4,14 @@
 @inject AppForSEII2526APIClient apiclient
 @inject ILogger<SelectHerramientaCompra> logger
 @inject "NombreContenedor" compraState
-
+@inject NavigationManager navigation
 
 <h3>SelectHerramientaCompra</h3>
 
 
 <div class="container-fluid">
-    <div class="row" hidden="@hideErrors">
-        <p>Los errores van aquí</p>
+    <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+        <p id="ErrorsShown">Errors: @errors</p>
     </div>
     <div class="row">
         <div class="col-8">
@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="col">
-                    <button type="button" class="btn btn-primary" @onclick=@SearchHerramienta id="SearchHerramientas">Search herramientas</button>
+                    <button type="button" class="btn btn-primary" @onclick=@BuscarHerramienta id="BuscarHerramientas">Buscar herramientas</button>
                 </div>
 
             </div>
@@ -73,8 +73,19 @@
 
             </div>
         </div>
-        <div class="col-2">
-            <p>Carrito</p>
+        <div class="col-2" hidden="@hideRentingCart">
+            <div class="row">
+                <h3>Shopping Cart</h3>
+            </div>
+            @foreach (CompraItemDTO item in compra.RentalItems)
+            {
+                <div class="row">
+                    <button type="button" class="btn btn-light" id="removeMovie_@item.Title" @onclick="@(() => RemoveCompraItem(item))">x @item.Title - @item.PriceForRenting€</button>
+                </div>
+            }
+            <div class="row">
+                <button type="button" class="btn btn-primary" id="purchaseMovieButton" @onclick=@CompraHerramienta>Rent movies</button>
+            </div>
         </div>
 
     </div>
@@ -84,6 +95,7 @@
 
 @code {
 
+     private bool hideRentingCart { get { return rental.RentalItems.Count == 0; } }
     private ICollection<CompraHerramientasDTO> herramientas;
     private bool hideErrors { get { return errors.Length == 0; } }
     private string errors = "";
@@ -103,7 +115,7 @@
         if (compra.CompraItems.Count == 0) hiddenRentingCart = true;
     }
 
-    public async void SearchHerramienta()
+    public async void BuscarHerramienta()
     {
         try
         {
@@ -116,6 +128,10 @@
             errors = "Error while connecting to the system";
         }
         StateHasChanged();
+    }
+
+    private void CompraHerramienta() {
+        navigation.NavigateTo("/rentals/createrental");
     }
 
 
