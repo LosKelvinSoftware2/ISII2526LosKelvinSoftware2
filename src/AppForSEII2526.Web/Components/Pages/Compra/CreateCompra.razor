@@ -2,7 +2,7 @@
 @inject NavigationManager navigation
 @using AppForSEII2526.Web.Components.Shared
 @using AppForSEII2526.Web.API
-@inject AppForSEIIAPIClient apiclient
+@inject AppForSEII2526APIClient apiclient
 @inject ILogger<CreateCompra> logger
 @inject CompraStateContainer compraState
 
@@ -116,7 +116,7 @@
                 return Convert.ToDecimal(price);
             }
     }
-    private void ModifyRentalItems() {
+    private void ModifyCompraItems() {
         navigation.NavigateTo("/rental/selectmoviesforrental");
     }
 
@@ -134,7 +134,7 @@
             {
                 try
                 {
-                    var rented = await apiclient.CreateRentalAsync(compra);
+                    var rented = await apiclient.CreateCompraAsync(compra);
                     compraState.CompraProcessed();
                     navigation.NavigateTo($"/rental/detailrental/?RentalID={rented.Id}");
                 }
