@@ -47,7 +47,7 @@ namespace AppForSEII2526.API.Controllers
                     r.PrecioTotal,
                     r.MetodoPago,
                     r.ItemsReparacion
-                        .Select(ri => new ReparacionItemDetailsDTO(
+                        .Select(ri => new ReparacionItemDTO(
                             ri.Herramienta.Nombre,
                             ri.Precio,
                             ri.Cantidad,
@@ -185,11 +185,12 @@ namespace AppForSEII2526.API.Controllers
                 return Conflict("Error: " + ex.Message);
             }
 
-            var itemsDetails = reparacion.ItemsReparacion.Select(ri => new ReparacionItemDetailsDTO(
+            var itemsDetails = reparacion.ItemsReparacion.Select(ri => new ReparacionItemDTO(
                 ri.Herramienta.Nombre,
                 ri.Precio,
                 ri.Cantidad,
                 ri.Descripcion
+                
             )).ToList();
 
             var reparacionDetail = new ReparacionDetailsDTO(
