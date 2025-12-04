@@ -334,22 +334,22 @@ namespace AppForSEII2526.UT.ReparacionController_test
             Assert.Equal(tiposMetodoPago.PayPal, reparacionDetailDTO.MetodoPago);
 
             // Verificar items
-            Assert.Equal(2, reparacionDetailDTO.ItemsReparacionDetails.Count);
+            Assert.Equal(2, reparacionDetailDTO.ItemsReparacion.Count);
 
-            var itemMartillo = reparacionDetailDTO.ItemsReparacionDetails.FirstOrDefault(i => i.NombreHerramienta == "Martillo");
+            var itemMartillo = reparacionDetailDTO.ItemsReparacion.FirstOrDefault(i => i.NombreHerramienta == "Martillo");
             Assert.NotNull(itemMartillo);
             Assert.Equal(2, itemMartillo.Cantidad);
             Assert.Equal(100.0f, itemMartillo.Precio); // 50 * 2 = 100
             Assert.Equal("Reparación de martillos", itemMartillo.Descripcion);
 
-            var itemSierra = reparacionDetailDTO.ItemsReparacionDetails.FirstOrDefault(i => i.NombreHerramienta == "Sierra");
+            var itemSierra = reparacionDetailDTO.ItemsReparacion.FirstOrDefault(i => i.NombreHerramienta == "Sierra");
             Assert.NotNull(itemSierra);
             Assert.Equal(1, itemSierra.Cantidad);
             Assert.Equal(75.0f, itemSierra.Precio);
             Assert.Equal("Reparación de sierra", itemSierra.Descripcion);
 
-            Assert.Equal(itemMartillo, reparacionDetailDTO.ItemsReparacionDetails.FirstOrDefault(i => i.NombreHerramienta == "Martillo"));
-            Assert.Equal(itemSierra, reparacionDetailDTO.ItemsReparacionDetails.FirstOrDefault(i => i.NombreHerramienta == "Sierra"));
+            Assert.Equal(itemMartillo, reparacionDetailDTO.ItemsReparacion.FirstOrDefault(i => i.NombreHerramienta == "Martillo"));
+            Assert.Equal(itemSierra, reparacionDetailDTO.ItemsReparacion.FirstOrDefault(i => i.NombreHerramienta == "Sierra"));
         }
 
         private DateTime CalcularFechaRecogida(DateTime fechaEntrega, int diasHabiles)

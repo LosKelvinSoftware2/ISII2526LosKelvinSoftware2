@@ -406,8 +406,8 @@
             "name": "DiaReparacion",
             "in": "query",
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "number",
+              "format": "float"
             }
           }
         ],
@@ -1717,13 +1717,20 @@
         "required": [
           "fechaFinal",
           "fechaInicio",
-          "metodoPago"
+          "metodoPago",
+          "porcentaje"
         ],
         "type": "object",
         "properties": {
           "fechaFinal": {
             "type": "string",
             "format": "date-time"
+          },
+          "porcentaje": {
+            "maximum": 100,
+            "minimum": 0,
+            "type": "number",
+            "format": "float"
           },
           "fechaInicio": {
             "type": "string",
@@ -1750,18 +1757,21 @@
         "additionalProperties": false
       },
       "OfertaDetailsDTO": {
-        "required": [
-          "fechaFinal",
-          "fechaInicio",
-          "metodoPago"
-        ],
         "type": "object",
         "properties": {
-          "fechaFinal": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "porcentaje": {
+            "type": "number",
+            "format": "float"
+          },
+          "fechaInicio": {
             "type": "string",
             "format": "date-time"
           },
-          "fechaInicio": {
+          "fechaFinal": {
             "type": "string",
             "format": "date-time"
           },
@@ -1769,18 +1779,18 @@
             "type": "string",
             "format": "date-time"
           },
+          "metodoPago": {
+            "$ref": "#/components/schemas/tiposMetodoPago"
+          },
+          "dirigidaA": {
+            "$ref": "#/components/schemas/tiposDiridaOferta"
+          },
           "ofertaItems": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/OfertaItemDTO"
             },
             "nullable": true
-          },
-          "metodoPago": {
-            "$ref": "#/components/schemas/tiposMetodoPago"
-          },
-          "dirigidaA": {
-            "$ref": "#/components/schemas/tiposDiridaOferta"
           }
         },
         "additionalProperties": false
@@ -1822,7 +1832,6 @@
       },
       "OfertaItemDTO": {
         "required": [
-          "porcentaje",
           "precioFinal"
         ],
         "type": "object",
@@ -1848,11 +1857,13 @@
             "type": "string",
             "nullable": true
           },
-          "porcentaje": {
-            "maximum": 100,
-            "minimum": 0,
-            "type": "number",
-            "format": "float"
+          "herramientaId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ofertaId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
