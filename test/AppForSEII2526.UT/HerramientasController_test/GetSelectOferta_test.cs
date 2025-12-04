@@ -42,9 +42,9 @@ namespace AppForSEII2526.UT.HerramientasControllerTest
 
             var herramientaForOfertaDTOs = new List<HerramientaForOfertaDTO>()
             {
-                new HerramientaForOfertaDTO(1, "Herramienta1", "Madera", 100, fabricantes[0]),
-                new HerramientaForOfertaDTO(2, "Herramienta2", "Metal", 200, fabricantes[1]),
-                new HerramientaForOfertaDTO(3, "Herramienta3", "Plastico", 300, fabricantes[0]),
+                new HerramientaForOfertaDTO(1, "Herramienta1", "Madera", 100, fabricantes[0].Nombre),
+                new HerramientaForOfertaDTO(2, "Herramienta2", "Metal", 200, fabricantes[1].Nombre),
+                new HerramientaForOfertaDTO(3, "Herramienta3", "Plastico", 300, fabricantes[0].Nombre),
             };
 
             // Relacionar los fabricantes a las herramientas para no recibir errores en las pruebas

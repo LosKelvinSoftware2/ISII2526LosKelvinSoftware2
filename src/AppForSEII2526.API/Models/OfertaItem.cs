@@ -4,9 +4,9 @@
     public class OfertaItem
     {
 
-        [Required]
-        [Range(0.0, 100.0)]
-        public float porcentaje { get; set; }
+        [Required(ErrorMessage = "Por favor, introduce el porcentaje")]
+        [Range(0.0, 100.0, ErrorMessage = "Error! El porcentaje debe estar entre 0 y 100")]
+        public float? porcentaje { get; set; }
         [Required]
         [Range(0, float.MaxValue, ErrorMessage = "El precio total no puede ser negativo.")]
         public float precioFinal { get; set; }

@@ -134,7 +134,7 @@ namespace AppForSEII2526.API.Controllers
                             // Mostrar todas las herramientas si no se ha pasado el fabricante por parámetro
                     ((fabricante == null) || (h.fabricante.Nombre == fabricante))
                     && ((precio == 0) || (h.Precio <= precio))) // igual para precio si es 0
-                .Select(h => new HerramientaForOfertaDTO(h.Id, h.Nombre, h.Material, h.Precio, h.fabricante))
+                .Select(h => new HerramientaForOfertaDTO(h.Id, h.Nombre, h.Material, h.Precio, h.fabricante.Nombre))
                 .ToListAsync();
 
 
