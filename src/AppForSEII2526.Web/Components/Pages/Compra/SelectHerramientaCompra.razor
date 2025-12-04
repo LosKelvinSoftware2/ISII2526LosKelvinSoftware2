@@ -3,7 +3,7 @@
 @using AppForSEII2526.Web.API
 @inject AppForSEII2526APIClient apiclient
 @inject ILogger<SelectHerramientaCompra> logger
-@inject "NombreContenedor" compraState
+@inject CompraStateContainer compraState
 @inject NavigationManager navigation
 
 <h3>SelectHerramientaCompra</h3>
@@ -77,10 +77,10 @@
             <div class="row">
                 <h3>Shopping Cart</h3>
             </div>
-            @foreach (CompraItemDTO item in compra.RentalItems)
+            @foreach (CompraItemDTO item in compra.CompraItems)
             {
                 <div class="row">
-                    <button type="button" class="btn btn-light" id="removeMovie_@item.Title" @onclick="@(() => RemoveCompraItem(item))">x @item.Title - @item.PriceForRenting€</button>
+                    <button type="button" class="btn btn-light" id="removeMovie_@item.Nombre" @onclick="@(() => RemoveCompraItem(item))">x @item.Nombre - @item.Precio €</button>
                 </div>
             }
             <div class="row">
@@ -95,7 +95,7 @@
 
 @code {
 
-     private bool hideRentingCart { get { return rental.RentalItems.Count == 0; } }
+     private bool hideRentingCart { get { return compra.CompraItems.Count == 0; } }
     private ICollection<CompraHerramientasDTO> herramientas;
     private bool hideErrors { get { return errors.Length == 0; } }
     private string errors = "";

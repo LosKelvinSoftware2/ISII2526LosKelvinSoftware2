@@ -2,7 +2,7 @@
 @inject NavigationManager navigation
 @using AppForSEII2526.Web.Components.Shared
 @using AppForSEII2526.Web.API
-@inject AppForSEIIAPIClient apiclient
+@inject AppForSEII2526APIClient apiclient
 @inject ILogger<CreateCompra> logger
 @inject CompraStateContainer compraState
 
@@ -42,9 +42,9 @@
             <div class="form-floating">
                 @*a dropdown for selecting the payment method*@
                 <InputSelect class="form-select" @bind-Value="@compra.MetodoPago" id="MetodoPago">
-                    <option value="@MetodoPago.CreditCard" default> CreditCard</option>
-                    <option value="@MetodoPago.PayPal"> PayPal</option>
-                    <option value="@MetodoPago.Cash"> Cash</option>
+                    <option value="@TiposMetodoPago.TarjetaCredito" default> CreditCard</option>
+                    <option value="@TiposMetodoPago.PayPal"> PayPal</option>
+                    <option value="@TiposMetodoPago.Efectivo"> Cash</option>
                 </InputSelect>
                 <label for="PaymentMethod">Payment Method</label>
             </div>
@@ -105,7 +105,7 @@
 
     private bool DialogIsOpen;
     private object? errors;
-    private CompraForCreate compra => compraState.compra;
+    private CreateCompra compra => compraState.compra;
     private string messageError = "";
     private bool hideErrors { get { return messageError.Length == 0; } }
 
@@ -116,7 +116,7 @@
                 return Convert.ToDecimal(price);
             }
     }
-    private void ModifyRentalItems() {
+    private void ModifyCompraItems() {
         navigation.NavigateTo("/rental/selectmoviesforrental");
     }
 
@@ -134,7 +134,7 @@
             {
                 try
                 {
-                    var rented = await apiclient.CreateRentalAsync(compra);
+                    var rented = await apiclient.CreateCompraAsync(compra);
                     compraState.CompraProcessed();
                     navigation.NavigateTo($"/rental/detailrental/?RentalID={rented.Id}");
                 }
