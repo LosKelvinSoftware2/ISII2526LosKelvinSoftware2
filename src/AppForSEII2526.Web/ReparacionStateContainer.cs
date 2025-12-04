@@ -26,7 +26,7 @@ namespace AppForSEII2526.Web
                     Cantidad = cantidad,
                     Descripcion = descripcion,
                     NombreHerramienta = herramienta.Nombre,
-                    Precio = herramienta.Precio           
+                    Precio = herramienta.Precio
                 };
 
                 Reparacion.ItemsReparacion.Add(item);
