@@ -2,17 +2,20 @@
 @inject NavigationManager navigation
 @using AppForSEII2526.Web.Components.Shared
 @using AppForSEII2526.Web.API
+@using Microsoft.AspNetCore.Authorization
 @inject AppForSEII2526APIClient apiclient
 @inject ILogger<CreateCompra> logger
 @inject CompraStateContainer compraState
 
-<h3>CreateCompra</h3>
+@attribute [Authorize]
+
+<h3>Create Compra</h3>
 
 @* compra is the object that will be edited thanks to the form *@
 <EditForm Model="compra" OnValidSubmit="OpenDialog">
     <div class="row">
         <DataAnnotationsValidator />
-        <ValidationSummary/>
+        <ValidationSummary class="row alert alert-danger" />
     </div>
     <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
         <p id="ErrorsShown">Errors: @messageError</p>
@@ -20,20 +23,20 @@
     <div class="row g-3">
         <div class="col-md">
             <div class="form-floating mb-3">
-                <InputText @bind-Value="compra.NameCustomer" class="form-control" id="Name" />
-                <label for="Name">Name </label>
+                <InputText @bind-Value="compra.NombreCliente" class="form-control" id="Name" />
+                <label for="Name">Nombre </label>
             </div>
         </div>
         <div class="col-md">
             <div class="form-floating mb-3">
-                <InputText @bind-Value="compra.SurnameCustomer" class="form-control" id="Surname" />
-                <label for="Name">Name </label>
+                <InputText @bind-Value="compra.ApellidoCliente" class="form-control" id="Surname" />
+                <label for="Name">Apellido </label>
             </div>
         </div>
         <div class="col-md">
             <div class="form-floating mb-3">
-                <InputText @bind-Value="compra.DeliveryAddress" class="form-control" id="DeliveryAddress" />
-                <label for="DeliveryAddress">Delivery Address</label>
+                <InputText @bind-Value="compra.DireccionEnvio" class="form-control" id="DeliveryAddress" />
+                <label for="DeliveryAddress">Direccion Envio</label>
             </div>
         </div>
     </div>
@@ -41,49 +44,49 @@
         <div class="col-md">
             <div class="form-floating">
                 @*a dropdown for selecting the payment method*@
-                <InputSelect class="form-select" @bind-Value="@compra.MetodoPago" id="MetodoPago">
-                    <option value="@TiposMetodoPago.TarjetaCredito" default> CreditCard</option>
+                <InputSelect class="form-select" @bind-Value="@compra.MetodoPago" id="PaymentMethod">
+                    <option value="@TiposMetodoPago.TarjetaCredito" default> Tarjeta</option>
                     <option value="@TiposMetodoPago.PayPal"> PayPal</option>
-                    <option value="@TiposMetodoPago.Efectivo"> Cash</option>
+                    <option value="@TiposMetodoPago.Efectivo"> Efectivo</option>
                 </InputSelect>
-                <label for="PaymentMethod">Payment Method</label>
+                <label for="PaymentMethod">Metodo de pago</label>
             </div>
         </div>
         <div class="col-md">
             <div class="form-floating">
-                @*this button will be used to ask the user if he want to proceed to purchase the tools*@
+                @*this button will be used to ask the user if he want to proceed to purchase tools*@
                 <button class="btn btn-primary" type="submit" id="Submit">
-                    Compra tu herramienta
+                    Comprar herramientas
                 </button>
             </div>
         </div>
     </div>
     <h4>Compra detail</h4>
-    <p><b>Date from:</b> @compra.RentalDateFrom.ToString("dd/MM/yyyy") <b>to:</b> @compra.RentalDateTo.ToString("dd/MM/yyyy")</p>
     <p>
-        <b>Total price:</b> @PrecioTotal €
-        <button class="btn btn-outline-primary" type="submit" @onclick="ModifyRentalItems" id="ModifyMovies">
-            Modify movies
+        <b>Precio Total:</b> @TotalCost €
+        <button class="btn btn-outline-primary" type="submit" @onclick="ModifyCompraItems" id="ModifyItems">
+            Modificar herramientas
         </button>
     </p>
+
     <div class="mh-100 table-responsive">
         <table class="table table-condensed table-hover" id="TableOfRentalItems">
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Genre</th>
-                    <th>Price For Renting</th>
-                    <th>Description</th>
+                    <th>Nombre</th>
+                    <th>Material</th>
+                    <th>Precio</th>
+                    <th>Descripcion</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in compra.CompraItems)
+                @foreach (var h in compra.CompraItems)
                 {
-                    <tr id="MovieData_@item.Title">
-                        <td>@item.Title</td>
-                        <td>@item.Genre</td>
-                        <td>@item.PriceForRenting</td>
-                        <td><InputText @bind-Value="item.Description" class="form-control" id="@($"description_{item.MovieID}")" /></td>
+                    <tr id="MovieData_@h.HerramientaId">
+                        <td>@h.Nombre</td>
+                        <td>@h.Material</td>
+                        <td>@h.Precio</td>
+                        <td><InputText @bind-Value="h.Descripcion" class="form-control" id="@($"description_{h.HerramientaId}")" /></td>
                     </tr>
                 }
             </tbody>
@@ -91,52 +94,61 @@
     </div>
 </EditForm>
 
-@*a modal popup dialog for checking if user wants to proceed to purchase*@
+@*a modal popup dialog for checking if user wants to proceed to rent*@
 @if (DialogIsOpen)
 {
-    <Dialog Caption="Compra herramientas"
-    Message="¿Quieres seguir con la compra de herramientas?"
-    OnClose="@OnDialogClose"
-    Type=Dialog.Category.SaveNot>
+    <Dialog Caption="Comprar Herramientas"
+            Message="¿Quieres seguir con el proceso de compra?"
+            OnClose="@OnDialogClose"
+            Type=Dialog.Category.SaveNot>
     </Dialog>
-}   
+}
 
 @code {
-
-    private bool DialogIsOpen;
-    private object? errors;
-    private CreateCompra compra => compraState.compra;
     private string messageError = "";
     private bool hideErrors { get { return messageError.Length == 0; } }
+    private bool DialogIsOpen;
 
-    private decimal TotalCost { 
-        get {
-            int days = (compra.RentalDateTo.DateTime - compra.RentalDateFrom.DateTime).Days;
-            double price = compra.RentalItems.Sum(ri => ri.PriceForRenting * days);
-                return Convert.ToDecimal(price);
-            }
+    private void ModifyCompraItems()
+    {
+        navigation.NavigateTo("/Compra/SelectHerramientaCompra"); 
     }
-    private void ModifyCompraItems() {
-        navigation.NavigateTo("/rental/selectmoviesforrental");
-    }
+    private CompraDTO compra => compraState.Compra;
 
     private void OpenDialog()
     {
         DialogIsOpen = true;
     }
 
-    private async Task OnDialogClose(bool isOk) {
+    private float TotalCost
+    {
+        get
+        {
+            float total = 0;
+            foreach (var item in compra.CompraItems)
+            {
+                total += item.Precio;
+            }
+            return total;
+        }
+    }
+
+    private async Task OnDialogClose(bool isOk)
+    {
 
         DialogIsOpen = false;
-        if (isOk) {
+        if (isOk)
+        {
             // Process the data introduced by the user if they are valid
             if (compra.CompraItems.Count > 0)
             {
                 try
                 {
-                    var rented = await apiclient.CreateCompraAsync(compra);
+                    var comprado = await apiclient.CreateCompraAsync(compra);
                     compraState.CompraProcessed();
-                    navigation.NavigateTo($"/rental/detailrental/?RentalID={rented.Id}");
+                    /////////////////////////////////////////////////////////////////////////////////
+                    //navigation.NavigateTo($"/Compra/DetailsCompra/?CompraID={comprado.id}");
+                    /////////////////////////////////////////////////////////////////////////////////
                 }
                 catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
                 {
@@ -155,11 +167,35 @@
                     messageError = "Error while processing your request, please try again later!";
 
                 }
+
             }
         }
     }
 
+    protected override async Task OnInitializedAsync()
+    {
 
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
 
+            if (user is not null)
+            {
+                if (user.Identity is not null && user.Identity.IsAuthenticated)
+                {
+                    compra.NombreCliente = user.Identity.Name;
+                }
+            }
+            compra.NombreCliente = compra.NombreCliente == null ? "" : compra.NombreCliente;
+            compra.ApellidoCliente = compra.ApellidoCliente == null ? "" : compra.ApellidoCliente;
+            compra.DireccionEnvio = compra.DireccionEnvio == null ? "" : compra.DireccionEnvio;
 
+        }
+    }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+   
 }
