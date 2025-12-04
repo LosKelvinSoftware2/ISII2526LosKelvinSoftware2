@@ -95,9 +95,21 @@ public class RabbitMQLogger : ILogger, IDisposable
             byte[] body = Encoding.UTF8.GetBytes(json);
 
 
+            // Generar routing key según nivel de log
+            string routingKey = logLevel switch
+            {
+                LogLevel.Information => "log.info",
+                LogLevel.Warning => "log.warn",
+                LogLevel.Error => "log.error",
+                LogLevel.Critical => "log.critical",
+                LogLevel.Debug => "log.debug",
+                _ => "log.other"
+            };
+
+
             _channel.BasicPublish(
                  exchange: _config.Exchange,
-                 routingKey: "",
+                 routingKey: routingKey,
                  basicProperties: _properties,
                  body: body);
 
