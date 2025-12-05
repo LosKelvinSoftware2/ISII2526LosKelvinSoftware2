@@ -39,10 +39,10 @@ namespace AppForSEII2526.UT.HerramientasController_test
             };
             var alquilerHerramientasDTO = new List<AlquilerHerramientasDTO>()
             {
-                new AlquilerHerramientasDTO(1, "Taladro", "Acero", 100.0f, fabricante[0]),
-                new AlquilerHerramientasDTO(2, "Destornillador", "Metal", 50.0f, fabricante[1]),
-                new AlquilerHerramientasDTO(3, "Motosierra", "Metal", 75.0f, fabricante[0]),
-                new AlquilerHerramientasDTO(4, "Martillo", "Madera", 30.0f, fabricante[2])
+                new AlquilerHerramientasDTO(1, "Taladro", "Acero", 100.0f, fabricante[0].Nombre),
+                new AlquilerHerramientasDTO(2, "Destornillador", "Metal", 50.0f, fabricante[1].Nombre),
+                new AlquilerHerramientasDTO(3, "Motosierra", "Metal", 75.0f, fabricante[0].Nombre),
+                new AlquilerHerramientasDTO(4, "Martillo", "Madera", 30.0f, fabricante[2].Nombre)
             };
             fabricante[0].Herramientas = new List<Herramienta>()
             {
