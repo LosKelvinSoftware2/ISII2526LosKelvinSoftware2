@@ -182,7 +182,7 @@ namespace AppForSEII2526.API.Controllers
                     h.Nombre,
                     h.Material,
                     h.Precio,
-                    h.fabricante
+                    h.fabricante.Nombre
                 ))
                 .ToListAsync();
 
