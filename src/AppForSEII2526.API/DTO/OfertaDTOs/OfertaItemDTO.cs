@@ -21,8 +21,16 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
         {
             return obj is OfertaItemDTO dTO &&
                    precioFinal == dTO.precioFinal &&
+                   Fabricante == dTO.Fabricante &&
                    precioOriginal == dTO.precioOriginal &&
-                   nombre == dTO.nombre;
+                   nombre == dTO.nombre &&
+                   material == dTO.material &&
+                   porcentaje == dTO.porcentaje;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(precioFinal, Fabricante, precioOriginal, nombre, material, porcentaje);
         }
 
 
@@ -41,7 +49,5 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
         [Required(ErrorMessage = "Por favor, introduce el porcentaje de descuento")]
         [Range(0.0, 100.0, ErrorMessage = "El porcentaje debe estar entre 0 y 100.")]
         public float? porcentaje { get; set; }
-
-
     }
 }
