@@ -1,4 +1,5 @@
-﻿
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+
 namespace AppForSEII2526.API.DTO.OfertaDTOs
 {
     public class HerramientaForOfertaDTO
@@ -40,6 +41,11 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
                    Material == dTO.Material &&
                    Precio == dTO.Precio &&
                    fabricante == dTO.fabricante;
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
         }
         // Relación con ReparacionItem
 
