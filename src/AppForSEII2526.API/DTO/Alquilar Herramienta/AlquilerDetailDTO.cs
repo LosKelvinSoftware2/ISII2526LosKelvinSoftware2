@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using System.Text.Json.Serialization;
 namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
 {
     public class AlquilerDetailDTO : AlquilerDTO
     {
         public AlquilerDetailDTO(int id, DateTime fechaAlquiler, string nombreCliente, string apellidoCliente, string direccionEnvio, float precioTotal,
-            DateTime fechaFin, DateTime fechaInicio, List<AlquilarItemDTO> AlquilarItems, tiposMetodoPago MetodoPago) :
-            base(nombreCliente, apellidoCliente, direccionEnvio, precioTotal, fechaFin, fechaInicio, AlquilarItems, MetodoPago)
+            DateTime fechaFin, DateTime fechaInicio, List<AlquilarItemDTO> AlquilarItems, tiposMetodoPago MetodoPago, string? numTelefono = null, string? correoElectronico = null) :
+            base(nombreCliente, apellidoCliente, direccionEnvio, precioTotal, fechaFin, fechaInicio, AlquilarItems, MetodoPago, numTelefono, correoElectronico)
         {
             Id = id;
             this.nombreCliente = nombreCliente;
@@ -15,10 +16,6 @@ namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
 
         [Key]
         int Id { get; set; }
-        [Required]
-        public string nombreCliente { get; set; }
-        [Required]
-        public string apellidoCliente { get; set; }
         [Required]
         public DateTime fechaAlquiler { get; set; }
 
