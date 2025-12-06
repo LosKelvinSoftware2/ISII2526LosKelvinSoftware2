@@ -34,6 +34,17 @@ namespace AppForSEII2526.Web
             }
         }
 
+        /// PARA DEVOLVER EL ID
+        public int DevolverId(ReparacionDTO Reparacion)
+        {
+            foreach (var item in Reparacion.ItemsReparacion)
+            {
+                return item.HerramientaId;
+            }
+            // Si esta vacio
+            throw new InvalidOperationException("No se encontró ningún item de reparación.");
+        }
+
         public void RemoveItemFromReparacion(ReparacionItemDTO item)
         {
             Reparacion.ItemsReparacion.Remove(item);
