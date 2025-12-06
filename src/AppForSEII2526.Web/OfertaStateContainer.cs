@@ -1,4 +1,4 @@
-﻿using AppForSEII2526.API.DTO.OfertaDTOs;
+﻿/*using AppForSEII2526.API.DTO.OfertaDTOs;
 using AppForSEII2526.Web.API;
 
 
@@ -57,3 +57,4 @@ namespace AppForSEII2526.Web
     }
 
 }
+*/
