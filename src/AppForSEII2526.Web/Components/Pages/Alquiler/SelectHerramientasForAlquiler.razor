@@ -1,0 +1,112 @@
+﻿@page "/Alquiler/SelectHerramientasForAlquiler"
+
+@using AppForSEII2526.Web.API
+@inject AppForSEII2526APIClient apiClient
+@inject ILogger<SelectHerramientasForAlquiler> logger
+@inject RentalStateContainer alquilerState
+
+<h3>SelectHerramientasForAlquiler</h3>
+
+<h3>Select Movies For Rental</h3>
+<div class="container-fluid">
+    <div class="row" hidden="@hideErrors">
+        <p>here i will show the errors</p>
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div class="row">
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Nombre</span>
+                        <input type="text" id="inputNombre" @bind=Nombre class="form-control" placeholder="Nombre" aria-label="Nombre" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Material</span>
+                        <input type="text" id="inputMaterial" @bind=Material class="form-control" placeholder="Material" aria-label="Material" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                @if (alquileres == null)
+                {
+                    <p>Loading alquileres....</p>
+                }
+                else
+                {
+                    <div class="mh-100 table-responsive">
+                        <table class="table table-condensed table-hover" id="TableOfAlquileres">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Material</th>
+                                    <th>Precio</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var alquiler in alquileres)
+                                {
+                                    <tr id="AlquilerData_@alquiler.Title">
+                                        <td>@alquiler.Nombre</td>
+                                        <td>@alquiler.Material</td>
+                                        <td>@alquiler.Precio</td>
+                                        <td>@alquiler</td>
+                                        <td>
+                                            <button class="btn btn-outline-secondary" id="movieToRent_@alquiler.Title" @onclick="@(() => AddAlquiler(herramienta))">Add</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-2">
+            <p>here i will show the renting cart</p>
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+    private ICollection<AlquilerForHerramientasDTO> movies;
+    private bool hideErrors { get { return errors.Length == 0; } }
+    private string errors = "";
+    private string Nombre { get; set; }
+    private string Material { get; set; }
+
+    private HerramientasForAlquilerDTO alquilerDTO => rentalState.Alquiler;
+
+    private bool hiddenRentingCart = true;
+
+    private void AddMovie(HerramientasForAlquilerDTO alquiler)
+    {
+        rentalState.AddHerramientaToAlquiler(alquiler);
+    }
+
+    private void RemoveRentalItem(AlquilerItemDTO item)
+    {
+        rentalState.RemoveAlquilerItemToAlquileres(item);
+        if (alquiler.AlquilerItems.Count == 0) hiddenRentingCart = true;
+    }
+
+    public async void SearchAlquileres()
+    {
+        try
+        {
+            movies = await apiclient.GetHerramientasForAlquilerAsync(Nombre, Material);
+        }
+        catch (ApiException ex)
+        {
+            logger.LogError($"{DateTime.Now} Error: {ex}");
+            errors = "Error while connecting to the system";
+        }
+        StateHasChanged();
+    }
+
+}
