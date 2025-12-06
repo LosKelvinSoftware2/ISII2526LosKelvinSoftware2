@@ -1039,19 +1039,22 @@
       },
       "AlquilerDTO": {
         "required": [
+          "apellidoCliente",
           "direccionEnvio",
           "fechaFin",
-          "fechaInicio"
+          "fechaInicio",
+          "metodoPago",
+          "nombreCliente"
         ],
         "type": "object",
         "properties": {
           "nombreCliente": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "apellidoCliente": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "direccionEnvio": {
             "minLength": 1,
@@ -1069,6 +1072,17 @@
           "fechaInicio": {
             "type": "string",
             "format": "date-time"
+          },
+          "numTelefono": {
+            "type": "string",
+            "nullable": true
+          },
+          "correoElectronico": {
+            "type": "string",
+            "nullable": true
+          },
+          "metodoPago": {
+            "$ref": "#/components/schemas/tiposMetodoPago"
           },
           "alquilarItems": {
             "type": "array",
@@ -1087,10 +1101,19 @@
           "fechaAlquiler",
           "fechaFin",
           "fechaInicio",
+          "metodoPago",
           "nombreCliente"
         ],
         "type": "object",
         "properties": {
+          "nombreCliente": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "apellidoCliente": {
+            "minLength": 1,
+            "type": "string"
+          },
           "direccionEnvio": {
             "minLength": 1,
             "type": "string"
@@ -1108,20 +1131,23 @@
             "type": "string",
             "format": "date-time"
           },
+          "numTelefono": {
+            "type": "string",
+            "nullable": true
+          },
+          "correoElectronico": {
+            "type": "string",
+            "nullable": true
+          },
+          "metodoPago": {
+            "$ref": "#/components/schemas/tiposMetodoPago"
+          },
           "alquilarItems": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AlquilarItemDTO"
             },
             "nullable": true
-          },
-          "nombreCliente": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "apellidoCliente": {
-            "minLength": 1,
-            "type": "string"
           },
           "fechaAlquiler": {
             "type": "string",
@@ -1158,7 +1184,8 @@
             "format": "float"
           },
           "fabricante": {
-            "$ref": "#/components/schemas/Fabricante"
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
