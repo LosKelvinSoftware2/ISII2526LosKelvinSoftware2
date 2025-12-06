@@ -32,10 +32,10 @@
         </div>
         <div class="col-md">
             <div class="form-floating mb-3">
-                <InputText @bind-Value="repa.ApellidoCliente" class="form-control" id="Surname" />
+                <InputText @bind-Value="repa.ApellidosCliente" class="form-control" id="Surname" />
                 <label for="Surname">Apellido</label>
             </div>
-        </div>
+        </div>@*
         <div class="col-md">
             <div class="form-floating mb-3">
                 <InputText @bind-Value="repa.DireccionEnvio" class="form-control" id="DeliveryAddress" />
@@ -45,8 +45,7 @@
         @* Metodo de Pago *@
         <div class="row g-2">
             <div class="col-md">
-                <div class="form-floating">
-                    @*a dropdown for selecting the payment method*@
+                <div class="form-floating">                    
                     <InputSelect class="form-select" @bind-Value="@repa.MetodoPago" id="PaymentMethod">
                         <option value="@TiposMetodoPago.TarjetaCredito" default> Tarjeta</option>
                         <option value="@TiposMetodoPago.PayPal"> PayPal</option>
@@ -83,18 +82,16 @@
             <thead>
                 <tr>
                     <th>Herramienta</th>
-                    <th>Material</th>
                     <th>Precio Unidad</th>
                     <th>Cantidad</th> @* Importante en el controlador *@
                     <th>Descripción</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in repa.ReparacionItems)
+                @foreach (var item in repa.ItemsReparacion)
                 {
                     <tr id="ToolData_@item.HerramientaId">
-                        <td>@item.Nombre</td>
-                        <td>@item.Material</td>
+                        <td>@item.NombreHerramienta</td>
                         <td>@item.Precio</td>
                         @* Para Cantidad (Validado en controlador > 0) *@
                         <td>
@@ -155,13 +152,13 @@
         if (isOk)
         {
             // Process the data introduced by the user if they are valid
-            if (repa.ReparacionItems.Count > 0)
+            if (repa.ItemsReparacion.Count > 0)
             {
                 try
                 {
-                    var reparacion = await apiclient.CreateRentalAsync(repa);
+                    var reparacion = await apiclient.CreateReparacionAsync(repa);
                     ReparacionState.ReparacionProcessed();
-                    //navigation.NavigateTo($"/rental/detailrental/?RentalID={rented.Id}");
+                    navigation.NavigateTo($"/Reparacion/DetailReparacion/?RepaID={ReparacionState.DevolverId(repa)}");
                 }
                 catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
                 {
@@ -198,12 +195,12 @@
             {
                 if (user.Identity is not null && user.Identity.IsAuthenticated)
                 {
-                    rental.UserNameCustomer = user.Identity.Name;
+                    repa.NombreCliente = user.Identity.Name;
                 }
             }
-            rental.NameCustomer = rental.NameCustomer == null ? "" : rental.NameCustomer;
-            rental.SurnameCustomer = rental.SurnameCustomer == null ? "" : rental.SurnameCustomer;
-            rental.DeliveryAddress = rental.DeliveryAddress == null ? "" : rental.DeliveryAddress;
+            repa.NombreCliente = repa.NombreCliente == null ? "" : repa.NombreCliente;
+            repa.ApellidosCliente = repa.ApellidosCliente == null ? "" : repa.ApellidosCliente;
+            //repa.DireccionEnvio = repa.DireccionEnvio == null ? "" : repa.DireccionEnvio;
 
         }
     }
