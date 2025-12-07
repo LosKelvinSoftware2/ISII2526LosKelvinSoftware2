@@ -62,7 +62,7 @@ namespace AppForSEII2526.API.Controllers
         [HttpGet("DisponiblesReparacion")]
         [ProducesResponseType(typeof(List<HerramientaRepaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<HerramientaRepaDTO>>> GetHerramientasDisponiblesParaReparar(string? NombreHerramienta , int? DiaReparacion)
+        public async Task<ActionResult<List<HerramientaRepaDTO>>> GetHerramientasDisponiblesParaReparar(string? NombreHerramienta , float? DiaReparacion)
         {
             if (_context.Herramienta == null)
             {
@@ -182,7 +182,7 @@ namespace AppForSEII2526.API.Controllers
                     h.Nombre,
                     h.Material,
                     h.Precio,
-                    h.fabricante
+                    h.fabricante.Nombre
                 ))
                 .ToListAsync();
 

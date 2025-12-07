@@ -1,0 +1,129 @@
+﻿@page "/Reparacion/DetailReparacion"
+
+@using AppForSEII2526.Web.API
+@using Microsoft.AspNetCore.Authorization
+@inject AppForSEII2526APIClient apiclient
+
+@attribute [Authorize]
+
+<h3>DetailReparacion</h3>
+
+@if (repa == null)
+{
+    <p>@error</p>
+}
+else
+{
+    <table class="table table-borderless table-sm">
+        <tr>
+            <th style="width: 200px;">Nombre y Apellidos:</th>
+            <td id="NameSurname">@repa.NombreCliente @repa.ApellidosCliente</td>
+        </tr>
+        <tr>
+            <th>Teléfono:</th>
+            <td>@repa.NumTelefono</td>
+        </tr>
+        <tr>
+            <th>Método Pago:</th>
+            <td id="PaymentMethod">@repa.MetodoPago</td>
+        </tr>
+        <tr>
+            <th>Fecha Entrada:</th>
+            <td id="FechaEntrega">@repa.FechaEntrega.ToString("dd/MM/yyyy HH:mm:ss")</td>
+        </tr>
+        <tr>
+            <th>Fecha Recogida:</th>
+            @* FechaRecogida *@
+            <td id="FechaRecogida">@repa.FechaRecogida.ToString("dd/MM/yyyy HH:mm:ss")</td>
+        </tr>
+    </table>
+
+    <h4>Herramientas </h4> @*Aquí ponía rented, maybe es por ya vendidas*@    
+
+            <div class="table-responsive">
+        <table class="table table-hover table-striped border" id="Herramientas">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Herramienta</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col" class="text-center">Cantidad</th>
+                    <th scope="col" class="text-end">Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (repa.ItemsReparacion != null && repa.ItemsReparacion.Any())
+                {
+                    foreach (var item in repa.ItemsReparacion)
+                    {
+                        <tr>
+                            <td>@item.NombreHerramienta</td>
+                            <td>@item.Descripcion</td>
+                            <td class="text-center">@item.Cantidad</td>
+                            <td class="text-end">@item.Precio.ToString("C")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No hay herramientas registradas en esta reparación.</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot class="table-light">
+                <tr>
+                    <th scope="row" colspan="3" class="text-end">Precio Total:</th>
+                    <td id="TotalPrice" class="text-end fw-bold fs-5">@repa.PrecioTotal.ToString("C")</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int RepaID { get; set; }
+    private ReparacionDetailsDTO repa;
+    private string error = "";
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        //we check the user is logged in
+        string userName = "";
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            //we retrieve the id of the user logged in
+            if (user is not null)
+            {
+                if (user.Identity is not null && user.Identity.IsAuthenticated && user.IsInRole("User"))
+                {
+                    userName = user.Identity.Name;
+                }
+            }
+        }
+
+        try
+        {
+            var result = await apiclient.GetReparacionDetailsAsync(RepaID);
+            repa = result.FirstOrDefault();
+        }
+        catch (ApiException exception)
+        {
+            repa = null;
+        }
+        if ((repa == null) || (repa.NombreCliente != userName))
+        {
+            error = $"Error! You are not authorized to see this purchase or there is not a purchase with id={RepaID}";
+        }
+
+
+    }
+}

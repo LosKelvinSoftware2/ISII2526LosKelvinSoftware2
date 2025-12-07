@@ -56,7 +56,9 @@ namespace AppForSEII2526.API.Controllers
                         ai.cantidad,
                         ai.precio
                     )).ToList(),
-                    a.MetodoPago
+                    a.MetodoPago,
+                    a.Cliente.PhoneNumber,
+                    a.Cliente.Email
                 ))
                 .FirstOrDefaultAsync();
 

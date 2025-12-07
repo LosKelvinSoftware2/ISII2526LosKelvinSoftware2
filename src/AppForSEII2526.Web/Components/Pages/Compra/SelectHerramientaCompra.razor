@@ -6,8 +6,7 @@
 @inject CompraStateContainer compraState
 @inject NavigationManager navigation
 
-<h3>SelectHerramientaCompra</h3>
-
+<h3>Selecciona herramientas para comprar</h3>
 
 <div class="container-fluid">
     <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
@@ -16,75 +15,72 @@
     <div class="row">
         <div class="col-8">
             <div class="row">
-                <!-- <p>Filtros aquí</p> -->
-
                 <div class="col">
                     <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">Material</span>
-                        <input type="text" id="inputMaterial" @bind=herramientaMaterial class="form-control" placeholder="Material" aria-label="Material" aria-describedby="basic-addon1">
+                        <span class="input-group-text" id="basic-addon1">Nombre</span>
+                        <input type="text" id="inputName" @bind=herramientaNombre class="form-control" placeholder="Nombre" aria-label="Nombre" aria-describedby="basic-addon1">
                     </div>
                 </div>
                 <div class="col">
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">Precio</span>
-                        <input type="text" id="inputPrecio" @bind=herramientaPrecio class="form-control" placeholder="Precio" aria-label="Precio" aria-describedby="basic-addon1">
+                        <input type="text" id="inputFabricante" @bind=herramientaPrecio class="form-control" placeholder="Precio" aria-label="Precio" aria-describedby="basic-addon1">
                     </div>
                 </div>
-
+                
                 <div class="col">
-                    <button type="button" class="btn btn-primary" @onclick=@BuscarHerramienta id="BuscarHerramientas">Buscar herramientas</button>
+                    <button type="button" class="btn btn-primary" @onclick=@BuscarHerramienta id="buscarHerramientas">Buscar Herramientas</button>
                 </div>
 
             </div>
             <div class="row">
-                <!--<p>Lista de herramientas</p> -->
-                 @if (herramientas == null) {
-                    <p>Loading movies....</p>
+                @if (herramientas == null) {
+                    <p>Cargando Herramientas....</p>
                 }
                 else
                 {
                     <div class="mh-100 table-responsive">
-                        <table class="table table-condensed table-hover" id="TablaDeHerramientas">
+                        <table class="table table-condensed table-hover" id="TableOfHerramientas">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>Nombre</th>
-                                    <th>Fabricante</th>
                                     <th>Material</th>
                                     <th>Precio</th>
+                                    <th>Fabricante</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in compra)
-                                {
-                                    <tr id="MovieData_@item.Nombre">
-                                        <td>@item.Fabricante</td>
-                                        <td>@item.Material</td>
-                                        <td>@item.Precio</td>
+                                @foreach (var h in herramientas) {
+                                    <tr id="HerramientaData_@h.Id">
+                                        <td>@h.Id</td>
+                                        <td>@h.Nombre</td>
+                                        <td>@h.Material</td>
+                                        <td>@h.Precio</td>
+                                        <td>@h.Fabricante.Nombre</td>
                                         <td>
-                                            <button class="btn btn-outline-secondary" id="HerramientaParaComprar@item.Nombre" @onclick="@(() => AddCompra(item))">Add</button>
+                                            <button class="btn btn-outline-secondary" id="herramientaParaComprar_@h.Nombre" @onclick="@(() => AddHerrmienta(h))">Añadir</button>
                                         </td>
                                     </tr>
                                 }
-                            </tbody>
-                        </table>
+                        </tbody>
+                    </table>
                     </div>
-                
-                }
 
+                }
             </div>
         </div>
-        <div class="col-2" hidden="@hideRentingCart">
+        <div class="col-2" hidden="@hideCompraCart">
             <div class="row">
-                <h3>Shopping Cart</h3>
+                <h3>Carrito</h3>
             </div>
-            @foreach (CompraItemDTO item in compra.CompraItems)
-            {
+            @foreach (CompraItemDTO item in compra.CompraItems) {
                 <div class="row">
-                    <button type="button" class="btn btn-light" id="removeMovie_@item.Nombre" @onclick="@(() => RemoveCompraItem(item))">x @item.Nombre - @item.Precio €</button>
+                    <button type="button" class="btn btn-light" id="removeHerramienta_@item.Nombre" @onclick="@(() => RemoveCompraItem(item))">x @item.Nombre - @item.Precio€</button>
                 </div>
             }
             <div class="row">
-                <button type="button" class="btn btn-primary" id="purchaseMovieButton" @onclick=@CompraHerramienta>Rent movies</button>
+                <button type="button" class="btn btn-primary" id="TramitarCompra" @onclick=@TramitarCompra>Comprar herramientas</button>
             </div>
         </div>
 
@@ -92,47 +88,41 @@
 
 </div>
 
-
 @code {
-
-     private bool hideRentingCart { get { return compra.CompraItems.Count == 0; } }
+    private bool hideCompraCart { get { return compra.CompraItems.Count == 0; } }
     private ICollection<CompraHerramientasDTO> herramientas;
     private bool hideErrors { get { return errors.Length == 0; } }
     private string errors = "";
-    private string herramientaMaterial { get; set; }
-    private string herramientaPrecio { get; set; }
-
+    private string herramientaNombre { get; set; }
+    private float herramientaPrecio { get; set; }
     private CompraDTO compra => compraState.Compra;
+    private bool hiddenCompraCart = true;
 
-    private bool hiddenRentingCart = true;
-
-    private void AddCompra(CompraDTO compra) {
-        compraState.CreateCompra(compra);
+    private void AddHerrmienta(CompraHerramientasDTO h) {
+        compraState.AddHerramientaToCompra(h);
     }
 
     private void RemoveCompraItem(CompraItemDTO item) {
-        compraState.RemoveRentalItemToRent(item);
-        if (compra.CompraItems.Count == 0) hiddenRentingCart = true;
+        compraState.RemoveItemFromCompra(item);
+        if (compra.CompraItems.Count == 0) hiddenCompraCart = true;
     }
 
-    public async void BuscarHerramienta()
-    {
-        try
-        {
-            herramientas = await apiclient.GetHerramientasDisponibles(herramientaMaterial, herramientaPrecio);
+    public async void BuscarHerramienta() {
+
+        try {
+            herramientas = await apiclient.GetHerramientasDisponiblesAsync(herramientaNombre, herramientaPrecio);
+            errors = "";
 
         }
-        catch (ApiException ex)
-        {
+        catch (ApiException ex) {
             logger.LogError($"{DateTime.Now} Error: {ex}");
             errors = "Error while connecting to the system";
         }
         StateHasChanged();
     }
 
-    private void CompraHerramienta() {
-        navigation.NavigateTo("/rentals/createrental");
+    private void TramitarCompra() {
+        navigation.NavigateTo("/Compra/CreateCompra");
     }
-
 
 }

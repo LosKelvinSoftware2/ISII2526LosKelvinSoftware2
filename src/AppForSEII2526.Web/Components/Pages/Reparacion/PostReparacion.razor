@@ -1,0 +1,213 @@
+﻿@page "/Reparacion/PostReparacion"
+
+@using AppForSEII2526.Web.Components.Shared
+@using AppForSEII2526.Web.API
+@inject AppForSEII2526APIClient apiclient
+@using Microsoft.AspNetCore.Authorization
+@inject ILogger<PostReparacion> logger
+@inject NavigationManager navigation
+@inject ReparacionStateContainer ReparacionState
+
+@attribute [Authorize]
+
+<h3>Post Reparacion</h3>
+
+<EditForm Model="repa" OnValidSubmit="OpenDialog">
+    <div class="row">
+        <DataAnnotationsValidator/>
+        <ValidationSummary class="row alert alert-danger" />
+    </div>
+
+    <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+        <p id="ErrorsShown">Errors: @messageError</p>
+    </div>
+
+    <div class="row g-3">
+        @* Datos del Cliente *@
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="repa.NombreCliente" class="form-control" id="Name" />
+                <label for="Name">Nombre</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="repa.ApellidosCliente" class="form-control" id="Surname" />
+                <label for="Surname">Apellido</label>
+            </div>
+        </div>@*
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="repa.DireccionEnvio" class="form-control" id="DeliveryAddress" />
+                <label for="DeliveryAddress">Dirección de Envío</label>
+            </div>
+        </div>
+        @* Metodo de Pago *@
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating">                    
+                    <InputSelect class="form-select" @bind-Value="@repa.MetodoPago" id="PaymentMethod">
+                        <option value="@TiposMetodoPago.TarjetaCredito" default> Tarjeta</option>
+                        <option value="@TiposMetodoPago.PayPal"> PayPal</option>
+                        <option value="@TiposMetodoPago.Efectivo"> Efectivo</option>
+                    </InputSelect>
+                    <label for="PaymentMethod">Metodo de pago</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md">
+        <div class="form-floating">
+            @* Botón hacer la repa *@
+            <button class="btn btn-primary" type="submit" id="Submit">
+                Procesar Reparación
+            </button>
+        </div>
+    </div>
+
+    <h4>Detalle de Herramientas</h4>
+    <p>
+        <b>Fecha:</b> @DateTime.Now.ToString("dd/MM/yyyy")
+    </p>
+    <p>
+        <b>Precio Total Estimado:</b> @TotalCost €
+        <button class="btn btn-outline-primary" type="button" @onclick="ModifyRepaItems" id="ModifyTools">
+            Modificar herramientas
+        </button>
+    </p>
+
+    <div class="mh-100 table-responsive">
+        <table class="table table-condensed table-hover" id="TableOfItems">
+            <thead>
+                <tr>
+                    <th>Herramienta</th>
+                    <th>Precio Unidad</th>
+                    <th>Cantidad</th> @* Importante en el controlador *@
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in repa.ItemsReparacion)
+                {
+                    <tr id="ToolData_@item.HerramientaId">
+                        <td>@item.NombreHerramienta</td>
+                        <td>@item.Precio</td>
+                        @* Para Cantidad (Validado en controlador > 0) *@
+                        <td>
+                            <InputNumber @bind-Value="item.Cantidad" class="form-control" style="width: 80px;" />
+                        </td>
+                        @* Para Descripción (Validado en controlador: error si vacio y cantidad == 3) *@
+                        <td>
+                            <InputText @bind-Value="item.Descripcion" class="form-control" id="@($"description_{item.HerramientaId}")" placeholder="Describe el problema..." />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+@if (DialogIsOpen)
+{
+    <Dialog Caption="Confirmar Reparación"
+            Message="¿Quieres seguir con el proceso de reparación?"
+            OnClose="@OnDialogClose"
+            Type=Dialog.Category.SaveNot>
+    </Dialog>
+}
+
+@code {
+    private ReparacionDTO repa => ReparacionState.Reparacion;
+    private bool DialogIsOpen;
+    private object? errors;
+    private string messageError = "";
+    private bool hideErrors { get { return messageError.Length == 0; } }
+
+    private decimal TotalCost
+    {
+        get
+        {
+            if (repa.ItemsReparacion == null) return 0;
+            // Uso lo mismo en el container
+            return (decimal)repa.ItemsReparacion.Sum(ri => ri.Precio * ri.Cantidad);
+        }
+    }
+    private void ModifyRepaItems()
+    {
+        navigation.NavigateTo("/Reparacion/SelectHerramientaReparacion");
+    }
+
+
+
+    private void OpenDialog()
+    {
+        DialogIsOpen = true;
+    }
+
+    private async Task OnDialogClose(bool isOk)
+    {
+
+        DialogIsOpen = false;
+        if (isOk)
+        {
+            // Process the data introduced by the user if they are valid
+            if (repa.ItemsReparacion.Count > 0)
+            {
+                try
+                {
+                    var reparacion = await apiclient.CreateReparacionAsync(repa);
+                    ReparacionState.ReparacionProcessed();
+                    navigation.NavigateTo($"/Reparacion/DetailReparacion/?RepaID={ReparacionState.DevolverId(repa)}");
+                }
+                catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
+                {
+
+                    if (apiexceptionvalidation.Result.Errors.Values != null)
+                    {
+                        messageError = "";
+                        foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
+                            // https://learn.microsoft.com/en-us/dotnet/api/system.string.join?view=net-7.0
+                            messageError = string.Join("(*) ", messageError, string.Join(" (*) ", errors));
+                    }
+                }
+                catch (ApiException apiexception)
+                {
+                    //we need to inform user that there was some other error while processing the request
+                    messageError = "Error while processing your request, please try again later!";
+
+                }
+
+            }
+
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            if (user is not null)
+            {
+                if (user.Identity is not null && user.Identity.IsAuthenticated)
+                {
+                    repa.NombreCliente = user.Identity.Name;
+                }
+            }
+            repa.NombreCliente = repa.NombreCliente == null ? "" : repa.NombreCliente;
+            repa.ApellidosCliente = repa.ApellidosCliente == null ? "" : repa.ApellidosCliente;
+            //repa.DireccionEnvio = repa.DireccionEnvio == null ? "" : repa.DireccionEnvio;
+
+        }
+    }
+
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+
+}
