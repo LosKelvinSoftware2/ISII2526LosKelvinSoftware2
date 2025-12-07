@@ -48,6 +48,9 @@ builder.Services.AddScoped<AlquilerStateContainer>();
 //SAELICES abajo
 builder.Services.AddScoped<ReparacionStateContainer>();
 
+//JAVITRON Compra
+builder.Services.AddScoped<CompraStateContainer>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

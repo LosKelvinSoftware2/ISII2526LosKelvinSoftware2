@@ -1,4 +1,5 @@
 ﻿using AppForSEII2526.Web.API;
+using System.Reflection;
 
 namespace AppForSEII2526.Web
 {
@@ -37,6 +38,17 @@ namespace AppForSEII2526.Web
         {
             Compra.CompraItems.Remove(item);
             NotifyStateChanged();
+        }
+
+        //PARA DEVOLVER EL ID
+        public int GetID(CompraDTO Compra)
+        {
+            foreach (var i in Compra.CompraItems)
+            {
+                return i.HerramientaId;
+            }
+            //Por si no hay nada en CompraItems
+            throw new InvalidOperationException("No se encontró ningún item en la lista.");
         }
 
         // Limpiamos todo el carrito

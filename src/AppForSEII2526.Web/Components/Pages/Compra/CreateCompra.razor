@@ -146,9 +146,7 @@
                 {
                     var comprado = await apiclient.CreateCompraAsync(compra);
                     compraState.CompraProcessed();
-                    /////////////////////////////////////////////////////////////////////////////////
-                    //navigation.NavigateTo($"/Compra/DetailsCompra/?CompraID={comprado.id}");
-                    /////////////////////////////////////////////////////////////////////////////////
+                    navigation.NavigateTo($"/Compra/DetailsCompra/?CompraID={compraState.GetID(compra)}");
                 }
                 catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
                 {
