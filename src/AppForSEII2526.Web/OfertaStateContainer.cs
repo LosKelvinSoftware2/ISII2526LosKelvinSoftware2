@@ -1,5 +1,4 @@
-﻿using AppForSEII2526.API.DTO.OfertaDTOs;
-using AppForSEII2526.Web.API;
+﻿using AppForSEII2526.Web.API;
 
 
 namespace AppForSEII2526.Web
@@ -8,40 +7,41 @@ namespace AppForSEII2526.Web
     {
         public OfertaDTO Oferta { get; private set; } = new OfertaDTO()
         {
-            ofertaItems = new List<OfertaItemDTO>()
+            OfertaItems = new List<OfertaItemDTO>()
         };
 
         public event Action? OnChange;
         private void NotifyStateChanged() => OnChange?.Invoke();
 
-        public void AddHerramientaToOferta(HerramientaForOfertaDTO herramienta)
+        public void AddHerramientaToOferta(HerramientaForOfertaDTO herramienta) // De momento, da error porque hay que actualizar los swager
         {
             //Comprobar antes que no esté ya en la lista
-            if (!Oferta.ofertaItems.Any(oi => oi.nombre == herramienta.Nombre && 
-            oi.Fabricante == herramienta.fabricante && oi.material == herramienta.Material))
+            if (!Oferta.OfertaItems.Any(oi => oi.Nombre == herramienta.Nombre && 
+            oi.Fabricante == herramienta.Fabricante && oi.Material == herramienta.Material))
             {
                 //añadimos la herramienta a la oferta
-                Oferta.ofertaItems.Add(new OfertaItemDTO()
+                Oferta.OfertaItems.Add(new OfertaItemDTO()
                 {
-                    nombre = herramienta.Nombre,
-                    material = herramienta.Material,
-                    Fabricante = herramienta.fabricante,
-                    precioOriginal = herramienta.Precio
+                    Nombre = herramienta.Nombre,
+                    Material = herramienta.Material,
+                    Fabricante = herramienta.Fabricante,
+                    PrecioOriginal = herramienta.Precio
                 });
+                NotifyStateChanged();
             }
         }
 
         //Borra una herramienta seleccionada de la oferta
         public void RemoveHerramientaFromOferta(OfertaItemDTO ofertaItem)
         {
-            Oferta.ofertaItems.Remove(ofertaItem);
+            Oferta.OfertaItems.Remove(ofertaItem);
             NotifyStateChanged();
         }
 
         //Borra todas las herramientas seleccionadas de la oferta
         public void ClearOferta()
         {
-            Oferta.ofertaItems.Clear();
+            Oferta.OfertaItems.Clear();
             NotifyStateChanged();
         }
 
@@ -51,7 +51,7 @@ namespace AppForSEII2526.Web
             Oferta = new OfertaDTO()
             {
                 // Hemos terminado el proceso de crear una oferta sin datos
-                ofertaItems = new List<OfertaItemDTO>(),
+                OfertaItems = new List<OfertaItemDTO>(), // corrected capitalization
             };
         }
     }
