@@ -1,0 +1,117 @@
+﻿@page "/Alquiler/DetailAlquiler"
+
+@using AppForSEII2526.Web.API
+@using Microsoft.AspNetCore.Authorization
+@inject AppForSEII2526APIClient apiclient
+
+<h3>DetailAlquiler</h3>
+
+@attribute [Authorize]
+
+@if (alquiler == null)
+{
+    <p>@error</p>
+}
+else
+{
+    <table class="table table-borderless table-sm">
+        <tr>
+            <th>Nombre y apellido</th>
+            <td id="NombreCliente">@alquiler.NombreCliente @alquiler.ApellidoCliente</td>
+        </tr>
+        <tr>
+            <th>Dirección de envio</th>
+            <td id="Direccion">@alquiler.DireccionEnvio</td>
+        </tr>
+        <tr>
+            <th>Fecha del alquiler</th>
+            <td id="FechaAlquiler">@alquiler.FechaAlquiler.ToString("dd/MM/yyyy hh:mm:ss")</td>
+        </tr>
+        <tr>
+            <th>Precio</th>
+            <td id="Precio">@alquiler.PrecioTotal</td>
+        </tr>
+        <tr>
+            <th>Fecha inicio</th>
+            <td id="FechaInicio">@alquiler.FechaInicio</td>
+        </tr>
+        <tr>
+            <th>Fecha fin</th>
+            <td id="FechaFin">@alquiler.FechaFin</td>
+        </tr>
+    </table>
+    <h4>Rented Movies</h4>
+
+    <table class="table" id="HerramientasAlquiladas">
+        <thead>
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Material</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (AlquilarItemDTO item in alquiler.AlquilarItems)
+            {
+                <tr id="AlquilarItem_@item.NombreHerramienta">
+                    <td>@item.NombreHerramienta</td>
+                    <td>@item.MaterialHerramienta</td>
+                    <td>@item.Precio €</td>
+                    <td>@item.Cantidad</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            @*colspan is used to state that TWO columns are collapsed*@
+        <th scope="row" colspan="2" class="text-end">Precio total</th>
+        <td id="PrecioTotal">@alquiler.PrecioTotal €</td>
+        </tfoot>
+
+    </table>
+}
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int AlquilerID { get; set; }
+    private AlquilerDetailDTO alquiler;
+    private string error = "";
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+        string userName = "";
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            if (user is not null)
+            {
+                if (user.Identity is not null && user.Identity.IsAuthenticated && user.IsInRole("User"))
+                {
+                    userName = user.Identity.Name;
+                }
+            }
+        }
+
+        try
+        {
+            alquiler = await apiclient.GetAlquilerDetailAsync(AlquilerID);
+        }
+        catch (ApiException exception)
+        {
+            alquiler = null;
+        }
+        if ((alquiler == null) || (alquiler.NombreCliente != userName))
+        {
+            error = $"¡¡Error!! No te has identificado o no existe un alquiler con id={AlquilerID}";
+        }
+
+
+    }
+
+}
