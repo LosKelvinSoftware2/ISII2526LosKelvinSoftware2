@@ -72,12 +72,26 @@
             </div>
         </div>
             <div class="col-2">
+            <div class="col-2" hidden="@hideOferta">
+                <div class="row">
+                    <h3>Shopping Cart</h3>
+                </div>
+                @foreach (OfertaItemDTO item in oferta.OfertaItems)
+                {
+                    <div class="row">
+                        <button type="button" class="btn btn-light" id="removeHerramienta_@item.Nombre" @onclick="@(() => RemoveOfertaItem(item))">x @item.Nombre - @item.PrecioOriginal€</button>
+                    </div>
+                }
+                <div class="row">
+                    <button type="button" class="btn btn-primary" id="ofertarHerramientaButton" @onclick=@OfertarHerramientas>Ofertar Herramientas</button>
+                </div>
+            </div>  
         </div>
     </div>
 </div>
-@@ -22,5 +37,22 @@
 
 @code {
+    private bool hideOferta { get { return oferta.OfertaItems.Count == 0; } }
     private ICollection<HerramientaForOfertaDTO> herramientas; // Este error desaparecerá cuando el swager se arrregle
     private bool hideErrors { get { return errors.Length == 0; } }
     private string errors = "";
@@ -86,7 +100,7 @@
 
     private OfertaDTO oferta => ofertaState.Oferta;
 
-    private bool hiddenRentingCart = true;
+    private bool hiddenOferta= true;
 
     private void AddHerramienta (HerramientaForOfertaDTO herramienta)
     {
@@ -96,7 +110,7 @@
     private void RemoveOfertaItem (OfertaItemDTO ofertaItem)
     {
         ofertaState.RemoveHerramientaFromOferta(ofertaItem);
-        if (oferta.OfertaItems.Count == 0) hiddenRentingCart = true;
+        if (oferta.OfertaItems.Count == 0) hiddenOferta = true; 
     } 
 
     public async void BuscarHerramienta() {
@@ -109,5 +123,10 @@
             errors = "Error al conectar con el sistema"; 
         }
         StateHasChanged();
+    }
+
+    private void OfertarHerramientas()
+    {
+        navigation.NavigateTo("/ofertass/crearoferta");
     }
 }
