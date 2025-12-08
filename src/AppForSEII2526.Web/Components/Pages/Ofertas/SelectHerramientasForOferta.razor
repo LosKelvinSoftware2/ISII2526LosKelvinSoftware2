@@ -56,6 +56,21 @@
     private float precio { get; set; }
     private string fabricante { get; set; }
 
+    private OfertaDTO oferta => ofertaState.Oferta;
+
+    private bool hiddenRentingCart = true;
+
+    private void AddHerramienta (HerramientaForOfertaDTO herramienta)
+    {
+        ofertaState.AddHerramientaToOferta(herramienta);
+    }
+
+    private void RemoveOfertaItem (OfertaItemDTO ofertaItem)
+    {
+        ofertaState.RemoveHerramientaFromOferta(ofertaItem);
+        if (oferta.OfertaItems.Count == 0) hiddenRentingCart = true;
+    } 
+
     public async void BuscarHerramienta() {
         try {
             herramientas = await apiclient.GetHerramientaForOfertaAsync(fabricante, precio);
