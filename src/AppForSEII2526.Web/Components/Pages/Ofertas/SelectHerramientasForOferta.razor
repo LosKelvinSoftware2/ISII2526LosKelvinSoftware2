@@ -24,7 +24,13 @@
                 <div class="col">
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">Fabricante</span>
-                        <input type="text" id="inputFabricante" @bind=fabricante class="form-control" placeholder="Fabricante" aria-label="Fabricante" aria-describedby="basic-addon1">
+                        <select class="form-select" aria-label="Default select" @bind="fabricanteSelected" id="selectedfabricante">
+                            <option value="All" selected>All</option>
+                            @foreach (string fabricante in fabricantes)
+                            {
+                                <option value="@fabricante" id="fabricanteSelected_@fabricante">@fabricante</option>
+                            }
+                        </select>
                     </div>
                 </div>
                 <div class="col">
@@ -89,10 +95,12 @@
                 </div>
             </div>  
         </div>
-    </div>
+    </div>  
 </div>
 
 @code {
+    private string fabricanteSelected;
+    private ICollection<string>? fabricantes = new List<string>();
     private bool hideOferta { get { return oferta.OfertaItems.Count == 0; } }
     private ICollection<HerramientaForOfertaDTO> herramientas; // Este error desaparecerá cuando el swager se arrregle
     private bool hideErrors { get { return errors.Length == 0; } }
@@ -116,6 +124,7 @@
     } 
 
     public async void BuscarHerramienta() {
+        fabricante = fabricanteSelected == "All" ? null : fabricanteSelected;
         try {
             herramientas = await apiclient.GetHerramientaForOfertaAsync(fabricante, precio);
             errors = "";
