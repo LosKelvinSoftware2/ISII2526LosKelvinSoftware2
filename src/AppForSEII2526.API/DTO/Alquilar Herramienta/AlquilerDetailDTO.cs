@@ -15,7 +15,7 @@ namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
         }
 
         [Key]
-        int Id { get; set; }
+        public int Id { get; set; }
         [Required]
         public DateTime fechaAlquiler { get; set; }
 

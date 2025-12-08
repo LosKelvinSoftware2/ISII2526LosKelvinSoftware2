@@ -19,7 +19,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-builder.Services.AddScoped<OfertaStateContainer>();
+//builder.Services.AddScoped<OfertaStateContainer>();
 
 builder.Services.AddAuthentication(options =>
     {

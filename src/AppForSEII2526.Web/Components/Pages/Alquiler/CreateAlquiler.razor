@@ -1,0 +1,207 @@
+﻿@page "/Alquiler/CreateAlquiler"
+
+@inject NavigationManager navigation
+@using AppForSEII2526.Web.Components.Shared
+@using AppForSEII2526.Web.API
+@using Microsoft.AspNetCore.Authorization
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<CreateAlquiler> logger
+@inject AlquilerStateContainer alquilerState
+
+@attribute [Authorize]
+
+<h3>CreateAlquiler</h3>
+<p>
+    <b>Precio total:</b> @PrecioTotal €
+    <button class="btn btn-outline-primary" type="submit" @onclick="ModificarAlquilarItems" id="ModificarAlquileres">
+        Modificar herramientas
+    </button>
+</p>
+
+<EditForm Model="alquiler" OnValidSubmit="OpenDialog">
+    <div class="row">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="row alert alert-danger" />
+    </div>
+
+    <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+        <p id="ErrorsShown">Errors: @messageError</p>
+    </div>
+    <div class="row g-3">
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="alquiler.NombreCliente" class="form-control" id="NombreCliente" />
+                <label for="NombreCliente">Nombre del cliente</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="alquiler.ApellidoCliente" class="form-control" id="ApellidoCliente" />
+                <label for="ApellidoCliente">Apellido</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="alquiler.DireccionEnvio" class="form-control" id="DireccionEnvio" />
+                <label for="DireccionEnvio">Direccion de envio</label>
+            </div>
+        </div>
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating">
+                    <InputSelect class="form-select" @bind-Value="@alquiler.MetodoPago" id="MetodoPago">
+                        <option value="@TiposMetodoPago.Efectivo" default> Efectivo</option>
+                        <option value="@TiposMetodoPago.PayPal"> PayPal</option>
+                        <option value="@TiposMetodoPago.TarjetaCredito"> Tarjeta de crédito</option>
+                    </InputSelect>
+                    <label for="MetodoPago">Método de pago</label>
+                </div>
+            </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="alquiler.DireccionEnvio" class="form-control" id="DireccionEnvio" />
+                <label for="DireccionEnvio">Direccion de envio</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="alquiler.NumTelefono" class="form-control" id="NumTelefono" />
+                <label for="NumTelefono">Número de teléfono</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="alquiler.CorreoElectronico" class="form-control" id="CorreoElectronico" />
+                <label for="CorreoElectronica">Correo electrónico</label>
+            </div>
+        </div>
+        </div>
+    </div>
+
+        <div class="col-md">
+            <div class="form-floating">
+                <button class="btn btn-primary" type="submit" id="Confirmar">
+                    Alquilar las herramientas
+                </button>
+            </div>
+        </div>
+    <div class="mh-100 table-responsive">
+        <table class="table table-condensed table-hover" id="TablaAlquilarItems">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Material</th>
+                    <th>Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in alquiler.AlquilarItems)
+                {
+                    <tr id="AlquilerData_@item.NombreHerramienta">
+                        <td>@item.NombreHerramienta</td>
+                        <td>@item.MaterialHerramienta</td>
+                        <td>@item.Precio</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+@if (DialogIsOpen)
+{
+    <Dialog Caption="Alquilar herramientas"
+            Message="¿Quiere proceder usted a alquilar las herramientas?"
+            OnClose="@OnDialogClose"
+            Type=Dialog.Category.SaveNot>
+    </Dialog>
+}
+
+@code {
+    private string messageError = "";
+    private bool hideErrors { get { return messageError.Length == 0; } }
+
+    private bool DialogIsOpen;
+    
+
+    private decimal PrecioTotal
+    {
+        get
+        {
+            int dias = (alquiler.FechaFin.DateTime - alquiler.FechaInicio.DateTime).Days;
+            double precio = alquiler.AlquilarItems.Sum(ri => ri.Precio * dias);
+            return Convert.ToDecimal(precio);
+        }
+    }
+    private void ModificarAlquilarItems()
+    {
+        navigation.NavigateTo("/Alquiler/SelectHerramientasForAlquiler");
+    }
+    private object? errors;
+    private AlquilerDTO alquiler => alquilerState.Alquiler;
+
+    private void OpenDialog()
+    {
+        DialogIsOpen = true;
+    }
+
+    private async Task OnDialogClose(bool isOk)
+    {
+
+        DialogIsOpen = false;
+        if (isOk)
+        {
+            if (alquiler.AlquilarItems.Count > 0)
+            {
+                try
+                {
+                    var alquilado = await apiclient.CreateAlquilerAsync(alquiler);
+                    alquilerState.RentalProcessed();
+                    navigation.NavigateTo($"/Alquiler/DetailAlquiler/?AlquilerID={alquilado.Id}");
+                }
+                catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
+                {
+
+                    if (apiexceptionvalidation.Result.Errors.Values != null)
+                    {
+                        messageError = "";
+                        foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
+                            //https://learn.microsoft.com/en-us/dotnet/api/system.string.join?view=net-7.0
+                            messageError = string.Join("(*) ", messageError, string.Join(" (*) ", errors));
+                    }
+                }
+                catch (ApiException apiexception)
+                {
+                    messageError = "¡¡Error al procesar su orden!!";
+                }
+
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            if (user is not null)
+            {
+                if (user.Identity is not null && user.Identity.IsAuthenticated)
+                {
+                    alquiler.NombreCliente = user.Identity.Name;
+                }
+            }
+            alquiler.NombreCliente = alquiler.NombreCliente == null ? "" : alquiler.NombreCliente;
+            alquiler.ApellidoCliente = alquiler.ApellidoCliente == null ? "" : alquiler.ApellidoCliente;
+            alquiler.DireccionEnvio = alquiler.DireccionEnvio == null ? "" : alquiler.DireccionEnvio;
+
+        }
+    }
+
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+}
