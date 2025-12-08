@@ -17,6 +17,18 @@
             <div class="row">
                 <p>here i will show the filters</p>
                 <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Fabricante</span>
+                        <input type="text" id="inputFabricante" @bind=fabricante class="form-control" placeholder="Fabricante" aria-label="Fabricante" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Precio</span>
+                        <input type="text" id="inputPrecio" @bind=precio class="form-control" placeholder="Precio" aria-label="Precio" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="col">
                     <button type="button" class="btn btn-primary" @onclick=@BuscarHerramienta id="BuscarHerramientas">Buscar Herramientas</button>
                 </div>
             </div>
@@ -38,7 +50,7 @@
 @@ -22,5 +37,22 @@
 
 @code {
-    private ICollection<HerramientaForOfertaDTO> herramientas;
+    private ICollection<HerramientaForOfertaDTO> herramientas; // Este error desaparecerá cuando el swager se arrregle
     private bool hideErrors { get { return errors.Length == 0; } }
     private string errors = "";
     private float precio { get; set; }
