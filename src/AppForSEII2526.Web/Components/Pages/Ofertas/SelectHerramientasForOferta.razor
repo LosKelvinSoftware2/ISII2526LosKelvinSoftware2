@@ -10,7 +10,10 @@
 
 <div class="container-fluid">
     <div class="row" hidden="@hideErrors">
-        <p>here i will show the errors</p>
+        <p>errors</p>
+        <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+            <p id="ErrorsShown">Errors: @errors</p>
+        </div>
     </div>
     <div class="row">
         <div class="col-8">
@@ -99,10 +102,11 @@
     public async void BuscarHerramienta() {
         try {
             herramientas = await apiclient.GetHerramientaForOfertaAsync(fabricante, precio);
+            errors = "";
         }
         catch (ApiException ex) {
             logger.LogError($"{DateTime.Now} Error: {ex}");
-            errors = "Error while connecting to the system";
+            errors = "Error al conectar con el sistema"; 
         }
         StateHasChanged();
     }
