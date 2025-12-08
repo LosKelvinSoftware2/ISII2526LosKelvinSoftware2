@@ -1,9 +1,11 @@
-﻿namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
+﻿using System.Diagnostics.Contracts;
+
+namespace AppForSEII2526.API.DTO.Alquilar_Herramienta
 {
     public class AlquilerDTO
     {
         public AlquilerDTO(string nombreCliente, string apellidoCliente, string direccionEnvio, float precioTotal,
-            DateTime fechaFin, DateTime fechaInicio, List<AlquilarItemDTO> AlquilarItems, tiposMetodoPago MetodoPago)
+            DateTime fechaFin, DateTime fechaInicio, List<AlquilarItemDTO> AlquilarItems, tiposMetodoPago MetodoPago, string? numTelefono = null, string? correoElectronico = null)
         {
             this.nombreCliente = nombreCliente;
             this.apellidoCliente = apellidoCliente;
@@ -13,8 +15,12 @@
             this.fechaInicio = fechaInicio;
             this.AlquilarItems = AlquilarItems;
             this.MetodoPago = MetodoPago;
+            this.numTelefono = numTelefono;
+            this.correoElectronico = correoElectronico;
         }
+        [Required]
         public String nombreCliente { get; set; }
+        [Required]
         public String apellidoCliente { get; set; }
         [Required]
         public String direccionEnvio { get; set; }
@@ -26,7 +32,10 @@
 
         [Required]
         public DateTime fechaInicio { get; set; }
-        [JsonIgnore] // No queremos que se muestre el método de pago directamente
+        public string numTelefono { get; set; }
+        public string correoElectronico { get; set; }
+
+        [Required]
         public tiposMetodoPago MetodoPago { get; set; }
         // Relación con Items de alquiler
         public List<AlquilarItemDTO> AlquilarItems { get; set; }

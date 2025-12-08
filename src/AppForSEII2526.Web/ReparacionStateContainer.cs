@@ -26,12 +26,23 @@ namespace AppForSEII2526.Web
                     Cantidad = cantidad,
                     Descripcion = descripcion,
                     NombreHerramienta = herramienta.Nombre,
-                    Precio = herramienta.Precio           
+                    Precio = herramienta.Precio
                 };
 
                 Reparacion.ItemsReparacion.Add(item);
                 NotifyStateChanged();
             }
+        }
+
+        /// PARA DEVOLVER EL ID
+        public int DevolverId(ReparacionDTO Reparacion)
+        {
+            foreach (var item in Reparacion.ItemsReparacion)
+            {
+                return item.HerramientaId;
+            }
+            // Si esta vacio
+            throw new InvalidOperationException("No se encontró ningún item de reparación.");
         }
 
         public void RemoveItemFromReparacion(ReparacionItemDTO item)

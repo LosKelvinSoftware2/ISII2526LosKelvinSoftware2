@@ -1,0 +1,139 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using AppForSEII2526.Web.API
+@inject AppForSEII2526APIClient apiClient
+@inject ILogger<SelectHerramientasForAlquiler> logger
+@inject AlquilerStateContainer alquilerState
+@inject NavigationManager navigation
+
+
+<h3>SelectHerramientasForAlquiler</h3>
+
+@page "/Alquiler/SelectHerramientasForAlquiler"
+
+<h3>Herramientas disponibles para alquilar</h3>
+
+<div class="container-fluid">
+    <div class="row" hidden="@hideErrors">
+        <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+            <p id="ErrorsShown">Errores: @errors</p>
+         </div>
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div class="row">
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Nombre</span>
+                        <input type="text" id="inputTitle" @bind=nombreHerramienta class="form-control" placeholder="Nombre" aria-label="Nombre" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Material</span>
+                        <input type="text" id="inputGenre" @bind=materialHerramienta class="form-control" placeholder="Material" aria-label="Material" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-primary" @onclick=@BuscarHerramientas id="buscarHerramientas">Buscar herramientas</button>
+                </div>
+            </div>
+            <div class="row">
+                @if (herramientas == null)
+                {
+                    <p>Cargando herramientas.....</p>
+                }
+                else
+                {
+                    <div class="mh-100 table-responsive">
+                        <table class="table table-condensed table-hover" id="TablaHerramientas">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Material</th>
+                                    <th>Fabricante</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var herramienta in herramientas)
+                                {
+                                    <tr id="MovieData_@herramienta.Nombre">
+                                        <td>@herramienta.Nombre</td>
+                                        <td>@herramienta.Material</td>
+                                        <td>@herramienta.Fabricante</td>
+                                        <td>@herramienta.Precio</td>
+                                        <td>
+                                            <button class="btn btn-outline-secondary" id="AlquilerHerramienta_@herramienta.Nombre" @onclick="@(() => AddHerramienta(herramienta))">Añadir</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                }
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="col-2" hidden="@herramientasOcultas">
+                <div class="row">
+                    <h3>Carrito</h3>
+                </div>
+                @foreach (AlquilarItemDTO item in alquiler.AlquilarItems)
+                {
+                    <div class="row">
+                        <button type="button" class="btn btn-light" id="eliminarHerramienta_@item.NombreHerramienta" @onclick="@(() => RemoveAlquilarItem(item))">x @item.NombreHerramienta - @item.Precio€</button>
+                    </div>
+                }
+                <div class="row">
+                    <button type="button" class="btn btn-primary" id="alquilarHerramientaButton" @onclick=@AlquilarHerramientas>Alquilar herramientas</button>
+                </div>
+        </div>
+
+    </div>
+    </div>
+
+</div>
+
+@code {
+    private bool hideCarrito { get { return alquiler.AlquilarItems.Count == 0; } }
+    private ICollection<AlquilerHerramientasDTO> herramientas;
+    private bool hideErrors { get { return errors.Length == 0; } }
+    private string errors = "";
+    private string nombreHerramienta { get; set; }
+    private string materialHerramienta { get; set; }
+    private AlquilerDTO alquiler => alquilerState.Alquiler;
+
+    public async void BuscarHerramientas()
+    {
+        try
+        {
+            herramientas = await apiClient.GetAlquileresDisponiblesAsync(nombreHerramienta, materialHerramienta);
+
+        }
+        catch (ApiException ex)
+        {
+            logger.LogError($"{DateTime.Now} Error: {ex}");
+            errors = "Ha surgido un error al conectarse al sistema.";
+        }
+        StateHasChanged();
+    }
+
+
+    private bool herramientasOcultas = true;
+
+    private void AddHerramienta(AlquilerHerramientasDTO alquiler)
+    {
+        alquilerState.AddHerramientaToAlquiler(alquiler);
+    }
+
+    private void RemoveAlquilarItem(AlquilarItemDTO item)
+    {
+        alquilerState.RemoveAlquilarItemToAlquiler(item);
+        if (alquiler.AlquilarItems.Count == 0) herramientasOcultas = true;
+    }
+    private void AlquilarHerramientas()
+    {
+        navigation.NavigateTo("/rentals/CreateAlquiler");
+    }
+}

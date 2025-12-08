@@ -18,29 +18,29 @@
         <div class="col-8">
             <div class="row">
                 <p>Muestro los filtros</p>
-                <!-- Filtros debajo-->
+                @* Filtros debajo *@
                 <div class="col">
                     <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">Title</span>
+                        <span class="input-group-text" id="basic-addon1">Nombre</span>
                         <input type="text" id="inputTitle" @bind=NombreHerrami class="form-control" placeholder="Nombre" aria-label="NOMBRE" aria-describedby="basic-addon1">
                     </div>
                 </div>
                 <div class="col">
                     <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">Genre</span>
-                        <input type="text" id="inputGenre" @bind=diasRepa class="form-control" placeholder="Dias" aria-label="DIAS" aria-describedby="basic-addon1">
+                        <span class="input-group-text" id="basic-addon2">Dias</span>
+                        <input type="text" id="inputGenre" @bind=diasRepa class="form-control" placeholder="Dias" aria-label="DIAS" aria-describedby="basic-addon2">
                     </div>
                 </div>
-                <!-- Boton debajo-->
+                @* Boton debajo *@
                 <div class="col">
-                    <button type="button" class="btn btn-primary" @onclick=@SearchHerramienta id="searchMovies">Search Herramienta</button>
+                    <button type="button" class="btn btn-primary" @onclick=@SearchHerramienta id="searchHerramientas">Buscar Herramienta</button>
                 </div>
             </div>
             <div class="row">
                 <p>muestro la lista de herramientas</p>
                 @if (Herramienta == null)
                 {
-                    <p>Loading movies....</p>
+                    <p>Cargando herramientas....</p>
                 }
                 else
                 {
@@ -132,10 +132,10 @@
             errors = "";
 
         }
-        catch (ApiException ex)
+         catch (ApiException ex)
         {
-            logger.LogError($"{DateTime.Now} Error: {ex}");
-            errors = "Error while connecting to the system";
+             logger.LogError($"{DateTime.Now} Error: {ex}");
+             errors = "Error while connecting to the system";
         }
         StateHasChanged();
     }
