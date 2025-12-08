@@ -7,6 +7,24 @@
 
 <h3>CreateOferta</h3>
 
+@* oferta is the object that will be edited thanks to the form *@
+<EditForm Model="oferta" OnValidSubmit="OpenDialog">
+    <div class="row">
+        <div class="col-md">
+            <div class="form-floating">
+                @*Este boton pregunta si el usuario quiere crear la oferta*@    
+                <button class="btn btn-primary" type="submit" id="Submit">
+                    Crear oferta
+                </button>
+            </div>
+        </div>
+    </div>
+</EditForm>
 @code {
     private OfertaDTO oferta => ofertaState.Oferta;
+
+    private void OpenDialog()
+    {
+        
+    }
 }
