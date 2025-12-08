@@ -1,0 +1,143 @@
+﻿@page "/ofertas/selectherramientasforoferta"
+
+@using Microsoft.AspNetCore.Authorization
+@using AppForSEII2526.Web.API
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<SelectHerramientasForOferta> logger
+@inject OfertaStateContainer ofertaState
+@inject NavigationManager navigation
+
+@attribute [Authorize]
+<h3>Select Herramientas For Oferta</h3>
+
+<div class="container-fluid">
+    <div class="row" hidden="@hideErrors">
+        <p>errors</p>
+        <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+            <p id="ErrorsShown">Errors: @errors</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div class="row">
+                <p>here i will show the filters</p>
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Fabricante</span>
+                        <select class="form-select" aria-label="Default select" @bind="fabricanteSelected" id="selectedfabricante">
+                            <option value="All" selected>All</option>
+                            @foreach (string fabricante in fabricantes)
+                            {
+                                <option value="@fabricante" id="fabricanteSelected_@fabricante">@fabricante</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">Precio</span>
+                        <input type="text" id="inputPrecio" @bind=precio class="form-control" placeholder="Precio" aria-label="Precio" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-primary" @onclick=@BuscarHerramienta id="BuscarHerramientas">Buscar Herramientas</button>
+                </div>
+            </div>
+            <div class="row">
+                <p>here i will show the list of herramientas</p>
+                @if (herramientas == null) {
+                    <p>Buscando herramientas....</p>
+                }
+                else
+                {
+                    <p>number of herramientas @herramientas.Count</p>
+                    <div class="mh-100 table-responsive">
+                        <table class="table table-condensed table-hover" id="TableOfHerramientas">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Fabricante</th>
+                                    <th>Material</th>
+                                    <th>Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var herramienta in herramientas)
+                                {
+                                    <tr id="HerramientaData_@herramienta.Nombre">
+                                        <td>@herramienta.Fabricante</td>
+                                        <td>@herramienta.Material</td>
+                                        <td>@herramienta.Precio</td>
+                                        <td>
+                                            <button class="btn btn-outline-secondary" id="herramientaToOferta_@herramienta.Nombre" @onclick="@(() => AddHerramienta(herramienta))">Add</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+            <div class="col-2">
+            <div class="col-2" hidden="@hideOferta">
+                <div class="row">
+                    <h3>Shopping Cart</h3>
+                </div>
+                @foreach (OfertaItemDTO item in oferta.OfertaItems)
+                {
+                    <div class="row">
+                        <button type="button" class="btn btn-light" id="removeHerramienta_@item.Nombre" @onclick="@(() => RemoveOfertaItem(item))">x @item.Nombre - @item.PrecioOriginal€</button>
+                    </div>
+                }
+                <div class="row">
+                    <button type="button" class="btn btn-primary" id="ofertarHerramientaButton" @onclick=@OfertarHerramientas>Ofertar Herramientas</button>
+                </div>
+            </div>  
+        </div>
+    </div>  
+</div>
+
+@code {
+    private string fabricanteSelected;
+    private ICollection<string>? fabricantes = new List<string>();
+    private bool hideOferta { get { return oferta.OfertaItems.Count == 0; } }
+    private ICollection<HerramientaForOfertaDTO> herramientas; // Este error desaparecerá cuando el swager se arrregle
+    private bool hideErrors { get { return errors.Length == 0; } }
+    private string errors = "";
+    private float precio { get; set; }
+    private string fabricante { get; set; }
+
+    private OfertaDTO oferta => ofertaState.Oferta;
+
+    private bool hiddenOferta= true;
+
+    private void AddHerramienta (HerramientaForOfertaDTO herramienta)
+    {
+        ofertaState.AddHerramientaToOferta(herramienta);
+    }
+
+    private void RemoveOfertaItem (OfertaItemDTO ofertaItem)
+    {
+        ofertaState.RemoveHerramientaFromOferta(ofertaItem);
+        if (oferta.OfertaItems.Count == 0) hiddenOferta = true; 
+    } 
+
+    public async void BuscarHerramienta() {
+        fabricante = fabricanteSelected == "All" ? null : fabricanteSelected;
+        try {
+            herramientas = await apiclient.GetHerramientaForOfertaAsync(fabricante, precio);
+            errors = "";
+        }
+        catch (ApiException ex) {
+            logger.LogError($"{DateTime.Now} Error: {ex}");
+            errors = "Error al conectar con el sistema"; 
+        }
+        StateHasChanged();
+    }
+
+    private void OfertarHerramientas()
+    {
+        navigation.NavigateTo("/ofertass/crearoferta");
+    }
+}
