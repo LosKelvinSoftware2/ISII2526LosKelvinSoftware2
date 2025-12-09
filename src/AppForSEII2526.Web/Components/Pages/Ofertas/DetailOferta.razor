@@ -1,7 +1,64 @@
-﻿<h3>DetailOferta</h3>
+﻿@page "/ofertas/detailoferta"
+
 
 @using AppForSEII2526.Web.API
+@using Microsoft.AspNetCore.Authorization
+@inject AppForSEII2526APIClient apiclient
 
+<h3>DetailOferta</h3>
+
+@attribute [Authorize]
+
+@if (oferta == null)
+{
+    <p>@error</p>
+}
+else
+{
+    <table class="table table-borderless table-sm">
+        <tr>
+            <th>Dirigida A</th>
+            <td id="Customers">@oferta.DirigidaA</td>
+        </tr>
+        <tr>
+            <th>Payment Method</th>
+            <td id="PaymentMethod">@oferta.MetodoPago</td>
+        </tr>
+        <tr>
+            <th>Fecha Oferta</th>
+            <td id="OfertaDate">@oferta.FechaOferta.ToString("dd/MM/yyyy hh:mm:ss")</td>
+        </tr>
+        <tr>
+            <th>Periodo Oferta</th>
+            <td id="OfertaPeriod">@oferta.FechaInicio.DateTime.ToString("dd/MM/yyyy") - @oferta.FechaFinal.DateTime.ToString("dd/MM/yyyy")</td>
+        </tr>
+    </table>
+
+    <h4>Herramientas ofertadas</h4>
+
+    <table class="table" id="OfferedTools">
+        <thead>
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Fabricante</th>
+                <th scope="col">Material</th>
+                <th scope="col">Precio Original</th>
+                <th scope="col">Precio Final</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (OfertaItemDTO item in oferta.OfertaItems)
+            {
+                <tr id="OfertaItem_@item.Nombre">
+                    <td>@item.Nombre</td>
+                    <td>@item.Fabricante</td>
+                    <td>@item.PrecioOriginal €</td>
+                    <td>@item.PrecioFinal</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
     [Parameter]
@@ -11,5 +68,8 @@
     private string error = "";
 
     [CascadingParameter]
-    private Task<AuthenticationState>? authenticationStateTask { get; set; }
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+  
+    }
 }
