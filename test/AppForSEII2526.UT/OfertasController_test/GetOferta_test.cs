@@ -63,7 +63,7 @@ namespace AppForSEII2526.UT.OfertasController_test
         [Fact]
         [Trait("Database", "WithoutFixture")]
         [Trait("LevelTesting", "Unit Testing")]
-        public async Task GetRental_NotFound_test()
+        public async Task GetOferta_NotFound_test()
         {
             // Arrange
             var mock = new Mock<ILogger<OfertasController>>();
@@ -83,7 +83,7 @@ namespace AppForSEII2526.UT.OfertasController_test
         [Fact]
         [Trait("LevelTesting", "Unit Testing")]
         [Trait("Database", "WithoutFixture")]
-        public async Task GetRental_Found_test()
+        public async Task GetOferta_Found_test()
         {
             // Arrange
             var mock = new Mock<ILogger<OfertasController>>();
@@ -94,6 +94,7 @@ namespace AppForSEII2526.UT.OfertasController_test
             DateTime Unspec(DateTime d) => DateTime.SpecifyKind(d, DateTimeKind.Unspecified);
 
             var expectedOferta = new OfertaDetailsDTO(
+                1,
                 Unspec(DateTime.Today),
                 Unspec(DateTime.Today.AddMonths(1)),
                 Unspec(DateTime.Today.AddDays(1)),

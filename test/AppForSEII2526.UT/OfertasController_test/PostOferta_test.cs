@@ -87,7 +87,8 @@ namespace AppForSEII2526.UT.OfertasController_test
             };
 
             var ofertaWithNoDate = new OfertaDTO
-            (
+            (   
+                1,
                 DateTime.MinValue,
                 DateTime.MinValue,
                 tiposMetodoPago.Efectivo,
@@ -97,6 +98,7 @@ namespace AppForSEII2526.UT.OfertasController_test
 
             var ofertaFromBeforeToday = new OfertaDTO
             (
+                1,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(-1),
                 tiposMetodoPago.Efectivo,
@@ -106,6 +108,7 @@ namespace AppForSEII2526.UT.OfertasController_test
 
             var ofertaoBeforeFrom = new OfertaDTO
             (
+                1,
                 DateTime.Today,
                 DateTime.Today.AddMonths(1),
                 tiposMetodoPago.Efectivo,
@@ -116,6 +119,7 @@ namespace AppForSEII2526.UT.OfertasController_test
             // El nuevo caso para el examen
             var ofertaLessThanWeek = new OfertaDTO
             (
+                1,
                 DateTime.Today.AddDays(5),
                 DateTime.Today,
                 tiposMetodoPago.Efectivo,
@@ -125,6 +129,7 @@ namespace AppForSEII2526.UT.OfertasController_test
 
             var ofertaWithNoPercentage = new OfertaDTO
             (
+                1,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(1),
                 tiposMetodoPago.Efectivo,
@@ -136,6 +141,7 @@ namespace AppForSEII2526.UT.OfertasController_test
 
             var ofertaWithInvalidPercentage = new OfertaDTO
             (
+                1,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(1),
                 tiposMetodoPago.Efectivo,
@@ -147,6 +153,7 @@ namespace AppForSEII2526.UT.OfertasController_test
 
             var ofertaNoItems = new OfertaDTO
             (
+                1,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(1),
                 tiposMetodoPago.Efectivo,
@@ -156,6 +163,7 @@ namespace AppForSEII2526.UT.OfertasController_test
 
             var ofertaWithNoPaymentMethod = new OfertaDTO
             (
+                1,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(1),
                 null,
@@ -219,6 +227,7 @@ namespace AppForSEII2526.UT.OfertasController_test
             };
             var ofertaForCreate = new OfertaDTO
             (
+                2,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(1),
                 tiposMetodoPago.Efectivo,
@@ -227,6 +236,7 @@ namespace AppForSEII2526.UT.OfertasController_test
             );
             var expectedOferta = new OfertaDetailsDTO
             (
+                2,
                 DateTime.Today.AddDays(1),
                 DateTime.Today.AddMonths(1),
                 DateTime.Today,

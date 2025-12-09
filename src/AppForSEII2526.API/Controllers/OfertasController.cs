@@ -37,6 +37,7 @@ namespace AppForSEII2526.API.Controllers
                     .Include(o => o.ofertaItems)
                         .ThenInclude(oi => oi.herramienta)
                 .Select(o => new OfertaDetailsDTO(
+                    o.Id,
                     o.fechaInicio,
                     o.fechaFinal,
                     o.fechaOferta,
@@ -171,6 +172,7 @@ namespace AppForSEII2526.API.Controllers
 
             // Crear un DTO de respuesta que contenga los detalles finales 
             var ofertaDetail = new OfertaDetailsDTO(
+                nuevaOferta.Id,
                 nuevaOferta.fechaInicio,
                 nuevaOferta.fechaFinal,
                 nuevaOferta.fechaOferta,

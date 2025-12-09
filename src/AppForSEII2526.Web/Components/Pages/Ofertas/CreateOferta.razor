@@ -137,7 +137,7 @@
                 {
                     var offered = await apiclient.CreateOfertaAsync(oferta);
                     ofertaState.OfertaProcessed();
-                    navigation.NavigateTo($"/rental/detailrental/?RentalID={offered.Id}");
+                    navigation.NavigateTo($"/ofertas/detailoferta/?OfertaID={offered.Id}");
                 }
                 catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
                 {

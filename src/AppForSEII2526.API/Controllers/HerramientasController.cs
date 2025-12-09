@@ -104,7 +104,7 @@ namespace AppForSEII2526.API.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        [ProducesResponseType(typeof(OfertaDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<HerramientaForOfertaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
 
         public async Task<ActionResult> GetHerramientaForOferta(string? fabricante, float? precio)

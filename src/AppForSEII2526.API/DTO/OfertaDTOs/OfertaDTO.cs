@@ -4,9 +4,10 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
 {
     public class OfertaDTO
     {
-        public OfertaDTO(DateTime fechaFinal, DateTime fechaInicio,
+        public OfertaDTO(int Id, DateTime fechaFinal, DateTime fechaInicio,
             tiposMetodoPago? metodoPago, tiposDiridaOferta? dirigidaA, List<OfertaItemDTO> ofertaItems)
         {
+            this.Id = Id;
             this.fechaFinal = fechaFinal;
             this.fechaInicio = fechaInicio;
             this.fechaOferta = DateTime.Today;
@@ -19,6 +20,7 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
         {
             return obj is OfertaDTO dTO &&
                    // Comparar los DateTime por Ticks para evitar diferencias de Kind/offset
+                   Id == dTO.Id &&
                    fechaFinal.Ticks == dTO.fechaFinal.Ticks &&
                    fechaInicio.Ticks == dTO.fechaInicio.Ticks &&
                    fechaOferta.Ticks == dTO.fechaOferta.Ticks &&
@@ -26,6 +28,8 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
                    metodoPago == dTO.metodoPago &&
                    dirigidaA == dTO.dirigidaA;
         }
+
+        public int Id { get; set; }
 
         [Required(ErrorMessage = "Por favor, introduce la fecha final")]
         public DateTime fechaFinal { get; set; }

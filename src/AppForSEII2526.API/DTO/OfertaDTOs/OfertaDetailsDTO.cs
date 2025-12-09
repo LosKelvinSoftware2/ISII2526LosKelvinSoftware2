@@ -6,10 +6,11 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
 {
     public class OfertaDetailsDTO: OfertaDTO
     {
-        public OfertaDetailsDTO(DateTime fechaInicio, DateTime fechaFinal, DateTime fechaOferta,
+        public OfertaDetailsDTO(int Id, DateTime fechaInicio, DateTime fechaFinal, DateTime fechaOferta,
             tiposMetodoPago? metodoPago, tiposDiridaOferta? dirigidaA, List<OfertaItemDTO> ofertaItems):
-            base(fechaFinal, fechaInicio, metodoPago, dirigidaA, ofertaItems)
+            base(Id, fechaFinal, fechaInicio, metodoPago, dirigidaA, ofertaItems)
         {
+            this.Id = Id;
             this.fechaInicio = fechaInicio;
             this.fechaFinal = fechaFinal;
             this.fechaOferta = fechaOferta;
@@ -22,6 +23,7 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
         {
             return obj is OfertaDetailsDTO dTO &&
                    base.Equals(obj) &&
+                   Id == dTO.Id &&
                    fechaFinal == dTO.fechaFinal &&
                    fechaInicio == dTO.fechaInicio &&
                    fechaOferta == dTO.fechaOferta &&

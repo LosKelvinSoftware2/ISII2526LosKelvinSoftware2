@@ -14,7 +14,6 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
             this.material = material;
             this.Fabricante = Fabricante;
             this.precioOriginal = precioOriginal; // Viene de Herramienta.
-            // Viene de OfertaItem.precioFinal (float se recomienda cambiar a decimal) 
         }
 
         public override bool Equals(object? obj)
