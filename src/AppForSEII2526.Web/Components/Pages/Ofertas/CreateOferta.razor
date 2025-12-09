@@ -5,6 +5,7 @@
 @inject AppForSEII2526APIClient apiclient
 @inject ILogger<CreateOferta> logger
 @inject OfertaStateContainer ofertaState
+@inject NavigationManager navigation
 
 <h3>CreateOferta</h3>
 
@@ -57,6 +58,14 @@
             </div>
         </div>
     </div>
+    <h4>Rental detail</h4>
+    <p><b>Fecha Inicio:</b> @oferta.FechaInicio.ToString("dd/MM/yyyy") <b>to:</b> @oferta.FechaFinal.ToString("dd/MM/yyyy")</p>
+    <p><b>Fecha Creación:</b> @oferta.FechaOferta.ToString("dd/MM/yyyy")</p>
+    <p>
+        <button class="btn btn-outline-primary" type="submit" @onclick="ModifyOfertaItems" id="ModifyHerramientas">
+            Modificar herramientas
+        </button>
+    </p>
     <div class="mh-100 table-responsive">
         <table class="table table-condensed table-hover" id="TableOfRentalItems">
             <thead>
@@ -73,6 +82,7 @@
                         <td>@item.Nombre</td>
                         <td>@item.Material</td>
                         <td>@item.PrecioOriginal</td>
+                        <td><InputNumber @bind-Value="item.Porcentaje" class="form-control" id="@($"porcentaje_{item.Porcentaje}")"></InputNumber></td>
                     </tr>
                 }
             </tbody>
@@ -94,6 +104,11 @@
 @code {
     private bool DialogIsOpen;
     private object? errors;
+
+    private void ModifyOfertaItems()
+    {
+        navigation.NavigateTo("/ofertas/selectherramientasforoferta");
+    }
 
     private OfertaDTO oferta => ofertaState.Oferta;
 
