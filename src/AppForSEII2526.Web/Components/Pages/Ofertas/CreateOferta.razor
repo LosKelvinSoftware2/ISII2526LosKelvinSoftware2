@@ -27,12 +27,33 @@
                 <label for="FechaFinal">Fecha Final</label>
             </div>
         </div>
+    </div>
+    <div class="row g-2">
         <div class="col-md">
+            <div class="col-md">
+                <div class="form-floating">
+                    @*a dropdown for selecting the payment method*@
+                    <InputSelect class="form-select" @bind-Value="@oferta.MetodoPago" id="PaymentMethod">
+                        <option value="@TiposMetodoPago.TarjetaCredito" default> CreditCard</option>
+                        <option value="@TiposMetodoPago.PayPal"> PayPal</option>
+                        <option value="@TiposMetodoPago.Efectivo"> Cash</option>
+                    </InputSelect>
+                    <label for="PaymentMethod">Payment Method</label>
+                </div>
+                <div class="form-floating">
+                    @*a dropdown for selecting the customers*@
+                    <InputSelect class="form-select" @bind-Value="@oferta.DirigidaA" id="Customers">
+                        <option value="@TiposDiridaOferta.Clientes" default> Customers</option>
+                        <option value="@TiposDiridaOferta.Socios"> Socios</option>
+                    </InputSelect>
+                    <label for="Customers">Customer Type</label>
+                </div>
+            </div>
             <div class="form-floating">
-                @*Este boton pregunta si el usuario quiere crear la oferta*@    
-                <button class="btn btn-primary" type="submit" id="Submit">
-                    Crear oferta
-                </button>
+                 @*Este boton pregunta si el usuario quiere crear la oferta*@    
+                 <button class="btn btn-primary" type="submit" id="Submit">
+                     Crear oferta
+                 </button>
             </div>
         </div>
     </div>
