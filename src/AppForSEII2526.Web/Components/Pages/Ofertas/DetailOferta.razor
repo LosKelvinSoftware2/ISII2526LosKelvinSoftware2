@@ -1,0 +1,15 @@
+﻿<h3>DetailOferta</h3>
+
+@using AppForSEII2526.Web.API
+
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int OfertaID { get; set; }
+    private OfertaDetailsDTO oferta;
+    private string error = "";
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationStateTask { get; set; }
+}
