@@ -1,5 +1,6 @@
 ﻿@page "/ofertas/createoferta"
 
+@using AppForSEII2526.Web.Components.Shared
 @using AppForSEII2526.Web.API
 @inject AppForSEII2526APIClient apiclient
 @inject ILogger<CreateOferta> logger
@@ -10,6 +11,22 @@
 @* oferta is the object that will be edited thanks to the form *@
 <EditForm Model="oferta" OnValidSubmit="OpenDialog">
     <div class="row">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    </div>
+    <div class="row g-3">
+        <div class="col-md">
+            <div class="form-floating">
+                <InputDate class="form-control" id="FechaInicio" @bind-Value="oferta.FechaInicio" placeholder="FechaInicio" />
+                <label for="FechaInicio">Fecha Inicio</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating">
+                <InputDate class="form-control" id="FechaFinal" @bind-Value="oferta.FechaFinal" placeholder="FechaFinal" />
+                <label for="FechaFinal">Fecha Final</label>
+            </div>
+        </div>
         <div class="col-md">
             <div class="form-floating">
                 @*Este boton pregunta si el usuario quiere crear la oferta*@    
@@ -19,12 +36,57 @@
             </div>
         </div>
     </div>
+    <div class="mh-100 table-responsive">
+        <table class="table table-condensed table-hover" id="TableOfRentalItems">
+            <thead>
+                <tr>
+                    <td>Nombre</td>
+                    <td>Material</td>
+                    <td>Precio</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in oferta.OfertaItems)
+                {
+                    <tr>
+                        <td>@item.Nombre</td>
+                        <td>@item.Material</td>
+                        <td>@item.PrecioOriginal</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
 </EditForm>
+
+@*Un pop up para preguntar si el usuario quiere continuar con la oferta *@
+@if (DialogIsOpen)
+{
+    <Dialog Caption="Rental movies"
+            Message="Do you want to proceed to rent the selected movies?"
+            OnClose="@OnDialogClose"
+            Type=Dialog.Category.SaveNot>
+    </Dialog>
+}
+
 @code {
+    private bool DialogIsOpen;
+    private object? errors;
+
     private OfertaDTO oferta => ofertaState.Oferta;
 
     private void OpenDialog()
     {
-        
+        DialogIsOpen = false;
+    }
+    private async Task OnDialogClose (bool isOk)
+    {
+        DialogIsOpen = false;
+
+        if (isOk)
+        {
+            // Process the data introduced by the user if they are valid
+        }
     }
 }
