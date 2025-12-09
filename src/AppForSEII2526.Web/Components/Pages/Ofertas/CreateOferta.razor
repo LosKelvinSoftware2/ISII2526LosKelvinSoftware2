@@ -1,0 +1,163 @@
+﻿@page "/ofertas/createoferta"
+
+@using AppForSEII2526.Web.Components.Shared
+@using AppForSEII2526.Web.API
+@using Microsoft.AspNetCore.Authorization
+@inject AppForSEII2526APIClient apiclient
+@inject ILogger<CreateOferta> logger
+@inject OfertaStateContainer ofertaState
+@inject NavigationManager navigation
+
+@attribute [Authorize]
+
+<h3>CreateOferta</h3>
+
+@* oferta is the object that will be edited thanks to the form *@
+<EditForm Model="oferta" OnValidSubmit="OpenDialog">
+    <div class="row">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="row alert alert-danger" />
+    </div>
+    <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+        <p id="ErrorsShown">Errors: @messageError</p>
+    </div>
+    <div class="row g-3">
+        <div class="col-md">
+            <div class="form-floating">
+                <InputDate class="form-control" id="FechaInicio" @bind-Value="oferta.FechaInicio" placeholder="FechaInicio" />
+                <label for="FechaInicio">Fecha Inicio</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating">
+                <InputDate class="form-control" id="FechaFinal" @bind-Value="oferta.FechaFinal" placeholder="FechaFinal" />
+                <label for="FechaFinal">Fecha Final</label>
+            </div>
+        </div>
+    </div>
+    <div class="row g-2">
+        <div class="col-md">
+            <div class="col-md">
+                <div class="form-floating">
+                    @*a dropdown for selecting the payment method*@
+                    <InputSelect class="form-select" @bind-Value="@oferta.MetodoPago" id="PaymentMethod">
+                        <option value="@TiposMetodoPago.TarjetaCredito" default> CreditCard</option>
+                        <option value="@TiposMetodoPago.PayPal"> PayPal</option>
+                        <option value="@TiposMetodoPago.Efectivo"> Cash</option>
+                    </InputSelect>
+                    <label for="PaymentMethod">Payment Method</label>
+                </div>
+                <div class="form-floating">
+                    @*a dropdown for selecting the customers*@
+                    <InputSelect class="form-select" @bind-Value="@oferta.DirigidaA" id="Customers">
+                        <option value="@TiposDiridaOferta.Clientes" default> Customers</option>
+                        <option value="@TiposDiridaOferta.Socios"> Socios</option>
+                    </InputSelect>
+                    <label for="Customers">Customer Type</label>
+                </div>
+            </div>
+            <div class="form-floating">
+                 @*Este boton pregunta si el usuario quiere crear la oferta*@    
+                 <button class="btn btn-primary" type="submit" id="Submit">
+                     Crear oferta
+                 </button>
+            </div>
+        </div>
+    </div>
+    <h4>Rental detail</h4>
+    <p><b>Fecha Inicio:</b> @oferta.FechaInicio.ToString("dd/MM/yyyy") <b>to:</b> @oferta.FechaFinal.ToString("dd/MM/yyyy")</p>
+    <p><b>Fecha Creación:</b> @oferta.FechaOferta.ToString("dd/MM/yyyy")</p>
+    <p>
+        <button class="btn btn-outline-primary" type="submit" @onclick="ModifyOfertaItems" id="ModifyHerramientas">
+            Modificar herramientas
+        </button>
+    </p>
+    <div class="mh-100 table-responsive">
+        <table class="table table-condensed table-hover" id="TableOfRentalItems">
+            <thead>
+                <tr>
+                    <td>Nombre</td>
+                    <td>Material</td>
+                    <td>Precio</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in oferta.OfertaItems)
+                {
+                    <tr>
+                        <td>@item.Nombre</td>
+                        <td>@item.Material</td>
+                        <td>@item.PrecioOriginal</td>
+                        <td><InputNumber @bind-Value="item.Porcentaje" class="form-control" id="@($"porcentaje_{item.Porcentaje}")"></InputNumber></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</EditForm>
+
+@*Un pop up para preguntar si el usuario quiere continuar con la oferta *@
+@if (DialogIsOpen)
+{
+    <Dialog Caption="Rental movies"
+            Message="Do you want to proceed to rent the selected movies?"
+            OnClose="@OnDialogClose"
+            Type=Dialog.Category.SaveNot>
+    </Dialog>
+}
+
+@code {
+    private string messageError = "";
+    private bool hideErrors { get { return messageError.Length == 0; } }
+    private bool DialogIsOpen;
+    private object? errors;
+
+    private void ModifyOfertaItems()
+    {
+        navigation.NavigateTo("/ofertas/selectherramientasforoferta");
+    }
+
+    private OfertaDTO oferta => ofertaState.Oferta;
+
+    private void OpenDialog()
+    {
+        DialogIsOpen = false;
+    }
+    private async Task OnDialogClose (bool isOk)
+    {
+        DialogIsOpen = false;
+
+        if (isOk)
+        {
+            // Process the data introduced by the user if they are valid
+            if (oferta.OfertaItems.Count > 0)
+            {
+                try
+                {
+                    var offered = await apiclient.CreateOfertaAsync(oferta);
+                    ofertaState.OfertaProcessed();
+                    navigation.NavigateTo($"/rental/detailrental/?RentalID={offered.Id}");
+                }
+                catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
+                {
+                    if (apiexceptionvalidation.Result.Errors.Values != null)
+                    {
+                        messageError = "";
+                        foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
+                            //https://learn.microsoft.com/en-us/dotnet/api/system.string.join?view=net-7.0
+                            messageError = string.Join("(*) ", messageError, string.Join(" (*) ", errors));
+                    }
+                }
+                catch (ApiException apiexception)
+                {
+                    //we need to inform user that there was some other error while processing the request
+                    messageError = "Error while processing your request, please try again later!";
+                }
+            }
+        }
+    }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+}
