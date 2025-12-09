@@ -2,10 +2,13 @@
 
 @using AppForSEII2526.Web.Components.Shared
 @using AppForSEII2526.Web.API
+@using Microsoft.AspNetCore.Authorization
 @inject AppForSEII2526APIClient apiclient
 @inject ILogger<CreateOferta> logger
 @inject OfertaStateContainer ofertaState
 @inject NavigationManager navigation
+
+@attribute [Authorize]
 
 <h3>CreateOferta</h3>
 
@@ -13,7 +16,10 @@
 <EditForm Model="oferta" OnValidSubmit="OpenDialog">
     <div class="row">
         <DataAnnotationsValidator />
-        <ValidationSummary />
+        <ValidationSummary class="row alert alert-danger" />
+    </div>
+    <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
+        <p id="ErrorsShown">Errors: @messageError</p>
     </div>
     <div class="row g-3">
         <div class="col-md">
@@ -102,6 +108,8 @@
 }
 
 @code {
+    private string messageError = "";
+    private bool hideErrors { get { return messageError.Length == 0; } }
     private bool DialogIsOpen;
     private object? errors;
 
@@ -123,6 +131,28 @@
         if (isOk)
         {
             // Process the data introduced by the user if they are valid
+            if (oferta.OfertaItems.Count > 0)
+            {
+                try
+                {
+                    var offered = await apiclient.CreateOfertaAsync(oferta);
+                    ofertaState.OfertaProcessed();
+                    navigation.NavigateTo($"/rental/detailrental/?RentalID={offered.Id}");
+                }
+                catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
+                {
+                    if (apiexceptionvalidation.Result.Errors.Values != null)
+                    {
+                        messageError = "";
+                        foreach (var errors in apiexceptionvalidation.Result.Errors.Values)
+                            //https://learn.microsoft.com/en-us/dotnet/api/system.string.join?view=net-7.0
+                            messageError = string.Join("(*) ", messageError, string.Join(" (*) ", errors));
+                    }
+                }
+            }
         }
     }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
 }
