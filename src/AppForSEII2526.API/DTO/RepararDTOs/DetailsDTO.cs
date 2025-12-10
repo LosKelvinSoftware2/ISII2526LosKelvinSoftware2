@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Humanizer;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppForSEII2526.API.DTO.RepararDTOs
 {
-    public class ReparacionDetailsDTO : ReparacionDTO, IEquatable<ReparacionDetailsDTO?>
+    public class ReparacionDetailsDTO : ReparacionDTO
     {
         public ReparacionDetailsDTO() { }
 
@@ -22,25 +23,15 @@ namespace AppForSEII2526.API.DTO.RepararDTOs
         public DateTime FechaRecogida { get; set; }
         public float PrecioTotal { get; set; }
 
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as ReparacionDetailsDTO);
-        }
+        
 
-        public bool Equals(ReparacionDetailsDTO? other)
+        public override bool Equals(object? other)
         {
-            return other is not null &&
+            return other is ReparacionDetailsDTO dTO &&
                    base.Equals(other) &&
-                   UserName == other.UserName &&
-                   NombreCliente == other.NombreCliente &&
-                   ApellidosCliente == other.ApellidosCliente &&
-                   NumTelefono == other.NumTelefono &&
-                   FechaEntrega == other.FechaEntrega &&
-                   MetodoPago == other.MetodoPago &&
-                   EqualityComparer<List<ReparacionItemDTO>>.Default.Equals(ItemsReparacion, other.ItemsReparacion) &&
-                   Id == other.Id &&
-                   FechaRecogida == other.FechaRecogida &&
-                   PrecioTotal == other.PrecioTotal;
+                   Id == dTO.Id &&
+                   FechaRecogida == dTO.FechaRecogida &&
+                   PrecioTotal == dTO.PrecioTotal;
         }
 
         // Propiedad adicional para mantener compatibilidad con el DTO de items específico

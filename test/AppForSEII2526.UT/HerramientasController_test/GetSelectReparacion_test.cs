@@ -142,12 +142,7 @@ namespace AppForSEII2526.UT.HerramientasControllerTest
             {
                 var okResult = Assert.IsType<OkObjectResult>(result.Result);
                 var actual = Assert.IsType<List<HerramientaRepaDTO>>(okResult.Value);
-                Assert.Equal(expected.Count, actual.Count);
-
-                foreach (var expectedItem in expected)
-                {
-                    Assert.Contains(actual, a => a.Nombre == expectedItem.Nombre && a.Fabricante == expectedItem.Fabricante);
-                }
+                Assert.Equal(expected, actual);
             }
         }
 

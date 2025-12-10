@@ -57,7 +57,7 @@
                    NumTelefono == dTO.NumTelefono &&
                    FechaEntrega == dTO.FechaEntrega &&
                    MetodoPago == dTO.MetodoPago &&
-                   EqualityComparer<List<ReparacionItemDTO>>.Default.Equals(ItemsReparacion, dTO.ItemsReparacion);
+                   ItemsReparacion.SequenceEqual(dTO.ItemsReparacion);
         }
     }
 }

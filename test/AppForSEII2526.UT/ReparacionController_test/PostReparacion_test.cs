@@ -313,6 +313,25 @@ namespace AppForSEII2526.UT.ReparacionController_test
             // Precio total esperado: (50 * 2) + (75 * 1) = 175
             var precioTotalEsperado = 175.0f;
 
+            var itemsEsperados = new List<ReparacionItemDTO>
+            {
+                new ReparacionItemDTO("Martillo", 100.0f, 2, "Reparación de martillos"),
+                new ReparacionItemDTO("Sierra", 75.0f, 1, "Reparación de sierra")
+            };
+
+            var expectedResult = new ReparacionDetailsDTO(
+                0, 
+                _customerName,
+                _customerSurname,
+                _phoneNumber,
+                fechaEntregaEsperada,
+                fechaRecogidaEsperada,
+                precioTotalEsperado,
+                tiposMetodoPago.PayPal,
+                itemsEsperados
+            );
+            expectedResult.UserName = null; // Porque el DTO de respuesta no incluye UserName
+
             // Arrange
             var mockLogger = new Mock<ILogger<ReparacionController>>();
             var controller = new ReparacionController(_context, mockLogger.Object);
@@ -324,32 +343,11 @@ namespace AppForSEII2526.UT.ReparacionController_test
             var createdResult = Assert.IsType<CreatedAtActionResult>(result);
             var reparacionDetailDTO = Assert.IsType<ReparacionDetailsDTO>(createdResult.Value);
 
-            // Verificar datos básicos
-            Assert.Equal(_customerName, reparacionDetailDTO.NombreCliente);
-            Assert.Equal(_customerSurname, reparacionDetailDTO.ApellidosCliente);
-            Assert.Equal(_phoneNumber, reparacionDetailDTO.NumTelefono);
-            Assert.Equal(fechaEntregaEsperada.Date, reparacionDetailDTO.FechaEntrega.Date);
-            Assert.Equal(fechaRecogidaEsperada.Date, reparacionDetailDTO.FechaRecogida.Date);
-            Assert.Equal(precioTotalEsperado, reparacionDetailDTO.PrecioTotal);
-            Assert.Equal(tiposMetodoPago.PayPal, reparacionDetailDTO.MetodoPago);
+            // Igualamos el ID del esperado al actual para que la comparación no falle por el ID autogenerado de la BD
+            expectedResult.Id = reparacionDetailDTO.Id;
 
-            // Verificar items
-            Assert.Equal(2, reparacionDetailDTO.ItemsReparacion.Count);
-
-            var itemMartillo = reparacionDetailDTO.ItemsReparacion.FirstOrDefault(i => i.NombreHerramienta == "Martillo");
-            Assert.NotNull(itemMartillo);
-            Assert.Equal(2, itemMartillo.Cantidad);
-            Assert.Equal(100.0f, itemMartillo.Precio); // 50 * 2 = 100
-            Assert.Equal("Reparación de martillos", itemMartillo.Descripcion);
-
-            var itemSierra = reparacionDetailDTO.ItemsReparacion.FirstOrDefault(i => i.NombreHerramienta == "Sierra");
-            Assert.NotNull(itemSierra);
-            Assert.Equal(1, itemSierra.Cantidad);
-            Assert.Equal(75.0f, itemSierra.Precio);
-            Assert.Equal("Reparación de sierra", itemSierra.Descripcion);
-
-            Assert.Equal(itemMartillo, reparacionDetailDTO.ItemsReparacion.FirstOrDefault(i => i.NombreHerramienta == "Martillo"));
-            Assert.Equal(itemSierra, reparacionDetailDTO.ItemsReparacion.FirstOrDefault(i => i.NombreHerramienta == "Sierra"));
+            // ASSERT FINAL: Compara el objeto entero
+            Assert.Equal(expectedResult, reparacionDetailDTO);
         }
 
         private DateTime CalcularFechaRecogida(DateTime fechaEntrega, int diasHabiles)
