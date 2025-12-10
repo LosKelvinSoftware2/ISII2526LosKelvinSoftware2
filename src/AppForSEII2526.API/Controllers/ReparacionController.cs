@@ -1,8 +1,9 @@
 ﻿using AppForSEII2526.API.DTO.RepararDTOs;
+using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Net; // Necesario para HttpStatusCode
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -27,9 +28,11 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> GetReparacionDetails()
         {
+            _logger.LogInformation("Solicitando listado completo de reparaciones.");
+
             if (_context.Reparacion == null)
             {
-                _logger.LogError("Error: La tabla Reparacion no existe");
+                _logger.LogError("CRITICAL: La tabla Reparacion no existe en la BD.");
                 return NotFound();
             }
 
@@ -52,18 +55,17 @@ namespace AppForSEII2526.API.Controllers
                             ri.Precio,
                             ri.Cantidad,
                             ri.Descripcion
-                            
                         )).ToList()
-                    
                 ))
                 .ToListAsync();
 
             if (reparaciones == null || reparaciones.Count == 0)
             {
-                _logger.LogWarning("No se encontraron reparaciones registradas.");
+                _logger.LogWarning("Consulta realizada pero no se encontraron reparaciones registradas.");
                 return NotFound();
             }
 
+            _logger.LogInformation($"Se han recuperado {reparaciones.Count} registros de reparación.");
             return Ok(reparaciones);
         }
 
@@ -75,27 +77,42 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> CreateReparacion(ReparacionDTO reparacionForCreate)
         {
-            // Buscar usuario por UserName (que es el email según tu BD)
+            _logger.LogInformation($"Iniciando creación de reparación para usuario: {reparacionForCreate.UserName}");
+
+            // Buscar usuario por UserName
             var user = _context.ApplicationUser.FirstOrDefault(au => au.UserName == reparacionForCreate.UserName);
             if (user == null)
+            {
+                _logger.LogWarning($"Usuario '{reparacionForCreate.UserName}' no encontrado. Operación cancelada.");
                 ModelState.AddModelError("Usuario", "Error! Usuario no autenticado o no encontrado");
+            }
 
             // Validaciones de fechas
             if (reparacionForCreate.FechaEntrega <= DateTime.Today)
+            {
+                _logger.LogWarning($"Fecha de entrega inválida: {reparacionForCreate.FechaEntrega}. Debe ser futura.");
                 ModelState.AddModelError("FechaEntrega", "Error! La fecha de entrega debe ser posterior a hoy");
+            }
 
             // Validación de items
             if (reparacionForCreate.ItemsReparacion == null || reparacionForCreate.ItemsReparacion.Count == 0)
+            {
+                _logger.LogWarning("Intento de reparación sin herramientas.");
                 ModelState.AddModelError("ItemsReparacion", "Error! Debe incluir al menos una herramienta para reparar");
+            }
 
-            // Validación de cantidades (Flujo Alternativo 5)
+            // Validación de cantidades
             if (reparacionForCreate.ItemsReparacion != null && reparacionForCreate.ItemsReparacion.Any(item => item.Cantidad <= 0))
+            {
+                _logger.LogWarning("Se detectaron cantidades <= 0 en los items.");
                 ModelState.AddModelError("ItemsReparacion", "Error! La cantidad de todas las herramientas debe ser al menos 1");
+            }
 
             if (ModelState.ErrorCount > 0)
+            {
                 return BadRequest(new ValidationProblemDetails(ModelState));
+            }
 
-            // Resto del código permanece igual...
             var herramientaIds = reparacionForCreate.ItemsReparacion.Select(ri => ri.HerramientaId).ToList();
 
             var herramientas = await _context.Herramienta
@@ -128,10 +145,12 @@ namespace AppForSEII2526.API.Controllers
 
                 if (herramienta == null)
                 {
+                    _logger.LogError($"Herramienta ID {item.HerramientaId} no existe en la base de datos.");
                     ModelState.AddModelError("ItemsReparacion", $"Error! La herramienta con ese ID no existe");
                 }
                 else if (herramienta.EstaEnReparacion)
                 {
+                    _logger.LogWarning($"Conflicto: La herramienta '{herramienta.Nombre}' (ID: {herramienta.Id}) ya está en proceso de reparación.");
                     ModelState.AddModelError("ItemsReparacion", $"Error! La herramienta con ese nombre no está disponible para reparación");
                 }
                 else
@@ -159,17 +178,21 @@ namespace AppForSEII2526.API.Controllers
             reparacion.PrecioTotal = precioTotal;
 
             if (ModelState.ErrorCount > 0)
+            {
+                _logger.LogWarning("Fallos durante el procesamiento de items de reparación.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
+            }
 
             _context.Reparacion.Add(reparacion);
 
             try
             {
                 await _context.SaveChangesAsync();
+                _logger.LogInformation($"Reparación creada EXITOSAMENTE. ID: {reparacion.Id}, Fecha Recogida Est: {reparacion.FechaRecogida:dd/MM/yyyy}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "Error crítico guardando reparación en DB.");
                 ModelState.AddModelError("Reparacion", $"Error! Hubo un problema al guardar la reparación, por favor intente más tarde");
                 return Conflict("Error: " + ex.Message);
             }
@@ -209,11 +232,7 @@ namespace AppForSEII2526.API.Controllers
                     diasAgregados++;
                 }
             }
-
             return fechaRecogida;
         }
-
-
-
     }
 }

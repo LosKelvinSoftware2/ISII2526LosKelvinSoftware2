@@ -20,7 +20,7 @@ public class RabbitMQLogger : ILogger, IDisposable
         _config = config ?? throw new ArgumentNullException(nameof(config));
 
 
-        //Factoria AÑADIDO
+        //Factoria aÃ±adido
         var factory = new ConnectionFactory
         {
             HostName = _config.HostName,
@@ -95,7 +95,7 @@ public class RabbitMQLogger : ILogger, IDisposable
             byte[] body = Encoding.UTF8.GetBytes(json);
 
 
-            // Generar routing key según nivel de log
+            // Generar routing key segï¿½n nivel de log
             string routingKey = logLevel switch
             {
                 LogLevel.Information => "log.info",

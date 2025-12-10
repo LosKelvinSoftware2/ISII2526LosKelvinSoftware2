@@ -2,7 +2,8 @@
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore; // Necesario para Include
+using System.Net; // Necesario para HttpStatusCode
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -17,7 +18,6 @@ namespace AppForSEII2526.API.Controllers
         {
             _context = context;
             _logger = logger;
-
             _logger.LogInformation("OfertasController initialized");
         }
 
@@ -27,9 +27,11 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult> GetOferta(int id)
         {
+            _logger.LogInformation($"Consultando Oferta ID: {id}");
+
             if (_context.Oferta == null)
             {
-                _logger.LogError("Error: Oferta table does not exist");
+                _logger.LogError("CRITICAL: Oferta table does not exist");
                 return NotFound();
             }
 
@@ -57,8 +59,8 @@ namespace AppForSEII2526.API.Controllers
                 .FirstOrDefaultAsync();
 
             if (oferta == null)
-                {
-                _logger.LogError($"Error: Oferta with id { id} does not exist");
+            {
+                _logger.LogWarning($"Oferta con id {id} no encontrada.");
                 return NotFound();
             }
 
@@ -67,88 +69,83 @@ namespace AppForSEII2526.API.Controllers
 
         [HttpPost]
         [Route("[action]")]
-
         [ProducesResponseType(typeof(OfertaDetailsDTO), (int)HttpStatusCode.Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
         public async Task<ActionResult> CreateOferta (OfertaDTO ofertaForCreate)
         {
+            _logger.LogInformation($"Intentando crear Oferta: {ofertaForCreate.porcentaje}% Descuento.");
+
             if (ofertaForCreate.fechaInicio <= DateTime.Today)
                 ModelState.AddModelError("RentalDateFrom", "Error! La fecha de inicio de oferta debe ser al menos mañana");
             if (ofertaForCreate.fechaInicio >= ofertaForCreate.fechaFinal)
                 ModelState.AddModelError("RentalDateTo", "Error! La fecha final de oferta debe ser después de la fecha de inicio");
             if (ofertaForCreate.porcentaje <= 0 || ofertaForCreate.porcentaje > 100)
+            {
+                _logger.LogWarning($"Porcentaje erróneo: {ofertaForCreate.porcentaje}. Debe ser 1-100.");
                 ModelState.AddModelError("porcentaje", "Error! El porcentaje de descuento debe estar entre 1 y 100");
+            }
             if (ofertaForCreate.ofertaItems.Count == 0)
                 ModelState.AddModelError("RentalItems", "Error! Hay que incluir al menos una herramienta");
 
-
-            // Retorno si hay errores iniciales
             if (!ModelState.IsValid)
             {
-                // Flujo Alternativo 5: Datos obligatorios no rellenados (o rango incorrecto)
+                _logger.LogWarning("Datos de oferta inválidos.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
 
-            // --- 2. Validación de Existencia de Herramientas ---
             var herramientaIds = ofertaForCreate.ofertaItems.Select(oi => oi.herramientaId).Distinct().ToList();
 
-            // Obtener los datos de las herramientas necesarias (Nombre, Material, Fabricante, Precio Original)
             var herramientas = await _context.Herramienta
                 .Include(h => h.fabricante) 
                 .Where(h => herramientaIds.Contains(h.Id))
                 .ToDictionaryAsync(h => h.Id);
 
-
-            // --- 3. Construcción de Entidades (Modelos de DB) ---
-
-            // Crear la entidad Oferta principal
             var nuevaOferta = new Oferta
             {
                 porcentaje = ofertaForCreate.porcentaje,
                 fechaInicio = ofertaForCreate.fechaInicio,
                 fechaFinal = ofertaForCreate.fechaFinal,
-                fechaOferta = DateTime.Today, // La fecha de creación es ahora
+                fechaOferta = DateTime.Today,
                 metodoPago = ofertaForCreate.metodoPago,
                 dirigidaA = ofertaForCreate.dirigidaA,
-                // Las propiedades de precio/porcentaje pueden variar.
+                ofertaItems = new List<OfertaItem>() // Inicializar lista
             };
-            // Crear las entidades OfertaItem y adjuntarlas a la Oferta
+
             foreach (var item in ofertaForCreate.ofertaItems)
             {
+                if (!herramientas.ContainsKey(item.herramientaId))
+                {
+                    _logger.LogWarning($"Herramienta ID {item.herramientaId} no encontrada para la oferta.");
+                    continue; 
+                }
+
                 var herramienta = herramientas[item.herramientaId];
 
-                // Cálculo del precio con la oferta (asumiendo que Precio en Herramienta es el original)
                 float precioOriginal = herramienta.Precio;
-                float porcentaje = ofertaForCreate.porcentaje / 100.0f; // Convertir a decimal
+                float porcentaje = ofertaForCreate.porcentaje / 100.0f; 
                 float precioFinal = precioOriginal - (precioOriginal * porcentaje);
 
                 nuevaOferta.ofertaItems.Add(new OfertaItem
                 {
                     herramientaId = item.herramientaId,
-                    porcentaje = ofertaForCreate.porcentaje, // Guardamos el porcentaje en DB si es necesario
-                    precioFinal = precioFinal, // El precio ya rebajado
+                    porcentaje = ofertaForCreate.porcentaje,
+                    precioFinal = precioFinal, 
                 });
             }
 
             _context.Oferta.Add(nuevaOferta);
 
-            // --- 4. Guardar en Base de Datos ---
-
             try
             {
                 await _context.SaveChangesAsync();
+                _logger.LogInformation($"Oferta creada ID: {nuevaOferta.Id} con {nuevaOferta.ofertaItems.Count} items.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al guardar la nueva oferta en la base de datos.");
-                return Conflict($"Error al guardar la oferta. Por favor, inténtelo de nuevo más tarde: {ex.Message}");
+                _logger.LogError(ex, "Error guardando oferta en BD.");
+                return Conflict($"Error al guardar la oferta: {ex.Message}");
             }
-
-            // --- 5. Respuesta Exitosa (Flujo Básico 7) ---
-
-            // Crear un DTO de respuesta que contenga los detalles finales 
-            
 
             var ofertaDetail = new OfertaDetailsDTO(
                 nuevaOferta.Id,
@@ -167,7 +164,6 @@ namespace AppForSEII2526.API.Controllers
                     herramientas[oi.herramientaId].Precio
             )).ToList());
 
-            // Devuelve el código 201 Created y la ubicación del recurso recién creado
             return CreatedAtAction("GetOferta", new { id = nuevaOferta.Id }, ofertaDetail);
         }
     }

@@ -3,6 +3,7 @@ using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net; // Añadido para HttpStatusCode
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -21,18 +22,17 @@ namespace AppForSEII2526.API.Controllers
         }
 
         // GET: api/Compra/{id}
-
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(CompraDetailsDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-
         public async Task<ActionResult> GetCompraDetails(int id)
         {
+            _logger.LogInformation($"Iniciando consulta de detalles de Compra ID: {id}");
 
             if (_context.Compra == null)
             {
-                _logger.LogError("Error: Compra table does not exist");
+                _logger.LogCritical("CRITICAL: La tabla 'Compra' no existe en el contexto de base de datos.");
                 return NotFound();
             }
 
@@ -62,19 +62,15 @@ namespace AppForSEII2526.API.Controllers
 
             if (compra == null)
             {
-                _logger.LogWarning($"Compra con id {id} no encontrada.");
+                _logger.LogWarning($"Consulta fallida: Compra con ID {id} no encontrada.");
                 return NotFound();
             }
 
+            _logger.LogInformation($"Consulta exitosa: Recuperada Compra ID {id} de {compra.nombreCliente} {compra.apellidoCliente}.");
             return Ok(compra);
-
-
-
         }
 
-
         // POST: api/Compra/CrearCompra
-
         [HttpPost]
         [Route("[action]")]
         [ProducesResponseType(typeof(CompraDetailsDTO), (int)HttpStatusCode.Created)]
@@ -82,24 +78,27 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Conflict)]
         public async Task<ActionResult> CreateCompra(CompraDTO dto)
         {
+            _logger.LogInformation($"Recibida solicitud de Creación de Compra para cliente: {dto.nombreCliente} {dto.apellidoCliente}");
+
             // Ajuste mínimo: permitir compras del mismo día
-            // No permitir fechas anteriores a hoy (aceptar hoy y futuras)
             if (dto.fechaCompra < DateTime.Today)
+            {
+                _logger.LogWarning("Validación fallida: Fecha de compra anterior a hoy.");
                 ModelState.AddModelError("FechaCompra", "La compra no puede realizarse en una fecha anterior a hoy");
+            }
 
             // Comprobamos que hay al menos una herramienta
             if (dto.CompraItems == null || dto.CompraItems.Count == 0)
+            {
+                _logger.LogWarning("Validación fallida: El carrito de compra está vacío.");
                 ModelState.AddModelError("CompraItems", "Debe haber al menos una herramienta para comprar");
+            }
 
             // Validar datos del cliente
-            if (string.IsNullOrEmpty(dto.nombreCliente))
-                ModelState.AddModelError("Cliente.Nombre", "El nombre es obligatorio");
-            if (string.IsNullOrEmpty(dto.apellidoCliente))
-                ModelState.AddModelError("Cliente.Apellido", "El apellido es obligatorio");
-            if (string.IsNullOrEmpty(dto.direccionEnvio))
-                ModelState.AddModelError("direccionEnvio", "La dirección de envío es obligatoria");
-            if (!Enum.IsDefined(typeof(tiposMetodoPago), dto.MetodoPago))
-                ModelState.AddModelError("metodoPago", "El método de pago es obligatorio");
+            if (string.IsNullOrEmpty(dto.nombreCliente)) ModelState.AddModelError("Cliente.Nombre", "El nombre es obligatorio");
+            if (string.IsNullOrEmpty(dto.apellidoCliente)) ModelState.AddModelError("Cliente.Apellido", "El apellido es obligatorio");
+            if (string.IsNullOrEmpty(dto.direccionEnvio)) ModelState.AddModelError("direccionEnvio", "La dirección de envío es obligatoria");
+            if (!Enum.IsDefined(typeof(tiposMetodoPago), dto.MetodoPago)) ModelState.AddModelError("metodoPago", "El método de pago es obligatorio");
 
             // Validar cantidad de cada herramienta
             if (dto.CompraItems != null)
@@ -107,12 +106,16 @@ namespace AppForSEII2526.API.Controllers
                 foreach (var item in dto.CompraItems)
                 {
                     if (item.cantidad <= 0)
+                    {
+                        _logger.LogWarning($"Validación fallida: Cantidad inválida ({item.cantidad}) para herramienta {item.nombre}");
                         ModelState.AddModelError("Cantidad", "Debe especificarse una cantidad válida para cada herramienta");
+                    }
                 }
             }
 
             if (ModelState.ErrorCount > 0)
             {
+                _logger.LogWarning($"Solicitud rechazada por {ModelState.ErrorCount} errores de validación.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
 
@@ -121,7 +124,8 @@ namespace AppForSEII2526.API.Controllers
                 .Where(h => herramientasNombre.Contains(h.Nombre))
                 .ToListAsync();
 
-            // Crear Cliente solo si no existe (manteniendo tu lógica)
+            _logger.LogInformation($"Procesando compra de {herramientasLista.Count} herramientas encontradas en BD.");
+
             var compra = new Compra
             {
                 Cliente = new ApplicationUser
@@ -142,7 +146,11 @@ namespace AppForSEII2526.API.Controllers
             foreach (var item in dto.CompraItems)
             {
                 var herramienta = herramientasLista.FirstOrDefault(h => h.Nombre == item.nombre);
-                if (herramienta == null) continue;
+                if (herramienta == null)
+                {
+                    _logger.LogWarning($"Herramienta solicitada '{item.nombre}' no encontrada en base de datos. Se omite.");
+                    continue;
+                }
 
                 compra.CompraItems.Add(new CompraItem
                 {
@@ -159,10 +167,11 @@ namespace AppForSEII2526.API.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                _logger.LogInformation($"Compra guardada exitosamente. ID Generado: {compra.Id}. Total: {compra.PrecioTotal}€");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(ex, "Excepción crítica al guardar la compra en base de datos.");
                 ModelState.AddModelError("Compra", $"Error! Ha ocurrido un error");
                 return Conflict("Error" + ex.Message);
             }
@@ -188,9 +197,5 @@ namespace AppForSEII2526.API.Controllers
 
             return CreatedAtAction(nameof(GetCompraDetails), new { id = compra.Id }, compraDTO);
         }
-
-
     }
-
 }
-

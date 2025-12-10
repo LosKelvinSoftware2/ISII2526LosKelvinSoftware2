@@ -6,8 +6,8 @@ using AppForSEII2526.API.DTO.RepararDTOs;
 using AppForSEII2526.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.EntityFrameworkCore; // Necesario para EF
+using System.Net; // Necesario para HttpStatusCode
 
 namespace AppForSEII2526.API.Controllers
 {
@@ -15,20 +15,14 @@ namespace AppForSEII2526.API.Controllers
     [ApiController]
     public class HerramientasController : ControllerBase
     {
-        //contorlador para la base datos
         private readonly ApplicationDbContext _context;
-        // un log de problemas
         private readonly ILogger<HerramientasController> _logger;
         public HerramientasController(ApplicationDbContext context, ILogger<HerramientasController> logger)
         {
             _context = context;
             _logger = logger;
-
-            // uso del logger para registrar la inicialización del servicio:
             _logger.LogInformation("HerramientasController initialized");
         }
-
-
 
         //Comprar herramientas Javi (Mellado)   
         [HttpGet]
@@ -37,31 +31,28 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<List<CompraHerramientasDTO>>> GetHerramientasDisponibles(string? nombre, float? precio)
         {
-            // Obtenemos todas las herramientas de la base de datos incluyendo fabricante
+            _logger.LogInformation($"Buscando herramientas para compra. Filtros -> Nombre: '{nombre ?? "Todos"}', Precio: {precio?.ToString() ?? "Cualquiera"}");
+
             var query = _context.Herramienta
                                 .Include(h => h.fabricante)
                                 .AsQueryable();
 
-            // Filtrado por nombre parcial si se proporciona
             if (!string.IsNullOrEmpty(nombre))
-            {
                 query = query.Where(h => h.Nombre.Contains(nombre));
-            }
 
-            // Filtrado por precio exacto si se proporciona
             if (precio.HasValue)
-            {
                 query = query.Where(h => h.Precio == precio.Value);
-            }
 
             var herramientas = await query.ToListAsync();
 
             if (!herramientas.Any())
             {
+                _logger.LogWarning("No se encontraron herramientas con los filtros proporcionados.");
                 return NotFound(new { Mensaje = "No hay herramientas disponibles con los parámetros introducidos." });
             }
 
-            // Mapear a DTO para la respuesta
+            _logger.LogInformation($"Se encontraron {herramientas.Count} herramientas.");
+            
             var herramientasDTO = herramientas.Select(h => new CompraHerramientasDTO(
                 h.Id,
                 h.Nombre,
@@ -73,20 +64,20 @@ namespace AppForSEII2526.API.Controllers
             return Ok(herramientasDTO);
         }
 
-
         //Reparacion de herramientas Saelices PASO-2
         [HttpGet("DisponiblesReparacion")]
         [ProducesResponseType(typeof(List<HerramientaRepaDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<HerramientaRepaDTO>>> GetHerramientasDisponiblesParaReparar(string? NombreHerramienta , int? DiaReparacion)
         {
+            _logger.LogInformation($"Buscando herramientas reparables. Nombre: {NombreHerramienta ?? "*"}, Dias: {DiaReparacion?.ToString() ?? "*"}");
+
             if (_context.Herramienta == null)
             {
-                _logger.LogError("Error: Herramienta table does not exist");
+                _logger.LogError("CRITICAL: Herramienta table does not exist");
                 return NotFound();
             }
             
-
             // Obtener las herramientas que NO están en reparaciones activas
             var herramientasEnReparacion = await _context.ReparacionItem
                 .Select(ri => ri.herramientaId)
@@ -94,8 +85,10 @@ namespace AppForSEII2526.API.Controllers
                 .ToListAsync();
 
             var herramientas = await _context.Herramienta
-                .Where(h => (NombreHerramienta == null || h.Nombre.Contains(NombreHerramienta)) && (DiaReparacion == null || h.TiempoReparacion == DiaReparacion)
-                    && (herramientasEnReparacion.Contains(h.Id))
+                .Where(h => (NombreHerramienta == null || h.Nombre.Contains(NombreHerramienta)) 
+                         && (DiaReparacion == null || h.TiempoReparacion == DiaReparacion)
+                         && (herramientasEnReparacion.Contains(h.Id)) // NOTA: Tu lógica original dice "Contains", ¿no debería ser !Contains para "Disponibles"?
+                                                                       // Mantengo tu lógica original, pero añado el log.
                 )
                 .Include(h => h.fabricante)
                 .Select(h => new HerramientaRepaDTO(
@@ -110,6 +103,7 @@ namespace AppForSEII2526.API.Controllers
 
             if (!herramientas.Any())
             {
+                _logger.LogWarning("No se encontraron herramientas según criterios de reparación.");
                 return NotFound(new { Mensaje = "No hay herramientas disponibles para reparación." });
             }
 
@@ -117,21 +111,18 @@ namespace AppForSEII2526.API.Controllers
         }
 
         // Crear Oferta, Telmo
-
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(OfertaDTO), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-
         public async Task<ActionResult> GetHerramientaForOferta(string? fabricante, float? precio)
         {
+            _logger.LogInformation($"Buscando herramienta para oferta. Fab: {fabricante}, MaxPrecio: {precio}");
 
-            // /!\ Validar que el precio no sea negativo antes de consultar la base de datos
             if (precio < 0)
             {
+                _logger.LogError($"Intento de búsqueda con precio negativo: {precio}");
                 ModelState.AddModelError("precio", "El precio no puede ser negativo");
-                _logger.LogError("Error: El precio no puede ser negativo");
-
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
 
@@ -141,22 +132,17 @@ namespace AppForSEII2526.API.Controllers
                 return NotFound();
             }
 
-
-            // Dar valor por defecto al precio si no se ha pasado por parámetro
             precio = !precio.HasValue ? 0 : precio;
 
             var herramienta = await _context.Herramienta
-                .Where(h => // Filtrar por id, fabricante y precio
-                            // Mostrar todas las herramientas si no se ha pasado el fabricante por parámetro
-                    ((fabricante == null) || (h.fabricante.Nombre == fabricante))
-                    && ((precio == 0) || (h.Precio <= precio))) // igual para precio si es 0
+                .Where(h => ((fabricante == null) || (h.fabricante.Nombre == fabricante))
+                    && ((precio == 0) || (h.Precio <= precio)))
                 .Select(h => new HerramientaForOfertaDTO(h.Id, h.Nombre, h.Material, h.Precio, h.fabricante))
                 .ToListAsync();
 
-
-            if (herramienta == null)
+            if (herramienta == null || !herramienta.Any())
             {
-                _logger.LogWarning($"No se encontró la herramienta con fabricante {fabricante}");
+                _logger.LogWarning($"No se encontró ninguna herramienta del fabricante {fabricante ?? "Cualquiera"}");
                 return NotFound();
             }
 
@@ -164,30 +150,31 @@ namespace AppForSEII2526.API.Controllers
         }
 
         //Alquilar herramienta, Juan Pe
-
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(typeof(List<AlquilerHerramientasDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-
         public async Task<ActionResult> GetAlquileresDisponibles(string? nombre, string? material)
         {
+            var fechaInicio = DateTime.Today.AddDays(2);
+            var fechaFin = DateTime.Today.AddDays(9);
+
+            _logger.LogInformation($"Calculando disponibilidad alquileres entre {fechaInicio:d} y {fechaFin:d}. Filtros: {nombre}/{material}");
+
             if (_context.Alquiler == null)
             {
                 _logger.LogError("Error: La tabla Alquiler no existe");
                 return NotFound();
             }
 
-            var fechaInicio = DateTime.Today.AddDays(2); //Alquileres a partir de pasado mañana
-            var fechaFin = DateTime.Today.AddDays(9); //Alquileres hasta una semana después del inicio
-
             var herramientasOcupadas = await _context.Alquiler
-           .Where(a => a.fechaAlquiler <= fechaFin && a.fechaFin >= fechaInicio)    // Alquileres que se solapan con el periodo dado
-           .SelectMany(a => a.AlquilarItems.Select(ai => ai.herramienta.Id))        //Guardamos los Id de las herramientas ya alquiladas en dicho periodo
-           .Distinct()  //Eliminamos duplicados
-           .ToListAsync();
+               .Where(a => a.fechaAlquiler <= fechaFin && a.fechaFin >= fechaInicio)
+               .SelectMany(a => a.AlquilarItems.Select(ai => ai.herramienta.Id))
+               .Distinct()
+               .ToListAsync();
+            
+            _logger.LogInformation($"Herramientas actualmente ocupadas en ese rango: {herramientasOcupadas.Count}");
 
-            // Ahora obtenemos las herramientas que no están en la lista de ocupadas
             var herramientasDisponibles = await _context.Herramienta
                 .Where(h => !herramientasOcupadas.Contains(h.Id) &&
                     (nombre == null || h.Nombre.Contains(nombre)) &&
@@ -204,15 +191,13 @@ namespace AppForSEII2526.API.Controllers
 
             if (!herramientasDisponibles.Any())
             {
+                _logger.LogError("No hay herramientas disponibles con los parámetros introducidos.");
                 ModelState.AddModelError("nombre&material", "No hay herramientas disponibles con los parámetros introducidos.");
-                _logger.LogError("Error: No hay herramientas disponibles con los parámetros introducidos.");
-
                 return NotFound(new ValidationProblemDetails(ModelState));
             }
 
+            _logger.LogInformation($"Devolviendo {herramientasDisponibles.Count} herramientas disponibles.");
             return Ok(herramientasDisponibles);
         }
-
-
     }
 }
