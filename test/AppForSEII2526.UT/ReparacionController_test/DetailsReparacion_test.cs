@@ -140,14 +140,29 @@ namespace AppForSEII2526.UT.ReparacionController_test
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var actualReparaciones = Assert.IsType<List<ReparacionDetailsDTO>>(okResult.Value);
+            var actualList = Assert.IsType<List<ReparacionDetailsDTO>>(okResult.Value);
+            Assert.Single(actualList); // Debe haber solo 1
+            var actualReparacion = actualList[0];
 
-            // Debería devolver solo 1 reparación con ID=1            
-            Assert.Single(actualReparaciones);
-
-            var reparacion = actualReparaciones.First();
-
-            Assert.Equal(reparacion, actualReparaciones.First());
+            // el objeto esperado
+            var expectedReparacion = new ReparacionDetailsDTO(
+                1,
+                "Maria",
+                "Lopez",
+                "60033344",
+                fechaBase.AddDays(7),
+                fechaBase.AddDays(10),
+                200.0f,
+                tiposMetodoPago.Efectivo,
+                new List<ReparacionItemDTO>()
+                {
+                    new ReparacionItemDTO("Taladro", 10.0f, 1, "Reparación de Taladro"),
+                    new ReparacionItemDTO("Martillo", 15.0f, 2, "Reparación de Martillo")
+                }
+            );
+            // El UserName es nulo
+            expectedReparacion.UserName = null;
+            Assert.Equal(expectedReparacion, actualReparacion);
         }
 
 
