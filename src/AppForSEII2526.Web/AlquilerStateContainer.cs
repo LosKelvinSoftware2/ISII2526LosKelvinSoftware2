@@ -6,16 +6,10 @@ namespace AppForSEII2526.Web
     {
         public AlquilerDTO Alquiler { get; private set; } = new AlquilerDTO()
         {
+            FechaFin = DateTime.Today.AddDays(7),
+            FechaInicio = DateTime.Today.AddDays(2),
             AlquilarItems = new List<AlquilarItemDTO>()
         };
-        public decimal PrecioTotal
-        {
-            get
-            {
-                int numberOfDays = (Alquiler.FechaFin - Alquiler.FechaInicio).Days;
-                return Convert.ToDecimal(Alquiler.AlquilarItems.Sum(ri => ri.Precio * numberOfDays));
-            }
-        }
         public event Action? OnChange;
 
         private void NotifyStateChanged() => OnChange?.Invoke();
@@ -25,6 +19,8 @@ namespace AppForSEII2526.Web
         public void AddHerramientaToAlquiler(AlquilerHerramientasDTO alquiler)
         {
             if (!Alquiler.AlquilarItems.Any(ri => ri.NombreHerramienta == alquiler.Nombre))
+            {
+
                 Alquiler.AlquilarItems.Add(new AlquilarItemDTO()
                 {
                     NombreHerramienta = alquiler.Nombre,
@@ -33,7 +29,14 @@ namespace AppForSEII2526.Web
                     Cantidad = 1
                 }
             );
-
+            } else
+            {
+                foreach (var herramienta in Alquiler.AlquilarItems) {
+                    if (herramienta.NombreHerramienta == alquiler.Nombre && herramienta.MaterialHerramienta == alquiler.Material)
+                        herramienta.Cantidad = herramienta.Cantidad + 1;
+                }
+            }
+            NotifyStateChanged();
         }
         public void RemoveAlquilarItemToAlquiler(AlquilarItemDTO item)
         {
