@@ -8,7 +8,7 @@
 @inject ILogger<CreateAlquiler> logger
 @inject AlquilerStateContainer alquilerState
 
-@attribute [Authorize]
+@*@attribute [Authorize]*@
 
 <h3>CreateAlquiler</h3>
 <p>
@@ -59,12 +59,6 @@
             </div>
         <div class="col-md">
             <div class="form-floating mb-3">
-                <InputText @bind-Value="alquiler.DireccionEnvio" class="form-control" id="DireccionEnvio" />
-                <label for="DireccionEnvio">Direccion de envio</label>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="form-floating mb-3">
                 <InputText @bind-Value="alquiler.NumTelefono" class="form-control" id="NumTelefono" />
                 <label for="NumTelefono">Número de teléfono</label>
             </div>
@@ -72,12 +66,11 @@
         <div class="col-md">
             <div class="form-floating mb-3">
                 <InputText @bind-Value="alquiler.CorreoElectronico" class="form-control" id="CorreoElectronico" />
-                <label for="CorreoElectronica">Correo electrónico</label>
+                <label for="CorreoElectronico">Correo electrónico</label>
             </div>
         </div>
         </div>
     </div>
-
         <div class="col-md">
             <div class="form-floating">
                 <button class="btn btn-primary" type="submit" id="Confirmar">
@@ -92,6 +85,7 @@
                     <th>Nombre</th>
                     <th>Material</th>
                     <th>Precio</th>
+                    <th>Cantidad</th>
                 </tr>
             </thead>
             <tbody>
@@ -101,6 +95,11 @@
                         <td>@item.NombreHerramienta</td>
                         <td>@item.MaterialHerramienta</td>
                         <td>@item.Precio</td>
+                        <td>
+                            <InputNumber class="form-control"
+                                         @bind-Value="item.Cantidad"
+                                         min="1" />
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -129,7 +128,7 @@
         get
         {
             int dias = (alquiler.FechaFin.DateTime - alquiler.FechaInicio.DateTime).Days;
-            double precio = alquiler.AlquilarItems.Sum(ri => ri.Precio * dias);
+            double precio = alquiler.AlquilarItems.Sum(ri => ri.Precio * dias * ri.Cantidad);
             return Convert.ToDecimal(precio);
         }
     }
@@ -144,10 +143,17 @@
     {
         DialogIsOpen = true;
     }
+    protected override void OnInitialized()
+    {
+        alquilerState.OnChange += StateHasChanged;
+    }
+    protected void Dispose()
+    {
+        alquilerState.OnChange -= StateHasChanged;
+    }
 
     private async Task OnDialogClose(bool isOk)
     {
-
         DialogIsOpen = false;
         if (isOk)
         {
@@ -182,7 +188,7 @@
     protected override async Task OnInitializedAsync()
     {
 
-        if (authenticationState is not null)
+        @*if (authenticationState is not null)
         {
             var authState = await authenticationState;
             var user = authState?.User;
@@ -198,10 +204,10 @@
             alquiler.ApellidoCliente = alquiler.ApellidoCliente == null ? "" : alquiler.ApellidoCliente;
             alquiler.DireccionEnvio = alquiler.DireccionEnvio == null ? "" : alquiler.DireccionEnvio;
 
-        }
+        }*@
     }
 
 
-    [CascadingParameter]
-    private Task<AuthenticationState>? authenticationState { get; set; }
+    @*[CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }*@
 }
