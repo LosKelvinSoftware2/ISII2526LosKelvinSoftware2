@@ -16,7 +16,7 @@ namespace AppForSEII2526.API.DTO.Comprar_Herramienta
         }
 
         [Key]
-        int Id { get; set; }
+        public int Id { get; set; }
 
 
         public override bool Equals(object obj)
