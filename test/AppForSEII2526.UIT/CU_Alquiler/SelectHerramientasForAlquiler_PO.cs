@@ -33,7 +33,7 @@ namespace AppForSEII2526.UIT.UC_Alquiler
         public bool CheckMessageError(string errorMessage)
         {
             IWebElement actualErrorShown = _driver.FindElement(errorShownBy);
-            _output.WriteLine($"Mensaje de error:{actualErrorShown.Text}");
+            _output.WriteLine($"Mensaje de error: {actualErrorShown.Text}");
             return actualErrorShown.Text.Contains(errorMessage);
         }
         public void AddHerramientaCarrito(string nombreHerramienta)

@@ -15,7 +15,7 @@
 <div class="container-fluid">
     <div class="row" hidden="@hideErrors">
         <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
-            <p id="ErrorsShown">Errores: @errors</p>
+            <p id="ErrorsShown">Mensaje de error: @errors</p>
          </div>
     </div>
     <div class="row">
@@ -106,15 +106,17 @@
 
     public async void BuscarHerramientas()
     {
+        errors = "";    
+        herramientas = null;
         try
         {
-            herramientas = await apiClient.GetAlquileresDisponiblesAsync(nombreHerramienta, materialHerramienta);
+            herramientas = await apiClient.GetAlquileresDisponiblesAsync(nombreHerramienta ?? "", materialHerramienta ?? "");
 
         }
         catch (ApiException ex)
         {
             logger.LogError($"{DateTime.Now} Error: {ex}");
-            errors = "Ha surgido un error al conectarse al sistema.";
+            errors = "No hay herramientas disponibles con los filtros seleccionados.";
         }
         StateHasChanged();
     }
