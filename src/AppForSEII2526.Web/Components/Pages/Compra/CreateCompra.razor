@@ -33,6 +33,12 @@
         </div>
         <div class="col-md">
             <div class="form-floating mb-3">
+                <InputText @bind-Value="compra.CorreoCliente" class="form-control" id="Correo" />
+                <label for="Name">Correo Electronico </label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
                 <InputText @bind-Value="compra.DireccionEnvio" class="form-control" id="DeliveryAddress" />
                 <label for="DeliveryAddress">Direccion Envio</label>
             </div>
@@ -133,18 +139,18 @@
 
     private async Task OnDialogClose(bool isOk)
     {
-
         DialogIsOpen = false;
         if (isOk)
         {
-            // Process the data introduced by the user if they are valid
             if (compra.CompraItems.Count > 0)
             {
                 try
                 {
                     var comprado = await apiclient.CreateCompraAsync(compra);
                     compraState.CompraProcessed();
-                    navigation.NavigateTo($"/Compra/DetailsCompra/?CompraID={compraState.GetID(compra)}");
+
+                    //Navegamos usando el ID que nos devolvió la API
+                    navigation.NavigateTo($"/Compra/DetailsCompra/?CompraID={comprado.Id}");
                 }
                 catch (ApiException<ValidationProblemDetails> apiexceptionvalidation)
                 {

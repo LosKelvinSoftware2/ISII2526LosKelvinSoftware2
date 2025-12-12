@@ -17,14 +17,14 @@
             <div class="row">
                 <div class="col">
                     <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">Nombre</span>
-                        <input type="text" id="inputName" @bind=herramientaNombre class="form-control" placeholder="Nombre" aria-label="Nombre" aria-describedby="basic-addon1">
+                        <span class="input-group-text" id="basic-addon1">Material</span>
+                        <input type="text" id="inputMaterial" @bind=herramientaMaterial class="form-control" placeholder="Material" aria-label="Material" aria-describedby="basic-addon1">
                     </div>
                 </div>
                 <div class="col">
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">Precio</span>
-                        <input type="text" id="inputFabricante" @bind=herramientaPrecio class="form-control" placeholder="Precio" aria-label="Precio" aria-describedby="basic-addon1">
+                        <input type="text" id="inputPrecio" @bind=herramientaPrecio class="form-control" placeholder="Precio" aria-label="Precio" aria-describedby="basic-addon1">
                     </div>
                 </div>
                 
@@ -93,7 +93,7 @@
     private ICollection<CompraHerramientasDTO> herramientas;
     private bool hideErrors { get { return errors.Length == 0; } }
     private string errors = "";
-    private string herramientaNombre { get; set; }
+    private string herramientaMaterial { get; set; }
     private float herramientaPrecio { get; set; }
     private CompraDTO compra => compraState.Compra;
     private bool hiddenCompraCart = true;
@@ -109,9 +109,16 @@
 
     public async void BuscarHerramienta() {
 
+
+        float PrecioParaEnviar = herramientaPrecio;
+
+        if (PrecioParaEnviar <= 0) {
+            PrecioParaEnviar = 100000;
+        }
+
+
         try {
-            herramientas = await apiclient.GetHerramientasDisponiblesAsync(herramientaNombre, herramientaPrecio);
-            errors = "";
+            herramientas = await apiclient.GetHerramientasDisponiblesAsync(herramientaMaterial, PrecioParaEnviar);
 
         }
         catch (ApiException ex) {
@@ -120,6 +127,7 @@
         }
         StateHasChanged();
     }
+
 
     private void TramitarCompra() {
         navigation.NavigateTo("/Compra/CreateCompra");
