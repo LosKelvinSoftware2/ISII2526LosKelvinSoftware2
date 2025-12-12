@@ -3,10 +3,11 @@
 @using AppForSEII2526.Web.API
 @using Microsoft.AspNetCore.Authorization
 @inject AppForSEII2526APIClient apiclient
+@inject ILogger<DetailAlquiler> logger
 
 <h3>DetailAlquiler</h3>
 
-@attribute [Authorize]
+@*@attribute [Authorize]*@
 
 @if (alquiler == null)
 {
@@ -77,13 +78,23 @@ else
     public int AlquilerID { get; set; }
     private AlquilerDetailDTO alquiler;
     private string error = "";
+    private decimal PrecioTotal
+    {
+        get
+        {
+            int dias = (alquiler.FechaFin.DateTime - alquiler.FechaInicio.DateTime).Days;
+            double precio = alquiler.AlquilarItems.Sum(ri => ri.Precio * dias * ri.Cantidad);
+            return Convert.ToDecimal(precio);
+        }
+    }
 
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
 
-        string userName = "";
+        @*string userName = "";
         if (authenticationState is not null)
         {
             var authState = await authenticationState;
@@ -96,7 +107,7 @@ else
                     userName = user.Identity.Name;
                 }
             }
-        }
+        }*@
 
         try
         {
@@ -106,10 +117,10 @@ else
         {
             alquiler = null;
         }
-        if ((alquiler == null) || (alquiler.NombreCliente != userName))
+        @*if ((alquiler == null) || (alquiler.NombreCliente != userName))
         {
             error = $"¡¡Error!! No te has identificado o no existe un alquiler con id={AlquilerID}";
-        }
+        }*@
 
 
     }

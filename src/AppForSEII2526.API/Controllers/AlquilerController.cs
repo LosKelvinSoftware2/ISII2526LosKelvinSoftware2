@@ -44,21 +44,25 @@ namespace AppForSEII2526.API.Controllers
                 .Select(a => new AlquilerDetailDTO(
                     a.Id,
                     a.fechaAlquiler,
-                    a.Cliente.Nombre,
-                    a.Cliente.Apellido,
-                    a.direccionEnvio,
+                    a.Cliente != null ? a.Cliente.Nombre : string.Empty,
+                    a.Cliente != null ? a.Cliente.Apellido : string.Empty,
+                    a.direccionEnvio ?? string.Empty,
                     a.precioTotal,
                     a.fechaFin,
                     a.fechaInicio,
-                    a.AlquilarItems.Select(ai => new AlquilarItemDTO(
-                        ai.herramienta.Nombre,
-                        ai.herramienta.Material,
-                        ai.cantidad,
-                        ai.precio
-                    )).ToList(),
+                    a.AlquilarItems != null
+                        ? a.AlquilarItems
+                            .Where(ai => ai.herramienta != null)
+                            .Select(ai => new AlquilarItemDTO(
+                                ai.herramienta.Nombre ?? string.Empty,
+                                ai.herramienta.Material ?? string.Empty,
+                                ai.cantidad,
+                                ai.precio
+                            )).ToList()
+                        : new List<AlquilarItemDTO>(),
                     a.MetodoPago,
-                    a.Cliente.PhoneNumber,
-                    a.Cliente.Email
+                    a.Cliente != null ? a.Cliente.PhoneNumber ?? string.Empty : string.Empty,
+                    a.Cliente != null ? a.Cliente.Email ?? string.Empty : string.Empty
                 ))
                 .FirstOrDefaultAsync();
 
@@ -147,7 +151,7 @@ namespace AppForSEII2526.API.Controllers
                     herramientaId = herramienta.Id,
                     herramienta = herramienta
                 });
-                alquiler.precioTotal += (float)(precioUnitario * item.cantidad);
+                alquiler.precioTotal += (float)(precioUnitario * item.cantidad * numDays);
 
             }
 
