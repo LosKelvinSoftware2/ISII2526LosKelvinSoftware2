@@ -52,6 +52,9 @@ builder.Services.AddScoped<ReparacionStateContainer>();
 //JAVITRON Compra
 builder.Services.AddScoped<CompraStateContainer>();
 
+//Telmo Oferta
+builder.Services.AddScoped<OfertaStateContainer>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

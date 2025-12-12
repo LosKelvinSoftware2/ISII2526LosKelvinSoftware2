@@ -7,8 +7,6 @@
 
 <h3>DetailsCompra</h3>
 
-@attribute [Authorize]
-
 @if (compra == null)
 {
     <p>@error</p>
@@ -58,8 +56,8 @@ else
         </tbody>
         <tfoot>
             @*colspan is used to state that TWO columns are collapsed*@
-        <th scope="row" colspan="2" class="text-end">Precio Total</th>
-        <td id="TotalPrice">@compra.PrecioTotal €</td>
+            <th scope="row" colspan="2" class="text-end">Precio Total</th>
+            <td id="TotalPrice">@compra.PrecioTotal €</td>
         </tfoot>
 
     </table>
