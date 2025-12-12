@@ -24,13 +24,13 @@
                 <div class="col">
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">Nombre</span>
-                        <input type="text" id="inputTitle" @bind=nombreHerramienta class="form-control" placeholder="Nombre" aria-label="Nombre" aria-describedby="basic-addon1">
+                        <input type="text" id="nombreHerramienta" @bind=nombreHerramienta class="form-control" placeholder="Nombre" aria-label="Nombre" aria-describedby="basic-addon1">
                     </div>
                 </div>
                 <div class="col">
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">Material</span>
-                        <input type="text" id="inputGenre" @bind=materialHerramienta class="form-control" placeholder="Material" aria-label="Material" aria-describedby="basic-addon1">
+                        <input type="text" id="material" @bind=materialHerramienta class="form-control" placeholder="Material" aria-label="Material" aria-describedby="basic-addon1">
                     </div>
                 </div>
                 <div class="col">
@@ -45,7 +45,7 @@
                 else
                 {
                     <div class="mh-100 table-responsive">
-                        <table class="table table-condensed table-hover" id="TablaHerramientas">
+                        <table class="table table-condensed table-hover" id="tablaHerramientas">
                             <thead>
                                 <tr>
                                     <th>Nombre</th>
@@ -63,7 +63,7 @@
                                         <td>@herramienta.Fabricante</td>
                                         <td>@herramienta.Precio</td>
                                         <td>
-                                            <button class="btn btn-outline-secondary" id="AlquilerHerramienta_@herramienta.Nombre" @onclick="@(() => AddHerramienta(herramienta))">Añadir</button>
+                                            <button class="btn btn-outline-secondary" id="addHerramienta_@herramienta.Nombre" @onclick="@(() => AddHerramienta(herramienta))">Añadir</button>
                                         </td>
                                     </tr>
                                 }
@@ -82,7 +82,7 @@
                 @foreach (AlquilarItemDTO item in alquiler.AlquilarItems)
                 {
                     <div class="row">
-                        <button type="button" class="btn btn-light" id="eliminarHerramienta_@item.NombreHerramienta" @onclick="@(() => RemoveAlquilarItem(item))">x @item.NombreHerramienta - @item.Precio€</button>
+                        <button type="button" class="btn btn-light" id="removeHerramienta_@item.NombreHerramienta" @onclick="@(() => RemoveAlquilarItem(item))">x @item.NombreHerramienta - @item.Precio€</button>
                     </div>
                 }
                 <div class="row">
@@ -125,6 +125,7 @@
     private void AddHerramienta(AlquilerHerramientasDTO alquiler)
     {
         alquilerState.AddHerramientaToAlquiler(alquiler);
+        herramientasOcultas = false;
     }
 
     private void RemoveAlquilarItem(AlquilarItemDTO item)
@@ -134,6 +135,7 @@
     }
     private void AlquilarHerramientas()
     {
-        navigation.NavigateTo("/rentals/CreateAlquiler");
+        navigation.NavigateTo("/Alquiler/CreateAlquiler");
     }
+
 }
