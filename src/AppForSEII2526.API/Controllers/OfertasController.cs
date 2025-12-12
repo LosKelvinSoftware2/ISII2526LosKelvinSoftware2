@@ -119,6 +119,8 @@ namespace AppForSEII2526.API.Controllers
                 dirigidaA = ofertaForCreate.dirigidaA,
                 // Las propiedades de precio/porcentaje pueden variar.
             };
+
+            nuevaOferta.fechaOferta = DateTime.Today;
             // Crear las entidades OfertaItem y adjuntarlas a la Oferta
             foreach (var item in ofertaForCreate.ofertaItems)
             {

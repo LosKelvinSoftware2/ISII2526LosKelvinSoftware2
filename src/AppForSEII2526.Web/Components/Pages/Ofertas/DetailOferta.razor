@@ -7,7 +7,7 @@
 
 <h3>DetailOferta</h3>
 
-@attribute [Authorize]
+@* @attribute [Authorize] *@
 
 @if (oferta == null)
 {
@@ -26,7 +26,7 @@ else
         </tr>
         <tr>
             <th>Fecha Oferta</th>
-            <td id="OfertaDate">@oferta.FechaOferta.ToString("dd/MM/yyyy hh:mm:ss")</td>
+            <td id="OfertaDate">@oferta.FechaOferta.DateTime.ToString("dd/MM/yyyy")</td>
         </tr>
         <tr>
             <th>Periodo Oferta</th>
@@ -52,8 +52,9 @@ else
                 <tr id="OfertaItem_@item.Nombre">
                     <td>@item.Nombre</td>
                     <td>@item.Fabricante</td>
+                    <td>@item.Material</td>
                     <td>@item.PrecioOriginal €</td>
-                    <td>@item.PrecioFinal</td>
+                    <td>@item.PrecioFinal €</td>
                 </tr>
             }
         </tbody>
@@ -70,6 +71,20 @@ else
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
 
-  
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            oferta = await apiclient.GetOfertaAsync(OfertaID);
+        }
+        catch (ApiException exception)
+        {
+            oferta = null;
+        }
+        if ((oferta == null))
+        {
+            error = $"Error! there is not a oferta with id={OfertaID}";
+        }
+    }
     }
 }

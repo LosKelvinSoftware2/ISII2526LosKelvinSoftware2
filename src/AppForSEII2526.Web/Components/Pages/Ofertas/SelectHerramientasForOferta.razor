@@ -7,7 +7,7 @@
 @inject OfertaStateContainer ofertaState
 @inject NavigationManager navigation
 
-@attribute [Authorize]
+
 <h3>Select Herramientas For Oferta</h3>
 
 <div class="container-fluid">
@@ -24,13 +24,7 @@
                 <div class="col">
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1">Fabricante</span>
-                        <select class="form-select" aria-label="Default select" @bind="fabricanteSelected" id="selectedfabricante">
-                            <option value="All" selected>All</option>
-                            @foreach (string fabricante in fabricantes)
-                            {
-                                <option value="@fabricante" id="fabricanteSelected_@fabricante">@fabricante</option>
-                            }
-                        </select>
+                        <input type="text" id="inputFabricante" @bind=fabricante class="form-control" placeholder="Fabricante" aria-label="Fabricante" aria-describedby="basic-addon1">
                     </div>
                 </div>
                 <div class="col">
@@ -65,6 +59,7 @@
                                 @foreach (var herramienta in herramientas)
                                 {
                                     <tr id="HerramientaData_@herramienta.Nombre">
+                                        <td>@herramienta.Nombre</td>
                                         <td>@herramienta.Fabricante</td>
                                         <td>@herramienta.Material</td>
                                         <td>@herramienta.Precio</td>
@@ -79,10 +74,9 @@
                 }
             </div>
         </div>
-            <div class="col-2">
             <div class="col-2" hidden="@hideOferta">
                 <div class="row">
-                    <h3>Shopping Cart</h3>
+                    <h3>Oferta</h3>
                 </div>
                 @foreach (OfertaItemDTO item in oferta.OfertaItems)
                 {
@@ -94,13 +88,10 @@
                     <button type="button" class="btn btn-primary" id="ofertarHerramientaButton" @onclick=@OfertarHerramientas>Ofertar Herramientas</button>
                 </div>
             </div>  
-        </div>
     </div>  
 </div>
 
 @code {
-    private string fabricanteSelected;
-    private ICollection<string>? fabricantes = new List<string>();
     private bool hideOferta { get { return oferta.OfertaItems.Count == 0; } }
     private ICollection<HerramientaForOfertaDTO> herramientas; // Este error desaparecerá cuando el swager se arrregle
     private bool hideErrors { get { return errors.Length == 0; } }
@@ -124,7 +115,6 @@
     } 
 
     public async void BuscarHerramienta() {
-        fabricante = fabricanteSelected == "All" ? null : fabricanteSelected;
         try {
             herramientas = await apiclient.GetHerramientaForOfertaAsync(fabricante, precio);
             errors = "";
@@ -135,9 +125,8 @@
         }
         StateHasChanged();
     }
-
     private void OfertarHerramientas()
     {
-        navigation.NavigateTo("/ofertass/crearoferta");
+        navigation.NavigateTo("/ofertas/createoferta");
     }
 }

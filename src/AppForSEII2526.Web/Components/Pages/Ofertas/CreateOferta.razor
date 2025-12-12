@@ -8,7 +8,7 @@
 @inject OfertaStateContainer ofertaState
 @inject NavigationManager navigation
 
-@attribute [Authorize]
+@* @attribute [Authorize] *@
 
 <h3>CreateOferta</h3>
 
@@ -24,13 +24,13 @@
     <div class="row g-3">
         <div class="col-md">
             <div class="form-floating">
-                <InputDate class="form-control" id="FechaInicio" @bind-Value="oferta.FechaInicio" placeholder="FechaInicio" />
+                <InputDate @bind-Value="oferta.FechaInicio" class="form-control" id="@($"fechaInicio_{oferta.FechaInicio}")" placeholder="FechaInicio"></InputDate>
                 <label for="FechaInicio">Fecha Inicio</label>
             </div>
         </div>
         <div class="col-md">
             <div class="form-floating">
-                <InputDate class="form-control" id="FechaFinal" @bind-Value="oferta.FechaFinal" placeholder="FechaFinal" />
+                <InputDate @bind-Value="oferta.FechaFinal" class="form-control" id="@($"fechaFinal_{oferta.FechaFinal}")" placeholder="FechaFinal"></InputDate>
                 <label for="FechaFinal">Fecha Final</label>
             </div>
         </div>
@@ -89,6 +89,7 @@
                         <td>@item.Material</td>
                         <td>@item.PrecioOriginal</td>
                         <td><InputNumber @bind-Value="item.Porcentaje" class="form-control" id="@($"porcentaje_{item.Porcentaje}")"></InputNumber></td>
+                        <label for="Porcentaje">Porcentaje</label>
                     </tr>
                 }
             </tbody>
@@ -122,7 +123,7 @@
 
     private void OpenDialog()
     {
-        DialogIsOpen = false;
+        DialogIsOpen = true;
     }
     private async Task OnDialogClose (bool isOk)
     {

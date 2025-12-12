@@ -55,6 +55,7 @@ namespace AppForSEII2526.UIT.Shared {
                 .GoToUrl(_URI);
         }
 
+                 
         protected void Perform_login(string email, string password) {
             _driver.Navigate()
                     .GoToUrl(_URI + "Account/Login");
@@ -69,7 +70,7 @@ namespace AppForSEII2526.UIT.Shared {
             _driver.FindElement(By.XPath("/html/body/div[1]/main/article/div/div[1]/section/form/div[4]/button"))
                 .Click();
         }
-
+        
 
         protected void SetUp_Chrome4UIT() {
             var optionsc = new ChromeOptions {
