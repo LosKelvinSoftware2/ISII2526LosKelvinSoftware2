@@ -116,7 +116,18 @@ INSERT INTO dbo.Herramienta (Id, Nombre, Material, Precio, TiempoReparacion, fab
 (17, 'Fresadora', 'Hierro', 160.00, 6, 17),
 (18, 'Nivel Láser', 'Plástico', 70.00, 2, 18),
 (19, 'Cortadora de Metal', 'Acero', 210.00, 7, 19),
-(20, 'Taladro de Columna', 'Hierro', 300.00, 10, 20);
+(20, 'Taladro de Columna', 'Hierro', 300.00, 10, 20),
+--jeramientas no asociadas a reparaciones ni alquileres ni compras
+(21, 'Soldador Inverter', 'Metal', 220.00, 4, 4),
+(22, 'Aspirador Industrial', 'Plástico', 180.50, 3, 2),
+(23, 'Mezcladora de Mortero', 'Acero', 115.00, 2, 18),
+(24, 'Gato Hidráulico', 'Hierro', 85.00, 1, 20),
+(25, 'Llave de Impacto', 'Aluminio', 260.00, 5, 9),
+(26, 'Esmeril de Banco', 'Hierro', 95.00, 3, 7),
+(27, 'Cortasetos Eléctrico', 'Plástico', 75.00, 2, 8),
+(28, 'Motosierra Gasolina', 'Acero', 350.00, 6, 1),
+(29, 'Polipasto Eléctrico', 'Acero', 190.00, 4, 20),
+(30, 'Pistola de Pintar', 'Plástico', 55.00, 2, 15);
 
 SET IDENTITY_INSERT dbo.Herramienta OFF;
 

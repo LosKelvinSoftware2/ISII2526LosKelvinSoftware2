@@ -8,7 +8,7 @@
 @inject NavigationManager navigation
 @inject ReparacionStateContainer ReparacionState
 
-@attribute [Authorize]
+@*attribute [Authorize]*@
 
 <h3>Post Reparacion</h3>
 
@@ -35,11 +35,17 @@
                 <InputText @bind-Value="repa.ApellidosCliente" class="form-control" id="Surname" />
                 <label for="Surname">Apellido</label>
             </div>
-        </div>@*
+        </div>
         <div class="col-md">
             <div class="form-floating mb-3">
-                <InputText @bind-Value="repa.DireccionEnvio" class="form-control" id="DeliveryAddress" />
-                <label for="DeliveryAddress">Dirección de Envío</label>
+                <InputText @bind-Value="repa.UserName" class="form-control" id="DeliveryAddress" />
+                <label for="DeliveryAddress">Username</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="repa.NumTelefono" class="form-control" id="DeliveryAddress" />
+                <label for="DeliveryAddress">Numero de telefono +34NUM</label>
             </div>
         </div>
         @* Metodo de Pago *@
