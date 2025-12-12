@@ -24,6 +24,8 @@ namespace AppForSEII2526.Web
                 var item = new CompraItemDTO
                 {
                     HerramientaId = herramienta.Id,
+                    Nombre = herramienta.Nombre,
+                    Material = herramienta.Material,
                     Cantidad = cantidad,
                     Descripcion = descripcion,
                     Precio = herramienta.Precio
