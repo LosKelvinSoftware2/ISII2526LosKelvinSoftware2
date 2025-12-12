@@ -17,14 +17,14 @@ namespace AppForSEII2526.Web
         {
             //Comprobar antes que no esté ya en la lista
             if (!Oferta.OfertaItems.Any(oi => oi.Nombre == herramienta.Nombre && 
-            oi.Fabricante == herramienta.Fabricante && oi.Material == herramienta.Material))
+            oi.Fabricante == herramienta.fabricante && oi.Material == herramienta.Material))
             {
                 //añadimos la herramienta a la oferta
                 Oferta.OfertaItems.Add(new OfertaItemDTO()
                 {
                     Nombre = herramienta.Nombre,
                     Material = herramienta.Material,
-                    Fabricante = herramienta.Fabricante,
+                    Fabricante = herramienta.fabricante,
                     PrecioOriginal = herramienta.Precio
                 });
                 NotifyStateChanged();
