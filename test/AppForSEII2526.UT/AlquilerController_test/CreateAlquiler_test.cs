@@ -131,8 +131,8 @@ namespace AppForSEII2526.UT.AlquilerController_test
                 correoelectronico = "juanperez@gmail.com"
 
             };
-            var expectedAlquilerDetailDTO = new AlquilerDetailDTO(1 , DateTime.Today, cliente.Nombre, cliente.Apellido, "Calle falsa 123", 200.0f, DateTime.Today.AddDays(10), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
-            var alquilerToCreate = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Calle falsa 123", 200.0f, DateTime.Today.AddDays(10), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
+            var expectedAlquilerDetailDTO = new AlquilerDetailDTO(1 , DateTime.Today, cliente.Nombre, cliente.Apellido, "Calle falsa 123", 1000.0f, DateTime.Today.AddDays(10), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
+            var alquilerToCreate = new AlquilerDTO(cliente.Nombre, cliente.Apellido, "Calle falsa 123", 1000.0f, DateTime.Today.AddDays(10), DateTime.Today.AddDays(5), alquilarItemsDTO, tiposMetodoPago.Efectivo);
             // Act
             var result = await controller.CreateAlquiler(alquilerToCreate);
             //Assert
