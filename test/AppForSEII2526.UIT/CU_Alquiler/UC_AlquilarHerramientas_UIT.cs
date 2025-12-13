@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AppForSEII2526.UIT.UC_Alquiler
+namespace AppForSEII2526.UIT.CU_Alquiler
 {
-    public class UC_AlquilerHerramientas_UIT : UC_UIT
+    public class CU_AlquilerHerramientas_UIT : UC_UIT
     {
         private SelectHerramientasForAlquiler_PO selectHerramientasForAlquiler_PO;
-
+        private CreateAlquiler_PO createAlquiler_PO;
         private const string nombreHerramienta1 = "Clavadora Neumática";
         private const string material1 = "Acero";
         private const string precioHerramienta1 = "140";
@@ -20,9 +20,11 @@ namespace AppForSEII2526.UIT.UC_Alquiler
         private const string material2 = "Cerámica";
         private const string precioHerramienta2 = "200";
         private const string fabricante2 = "Hitachi";
-        public UC_AlquilerHerramientas_UIT(ITestOutputHelper output) : base(output)
+
+        public CU_AlquilerHerramientas_UIT(ITestOutputHelper output) : base(output)
         {
             selectHerramientasForAlquiler_PO = new SelectHerramientasForAlquiler_PO(_driver, _output);
+            createAlquiler_PO = new CreateAlquiler_PO(_driver, _output);
         }
         private void InitialStepsForAlquilarHerramientas()
         {
@@ -33,7 +35,8 @@ namespace AppForSEII2526.UIT.UC_Alquiler
         }
         [Fact]
         [Trait("LevelTesting", "Funcional Testing")]
-        public void CU4_flujoPrincipalCompleto (){
+        public void CU4_flujoPrincipalCompleto()
+        {
             //Arrange
             Initial_step_opening_the_web_page();
             InitialStepsForAlquilarHerramientas();
@@ -41,7 +44,7 @@ namespace AppForSEII2526.UIT.UC_Alquiler
 
         }
         [Fact]
-        [Trait("LevelTesting", "Funcional Testing")]    
+        [Trait("LevelTesting", "Funcional Testing")]
         public void CU4_AF0_noHerramientasDisponibles()
         {
             //Arrange
@@ -49,13 +52,16 @@ namespace AppForSEII2526.UIT.UC_Alquiler
             InitialStepsForAlquilarHerramientas();
             var expectedMessageError = "No hay herramientas disponibles con los filtros seleccionados.";
             //Act
-            selectHerramientasForAlquiler_PO.BuscarHerramientas("herramienta_no_existente","herramienta_no_existente");
+            selectHerramientasForAlquiler_PO.BuscarHerramientas("herramienta_no_existente", "herramienta_no_existente");
             //Assert
             Assert.True(selectHerramientasForAlquiler_PO.CheckMessageError(expectedMessageError));
         }
+
+        
         [Theory]
         [InlineData(nombreHerramienta1, material1, fabricante1, precioHerramienta1, "Clavadora", "")]
         [InlineData(nombreHerramienta2, material2, fabricante2, precioHerramienta2, "", "Cerámica")]
+        [InlineData(nombreHerramienta1, material1, fabricante1, precioHerramienta1, "Clavadora", "Acero")]
         [Trait("LevelTesting", "Funcional Testing")]
         public void CU4_AF1_filtradoPorNombreYMaterial(string nombreHerramienta, string material, string fabricante, string precioHerramienta,
             string filtroNombre, string filtroMaterial)
@@ -72,5 +78,88 @@ namespace AppForSEII2526.UIT.UC_Alquiler
 
             Assert.True(selectHerramientasForAlquiler_PO.CheckListaHerramientas(expectedHerramientas));
         }
+
+        [Fact]
+        [Trait("LevelTesting", "Funcional Testing")]
+        public void CU4_AF2_modificarYBorrarHerramientasDelCarrito()
+        {
+            //Arrange
+            Initial_step_opening_the_web_page();
+            InitialStepsForAlquilarHerramientas();
+            //Act
+            selectHerramientasForAlquiler_PO.BuscarHerramientas("", "");
+
+            selectHerramientasForAlquiler_PO.AddHerramientaCarrito("Taladro Percutor");
+            selectHerramientasForAlquiler_PO.AddHerramientaCarrito(nombreHerramienta2);
+            selectHerramientasForAlquiler_PO.SeguirConAlquiler();
+            createAlquiler_PO.ModificarHerramientas();
+            selectHerramientasForAlquiler_PO.RemoveAlquilerFromRentingCart("Taladro Percutor");
+            selectHerramientasForAlquiler_PO.SeguirConAlquiler();
+            var expectedHerramientas = new List<string[]> { new string[] { nombreHerramienta2, material2, precioHerramienta2 }, };
+            float expectedPrecio = 1200;
+            createAlquiler_PO.RellenarDatos("Juan", "Pérez", "Calle Falsa 123", "Tarjeta de crédito", "600123456", "juanperez@gmail.com", DateTime.Now.AddDays(1), DateTime.Now.AddDays(7));
+
+            //Assert
+            //Verificar que la herramienta1 no está en el carrito y la herramienta2 sí
+            //Esto se puede hacer comprobando que el botón de alquilar está disponible o no
+            Assert.True(createAlquiler_PO.checkPrecioTotal($"{expectedPrecio}"));
+            Assert.True(createAlquiler_PO.CheckListaHerramientas(expectedHerramientas));
+        }
+
+        [Fact]
+        [Trait("LevelTesting", "Funcional Testing")]
+        public void CU4_AF4_CarritoVacioNoPermiteContinuar()
+        {
+            //Arrange
+            Initial_step_opening_the_web_page();
+            InitialStepsForAlquilarHerramientas();
+            //Act
+            selectHerramientasForAlquiler_PO.BuscarHerramientas("", "");
+            //Assert
+            Assert.True(selectHerramientasForAlquiler_PO.CarritoVacio());
+        }
+
+        [Fact]
+        [Trait("LevelTesting", "Funcional Testing")]
+        public void CU4_AF5_DatosFaltantesEnFormulario()
+        {
+            //Arrange
+            Initial_step_opening_the_web_page();
+            InitialStepsForAlquilarHerramientas();
+            //Act
+            selectHerramientasForAlquiler_PO.BuscarHerramientas("", "");
+            selectHerramientasForAlquiler_PO.AddHerramientaCarrito("Taladro Percutor");
+            selectHerramientasForAlquiler_PO.SeguirConAlquiler();
+            createAlquiler_PO.RellenarDatos("", "Pérez", "Calle Falsa 123", "Tarjeta de crédito", "600123456", "PayPal", DateTime.Now.AddDays(1), DateTime.Now.AddDays(7));
+            createAlquiler_PO.enviarFormulario();
+            var expectedMessageError = "The NombreCliente field is required.";
+            //Assert
+            Assert.True(createAlquiler_PO.CheckMessageValidation(expectedMessageError));
+        }
+
+        public static IEnumerable<object[]> FechasInvalidas =>
+        new List<object[]>
+        {
+            new object[] { "El alquiler debe empezar después de hoy", DateTime.Now.AddDays(-10), DateTime.Now.AddDays(5) },
+            new object[] { "El alquiler debe terminar después de iniciar", DateTime.Now.AddDays(10), DateTime.Now.AddDays(5) }
+        };
+        [Theory]
+        [MemberData(nameof(FechasInvalidas))]
+        [Trait("LevelTesting", "Funcional Testing")]
+        public void CU4_AF6_fechasNoValidasEnFormulario(string expectedMessageError, DateTime fechaInicio, DateTime fechaFin)
+        {
+            //Arrange
+            Initial_step_opening_the_web_page();
+            InitialStepsForAlquilarHerramientas();
+            //Act
+            selectHerramientasForAlquiler_PO.BuscarHerramientas("", "");
+            selectHerramientasForAlquiler_PO.AddHerramientaCarrito("Taladro Percutor");
+            selectHerramientasForAlquiler_PO.SeguirConAlquiler();
+            createAlquiler_PO.RellenarDatos("Juan", "Pérez", "Calle Falsa 123", "Tarjeta de crédito", "600123456", "PayPal", fechaInicio, fechaFin);
+            createAlquiler_PO.enviarFormulario();
+            createAlquiler_PO.confirmarAlquiler();
+            //Assert
+            Assert.True(createAlquiler_PO.CheckMessageError(expectedMessageError));
+        }
+        }
     }
-}
