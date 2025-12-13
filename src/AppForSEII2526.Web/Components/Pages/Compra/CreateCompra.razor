@@ -80,6 +80,7 @@
                     <th>Nombre</th>
                     <th>Material</th>
                     <th>Precio</th>
+                    <th>Cantidad</th>
                     <th>Descripcion</th>
                 </tr>
             </thead>
@@ -90,6 +91,7 @@
                         <td>@h.Nombre</td>
                         <td>@h.Material</td>
                         <td>@h.Precio</td>
+                        <td><InputNumber @bind-Value="h.Cantidad" class="form-control" min="1" id="@($"quantity_{h.HerramientaId}")" /></td>
                         <td><InputText @bind-Value="h.Descripcion" class="form-control" id="@($"description_{h.HerramientaId}")" /></td>
                     </tr>
                 }

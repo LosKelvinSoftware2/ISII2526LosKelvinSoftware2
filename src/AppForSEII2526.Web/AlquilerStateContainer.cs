@@ -6,8 +6,6 @@ namespace AppForSEII2526.Web
     {
         public AlquilerDTO Alquiler { get; private set; } = new AlquilerDTO()
         {
-            FechaFin = DateTime.Today.AddDays(7),
-            FechaInicio = DateTime.Today.AddDays(2),
             AlquilarItems = new List<AlquilarItemDTO>()
         };
         public event Action? OnChange;
