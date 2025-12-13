@@ -69,7 +69,7 @@ namespace AppForSEII2526.UIT.CU_Alquiler
         }
         public bool CheckMessageValidation(string errorMessage)
         {
-            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(5));
             wait.Until(ExpectedConditions.ElementIsVisible(validationSummary));
 
             IList<IWebElement> errorElements = _driver.FindElements(ErrorMessageLocator);
@@ -77,6 +77,9 @@ namespace AppForSEII2526.UIT.CU_Alquiler
         }
         public bool CheckMessageError(string errorMessage)
         {
+            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(5));
+            wait.Until(ExpectedConditions.ElementIsVisible(errorShownBy));
+
             IWebElement actualErrorShown = _driver.FindElement(errorShownBy);
             _output.WriteLine($"Mensaje de error: {actualErrorShown.Text}");
             return actualErrorShown.Text.Contains(errorMessage);
