@@ -126,9 +126,15 @@
 
     public async void SearchHerramienta()
     {
+        int diasRepaPasa = diasRepa;
+
+        if(diasRepaPasa <= 0 )
+        {
+            diasRepaPasa = 10000;
+        }
         try
         {
-            Herramienta = await apiclient.GetHerramientasDisponiblesParaRepararAsync(NombreHerrami, diasRepa);
+            Herramienta = await apiclient.GetHerramientasDisponiblesParaRepararAsync(NombreHerrami, diasRepaPasa);
             errors = "";
 
         }
