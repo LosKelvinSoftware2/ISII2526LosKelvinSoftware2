@@ -12,7 +12,7 @@
 
 <h3>CreateAlquiler</h3>
 <p>
-    <b>Precio total:</b> @PrecioTotal €
+    <p id="precioTotal">Precio total: @PrecioTotal €</p>
     <button class="btn btn-outline-primary" type="submit" @onclick="ModificarAlquilarItems" id="ModificarAlquileres">
         Modificar herramientas
     </button>
@@ -21,11 +21,11 @@
 <EditForm Model="alquiler" OnValidSubmit="OpenDialog">
     <div class="row">
         <DataAnnotationsValidator />
-        <ValidationSummary class="row alert alert-danger" />
+        <ValidationSummary id="formularioNoValido" class="row alert alert-danger" />
     </div>
 
     <div class="row alert alert-danger" role="alert" hidden="@hideErrors">
-        <p id="ErrorsShown">Errors: @messageError</p>
+        <p id="ErrorsShown">Mensaje de error: @messageError</p>
     </div>
     <div class="row g-3">
         <div class="col-md">
@@ -69,6 +69,21 @@
                 <label for="CorreoElectronico">Correo electrónico</label>
             </div>
         </div>
+            <div class="row g-2">
+                <div class="col-md">
+                    <div class="form-floating mb-3">
+                        <InputDate @bind-Value="alquiler.FechaInicio" class="form-control" id="FechaInicio" />
+                        <label for="FechaInicio">Fecha inicio alquiler</label>
+                    </div>
+                </div>
+                <div class="col-md">
+                    <div class="form-floating mb-3">
+                        <InputDate @bind-Value="alquiler.FechaFin" class="form-control" id="FechaFin" />
+                        <label for="FechaFin">Fecha fin alquiler</label>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
         <div class="col-md">

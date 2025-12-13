@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenQA.Selenium.Support.UI;
 
-namespace AppForSEII2526.UIT.UC_Alquiler
+namespace AppForSEII2526.UIT.CU_Alquiler
 {
     public class SelectHerramientasForAlquiler_PO : PageObject
     {
@@ -14,7 +14,7 @@ namespace AppForSEII2526.UIT.UC_Alquiler
         By buttonBuscarHerramientas = By.Id("buscarHerramientas");
         By tablaHerramientas = By.Id("tablaHerramientas");
         By errorShownBy = By.Id("ErrorsShown");
-        By buttonAlquilarHerramientas = By.Id("alquilarHerramientasButton");
+        By buttonAlquilarHerramientas = By.Id("alquilarHerramientaButton");
         public SelectHerramientasForAlquiler_PO(IWebDriver driver, ITestOutputHelper output) : base(driver, output)
         {
         }
@@ -26,6 +26,7 @@ namespace AppForSEII2526.UIT.UC_Alquiler
             _driver.FindElement(inputMaterial).SendKeys(material);
             _driver.FindElement(buttonBuscarHerramientas).Click();
         }
+        
         public bool CheckListaHerramientas(List<string[]> expectedHerramientas)
         {
             return CheckBodyTable(expectedHerramientas, tablaHerramientas);
@@ -38,21 +39,28 @@ namespace AppForSEII2526.UIT.UC_Alquiler
         }
         public void AddHerramientaCarrito(string nombreHerramienta)
         {
+            WaitForBeingVisible(By.Id("addHerramienta_" + nombreHerramienta));
             WaitForBeingClickable(By.Id("addHerramienta_" + nombreHerramienta));
             _driver.FindElement(By.Id("addHerramienta_" + nombreHerramienta)).Click();
         }
 
-        public void RemoveMovieFromRentingCart(string nombreHerramienta)
+        public void RemoveAlquilerFromRentingCart(string nombreHerramienta)
         {
             WaitForBeingClickable(By.Id("removeHerramienta_" + nombreHerramienta));
-            _driver.FindElement(By.Id("removeMovie_" + nombreHerramienta)).Click();
+            _driver.FindElement(By.Id("removeHerramienta_" + nombreHerramienta)).Click();
         }
 
-        public bool RentingNotAvailable()
+        public bool CarritoVacio()
         {
-            //the button is not Displayed=hidden
+            IWebElement button = _driver.FindElement(buttonAlquilarHerramientas);
+            return !button.Enabled;
+        }
 
-            return _driver.FindElement(buttonAlquilarHerramientas).Displayed == false;
+        public void SeguirConAlquiler()
+        {
+            WaitForBeingVisible(buttonAlquilarHerramientas);
+            WaitForBeingClickable(buttonAlquilarHerramientas);
+            _driver.FindElement(buttonAlquilarHerramientas).Click();
         }
     }
 }

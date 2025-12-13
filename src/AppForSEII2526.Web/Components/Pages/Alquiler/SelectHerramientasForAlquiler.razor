@@ -51,7 +51,7 @@
                                     <th>Nombre</th>
                                     <th>Material</th>
                                     <th>Fabricante</th>
-                                    <th>Precio</th>
+                                    <th>$ / día</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -61,7 +61,7 @@
                                         <td>@herramienta.Nombre</td>
                                         <td>@herramienta.Material</td>
                                         <td>@herramienta.Fabricante</td>
-                                        <td>@herramienta.Precio de herramienta</td>
+                                        <td>@herramienta.Precio</td>
                                         <td>
                                             <button class="btn btn-outline-secondary" id="addHerramienta_@herramienta.Nombre" @onclick="@(() => AddHerramienta(herramienta))">Añadir</button>
                                         </td>
@@ -74,8 +74,7 @@
                 }
             </div>
         </div>
-        <div class="col-2">
-            <div class="col-2" hidden="@herramientasOcultas">
+        <div class="col-2" hidden="@herramientasOcultas">
                 <div class="row">
                     <h3>Carrito</h3>
                 </div>
@@ -86,14 +85,13 @@
                     </div>
                 }
                 <div class="row">
-                    <button type="button" class="btn btn-primary" id="alquilarHerramientaButton" @onclick=@AlquilarHerramientas>Alquilar herramientas</button>
+                    <button type="button" class="btn btn-primary" id="alquilarHerramientaButton" @onclick=@AlquilarHerramientas disabled="@(alquiler.AlquilarItems.Count == 0)">Alquilar herramientas</button>
                 </div>
         </div>
 
     </div>
-    </div>
-
 </div>
+
 
 @code {
     private bool hideCarrito { get { return alquiler.AlquilarItems.Count == 0; } }
@@ -103,10 +101,18 @@
     private string nombreHerramienta { get; set; }
     private string materialHerramienta { get; set; }
     private AlquilerDTO alquiler => alquilerState.Alquiler;
+    private bool herramientasOcultas;
 
+    protected override void OnInitialized()
+    {
+
+        alquilerState.OnChange += StateHasChanged;
+
+        herramientasOcultas = alquiler.AlquilarItems.Count == 0;
+    }
     public async void BuscarHerramientas()
     {
-        errors = "";    
+        errors = "";
         herramientas = null;
         try
         {
@@ -120,9 +126,6 @@
         }
         StateHasChanged();
     }
-
-
-    private bool herramientasOcultas = true;
 
     private void AddHerramienta(AlquilerHerramientasDTO alquiler)
     {
