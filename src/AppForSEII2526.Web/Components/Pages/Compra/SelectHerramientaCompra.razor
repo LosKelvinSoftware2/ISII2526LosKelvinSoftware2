@@ -37,6 +37,10 @@
                 @if (herramientas == null) {
                     <p>Cargando Herramientas....</p>
                 }
+                else if (herramientas.Count == 0)
+                {
+                  <p id="NoToolsMessage">No hay herramientas disponibles en este momento.</p>
+                }
                 else
                 {
                     <div class="mh-100 table-responsive">
