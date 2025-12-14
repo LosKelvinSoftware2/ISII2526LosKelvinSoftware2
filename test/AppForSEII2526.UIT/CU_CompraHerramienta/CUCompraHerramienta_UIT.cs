@@ -1,6 +1,5 @@
 ﻿using AppForSEII2526.UIT.CU_CompraHerramienta;
 using AppForSEII2526.UIT.Shared;
-using AppForSEII2526.UIT.CU_Alquiler;
 using OpenQA.Selenium;
 using System.Collections.Generic;
 using Xunit;

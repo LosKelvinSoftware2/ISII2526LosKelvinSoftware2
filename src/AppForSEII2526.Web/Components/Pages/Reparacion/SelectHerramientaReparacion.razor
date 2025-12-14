@@ -41,6 +41,8 @@
                 @if (Herramienta == null)
                 {
                     <p>Cargando herramientas....</p>
+                }else if(Herramienta.Count == 0){
+                    <p id="NoToolsMessage">No hay herramientas disponibles en este momento.</p>                
                 }
                 else
                 {
