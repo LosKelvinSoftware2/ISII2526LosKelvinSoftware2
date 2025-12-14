@@ -205,7 +205,7 @@ namespace AppForSEII2526.API.Controllers
                 itemsDetails
             );
 
-            return CreatedAtAction("GetReparacionDetails", new { id = reparacion.Id }, reparacionDetail);
+            return CreatedAtAction(nameof(GetReparacionDetails), new { id = reparacion.Id }, reparacionDetail);
         }
 
         private DateTime CalcularFechaRecogida(DateTime fechaEntrega, int diasHabiles)
