@@ -11,6 +11,8 @@ namespace AppForSEII2526.UIT.CU_Alquiler
     {
         private SelectHerramientasForAlquiler_PO selectHerramientasForAlquiler_PO;
         private CreateAlquiler_PO createAlquiler_PO;
+        private DetailsAlquiler_PO detailsAlquiler_PO;
+
         private const string nombreHerramienta1 = "Clavadora Neumática";
         private const string material1 = "Acero";
         private const string precioHerramienta1 = "140";
@@ -21,10 +23,12 @@ namespace AppForSEII2526.UIT.CU_Alquiler
         private const string precioHerramienta2 = "200";
         private const string fabricante2 = "Hitachi";
 
+
         public CU_AlquilerHerramientas_UIT(ITestOutputHelper output) : base(output)
         {
             selectHerramientasForAlquiler_PO = new SelectHerramientasForAlquiler_PO(_driver, _output);
             createAlquiler_PO = new CreateAlquiler_PO(_driver, _output);
+            detailsAlquiler_PO = new DetailsAlquiler_PO(_driver, _output);
         }
         private void InitialStepsForAlquilarHerramientas()
         {
@@ -33,15 +37,25 @@ namespace AppForSEII2526.UIT.CU_Alquiler
             //we click on the menu
             _driver.FindElement(By.Id("CreateAlquiler")).Click();
         }
-        [Fact]
+        [Fact(Skip = "Este test modifica el estado. Antes de ejecutar lanzar LimpiarAlquileres.sql")]
         [Trait("LevelTesting", "Funcional Testing")]
-        public void CU4_flujoPrincipalCompleto()
+        public void CU4_flujoNormal()
         {
             //Arrange
             Initial_step_opening_the_web_page();
             InitialStepsForAlquilarHerramientas();
+            selectHerramientasForAlquiler_PO.BuscarHerramientas("", "");
+            selectHerramientasForAlquiler_PO.AddHerramientaCarrito("Martillo Neumático");
+            selectHerramientasForAlquiler_PO.SeguirConAlquiler();
+            
+            createAlquiler_PO.RellenarDatos("Juan", "Pérez", "Calle Falsa 123", "Tarjeta de crédito", "600123456", "juanperez@gmail.com", DateTime.Now.AddDays(1), DateTime.Now.AddDays(7));
+            createAlquiler_PO.enviarFormulario();
+            createAlquiler_PO.confirmarAlquiler();
 
+            var expectedHerramientas = new List<string[]> { new string[] { "Martillo Neumático", "Acero", "150", "1" }, };
 
+            detailsAlquiler_PO.CheckDatos("Juan Pérez" , "Calle Falsa 123" , DateTime.Now.ToString("dd/MM/yyyy") , "900" , DateTime.Now.AddDays(1).ToString("dd/MM/yyyy") , DateTime.Now.AddDays(7).ToString("dd/MM/yyyy"));
+            detailsAlquiler_PO.CheckTablaHerramientas(expectedHerramientas);
         }
         [Fact]
         [Trait("LevelTesting", "Funcional Testing")]
