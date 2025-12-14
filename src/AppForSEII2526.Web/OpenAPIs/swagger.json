@@ -2019,16 +2019,10 @@
           "fechaEntrega",
           "itemsReparacion",
           "metodoPago",
-          "nombreCliente",
-          "userName"
+          "nombreCliente"
         ],
         "type": "object",
         "properties": {
-          "userName": {
-            "maxLength": 100,
-            "minLength": 1,
-            "type": "string"
-          },
           "nombreCliente": {
             "maxLength": 100,
             "minLength": 1,
@@ -2066,16 +2060,10 @@
           "fechaEntrega",
           "itemsReparacion",
           "metodoPago",
-          "nombreCliente",
-          "userName"
+          "nombreCliente"
         ],
         "type": "object",
         "properties": {
-          "userName": {
-            "maxLength": 100,
-            "minLength": 1,
-            "type": "string"
-          },
           "nombreCliente": {
             "maxLength": 100,
             "minLength": 1,

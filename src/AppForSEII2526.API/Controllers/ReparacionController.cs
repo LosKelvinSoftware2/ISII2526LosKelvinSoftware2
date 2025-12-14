@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppForSEII2526.API.Controllers
@@ -58,10 +59,10 @@ namespace AppForSEII2526.API.Controllers
                 ))
                 .ToListAsync();
 
-            if (reparaciones == null || reparaciones.Count == 0)
+            if (reparaciones == null)
             {
-                _logger.LogWarning("No se encontraron reparaciones registradas.");
-                return NotFound(new { Mensaje = "No se encontraron reparaciones registradas." });
+                _logger.LogWarning($"Reparación no encontrada.");
+                return NotFound();
             }
 
             return Ok(reparaciones);
@@ -75,38 +76,68 @@ namespace AppForSEII2526.API.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         public async Task<ActionResult> CreateReparacion(ReparacionDTO reparacionForCreate)
         {
-            // Buscar usuario por UserName (que es el email según tu BD)
-            var user = _context.ApplicationUser.FirstOrDefault(au => au.UserName == reparacionForCreate.UserName);
-            if (user == null)
-                ModelState.AddModelError("Usuario", "Error! Usuario no autenticado o no encontrado");
+            // === Validación de reglas de negocio (Flujos Alternativos) ===
 
-            // Validaciones de fechas
-            if (reparacionForCreate.FechaEntrega <= DateTime.Today)
-                ModelState.AddModelError("FechaEntrega", "Error! La fecha de entrega debe ser posterior a hoy");
-
-            //Modificacion Examen NumTelefono
-            //string numTe = "+34"+reparacionForCreate.NumTelefono;
-            if (!reparacionForCreate.NumTelefono.StartsWith("+34"))
-                ModelState.AddModelError("NumTelefono", "Error!, el telefono debe empezar por +34");
-
-            // Validación de items
-            if (reparacionForCreate.ItemsReparacion == null || reparacionForCreate.ItemsReparacion.Count == 0)
-                ModelState.AddModelError("ItemsReparacion", "Error! Debe incluir al menos una herramienta para reparar");
-
-            // Validación de cantidades (Flujo Alternativo 5)
-            if (reparacionForCreate.ItemsReparacion != null && reparacionForCreate.ItemsReparacion.Any(item => item.Cantidad <= 0))
-                ModelState.AddModelError("ItemsReparacion", "Error! La cantidad de todas las herramientas debe ser al menos 1");
-
-            // Validar método de pago
-            if (!Enum.IsDefined(typeof(tiposMetodoPago), reparacionForCreate.MetodoPago))
+            // Flujo Alternativo 1: fecha de entrega <= hoy ??
+            if (reparacionForCreate.FechaEntrega.Date < DateTime.Today)
             {
-                ModelState.AddModelError("MetodoPago", "Error! Método de pago no válido");
+                ModelState.AddModelError("fechaEntrega", "La fecha de entrega debe ser igual o posterior a hoy.");
             }
 
-            if (ModelState.ErrorCount > 0)
-                return BadRequest(new ValidationProblemDetails(ModelState));
+            // Flujo Alternativo 3 y 5: al menos una herramienta y cantidad >= 1 (cantidad ya validada en el DTO)
+            if (reparacionForCreate.ItemsReparacion == null || reparacionForCreate.ItemsReparacion.Count == 0)
+            {
+                ModelState.AddModelError("Herramientas", "Debe incluir al menos una herramienta para reparar.");
+            }
+            else
+            {
+                // Validación extra (ya validad en el DTO): cantidad > 0
+                foreach (var item in reparacionForCreate.ItemsReparacion)
+                {
+                    if (item.Cantidad <= 0)
+                    {
+                        ModelState.AddModelError("Herramientas", $"La cantidad de la herramienta " +
+                            $"'{item.NombreHerramienta}' debe ser mayor que 0.");
+                    }
+                }
+            }
 
-            // Resto del código permanece igual...
+            // Validación extra para el enum metodoPago
+            if (!Enum.IsDefined(typeof(tiposMetodoPago), reparacionForCreate.MetodoPago))
+            {
+                ModelState.AddModelError("metodoPago",
+                    "El método de pago no es válido. Valores permitidos: 0 (Efectivo), 1 (TarjetaCredito), 2 (PayPal).");
+            }
+
+            // EXAMEN DE PRÁCTICAS DEL SPRINT 2: REVISAR NUMERO DE TELEFONO
+            if (!string.IsNullOrWhiteSpace(reparacionForCreate.NumTelefono) &&
+               !reparacionForCreate.NumTelefono.StartsWith("+34")) // Comprobamos que empiece por +34
+            {
+                ModelState.AddModelError("NumTelefono", "Error!, el teléfono debe empezar por +34"); // Devolver Bad Request
+            }
+
+            // cliente en la base de datos (AspNetUsers) ??
+            var cliente = await _context.ApplicationUser
+                .FirstOrDefaultAsync(u => u.Nombre == reparacionForCreate.NombreCliente &&
+                u.Apellido == reparacionForCreate.ApellidosCliente); // por nombre y apellidos
+
+            if (cliente == null)
+            {
+                ModelState.AddModelError("Cliente", "El cliente no está registrado en el sistema.");
+            }
+            else
+            {
+                //actualizar el numero del cliente para el DETAILS
+                if (!string.IsNullOrEmpty(reparacionForCreate.NumTelefono) &&
+                cliente.PhoneNumber != reparacionForCreate.NumTelefono)
+                {
+                    cliente.PhoneNumber = reparacionForCreate.NumTelefono;
+                    // Marcamos que el objeto 'cliente' ha sido modificado para que EF Core lo guarde
+                    _context.Entry(cliente).State = EntityState.Modified;
+                }
+            }
+
+            // Validación de herramientas
             var herramientaIds = reparacionForCreate.ItemsReparacion.Select(ri => ri.HerramientaId).ToList();
 
             var herramientas = await _context.Herramienta
@@ -121,15 +152,22 @@ namespace AppForSEII2526.API.Controllers
                 })
                 .ToListAsync();
 
+            // Si hay errores de validación, devolver Bad Request
+            if (ModelState.ErrorCount > 0) // comprobar errores acumulados
+            {
+                return BadRequest(new ValidationProblemDetails(ModelState));
+            }
+
             var reparacion = new Reparacion
             {
-                Cliente = user,
+                Cliente = cliente,
                 FechaEntrega = reparacionForCreate.FechaEntrega,
                 FechaRecogida = reparacionForCreate.FechaEntrega,
                 MetodoPago = reparacionForCreate.MetodoPago,
                 ItemsReparacion = new List<ReparacionItem>()
             };
 
+            // === Cálculo de la fecha de recogida ===
             float precioTotal = 0;
             int maxTiempoReparacion = 0;
 
@@ -195,9 +233,9 @@ namespace AppForSEII2526.API.Controllers
 
             var reparacionDetail = new ReparacionDetailsDTO(
                 reparacion.Id,
-                user.Nombre,
-                user.Apellido,
-                user.PhoneNumber,
+                cliente.Nombre,
+                cliente.Apellido,
+                cliente.PhoneNumber,
                 reparacion.FechaEntrega,
                 reparacion.FechaRecogida,
                 reparacion.PrecioTotal,

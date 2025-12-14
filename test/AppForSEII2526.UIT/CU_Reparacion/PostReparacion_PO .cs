@@ -10,7 +10,6 @@ namespace AppForSEII2526.UIT.UC_Reparacion
         // Localizadores basados en PostReparacion.razor
         private By inputNombre = By.Id("Name"); 
         private By inputApellido = By.Id("Surname"); 
-        private By inputUserName = By.Id("Username"); 
         private By inputTelefono = By.Id("NumTelefono"); 
         private By selectPago = By.Id("PaymentMethod");
         private By buttonSubmit = By.Id("Submit");
@@ -22,7 +21,7 @@ namespace AppForSEII2526.UIT.UC_Reparacion
         {
         }
 
-        public void RellenarFormulario(string nombre, string apellido, string username, string telefono, string metodoPago)
+        public void RellenarFormulario(string nombre, string apellido, string telefono, string metodoPago)
         {
             WaitForBeingVisible(inputNombre);
 
@@ -31,9 +30,6 @@ namespace AppForSEII2526.UIT.UC_Reparacion
 
             _driver.FindElement(inputApellido).Clear();
             _driver.FindElement(inputApellido).SendKeys(apellido);
-
-            _driver.FindElement(inputUserName).Clear();
-            _driver.FindElement(inputUserName).SendKeys(username);
 
             _driver.FindElement(inputTelefono).Clear();
             _driver.FindElement(inputTelefono).SendKeys(telefono);

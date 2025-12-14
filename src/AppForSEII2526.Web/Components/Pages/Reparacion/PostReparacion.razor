@@ -38,12 +38,6 @@
         </div>
         <div class="col-md">
             <div class="form-floating mb-3">
-                <InputText @bind-Value="repa.UserName" class="form-control" id="Username" />
-                <label for="Username">Username</label>
-            </div>
-        </div>
-        <div class="col-md">
-            <div class="form-floating mb-3">
                 <InputText @bind-Value="repa.NumTelefono" class="form-control" id="NumTelefono" />
                 <label for="NumTelefono">Numero de telefono +34NUM</label>
             </div>
@@ -163,9 +157,7 @@
                 try
                 {
                     var reparacion = await apiclient.CreateReparacionAsync(repa);
-                    ReparacionState.ReparacionProcessed();
-                    //Quiero printear con el id de la reparacion creada
-                    
+                    ReparacionState.ProcesarReparacion();
 
                     navigation.NavigateTo($"/Reparacion/DetailsReparacion/?RepaID={reparacion.Id}"); //ReparacionState.DevolverId(repa)
                 }
@@ -209,7 +201,7 @@
             }
             repa.NombreCliente = repa.NombreCliente == null ? "" : repa.NombreCliente;
             repa.ApellidosCliente = repa.ApellidosCliente == null ? "" : repa.ApellidosCliente;
-            //repa.DireccionEnvio = repa.DireccionEnvio == null ? "" : repa.DireccionEnvio;
+            repa.NumTelefono = repa.NumTelefono == null ? "" : repa.NumTelefono;
 
         }
     }

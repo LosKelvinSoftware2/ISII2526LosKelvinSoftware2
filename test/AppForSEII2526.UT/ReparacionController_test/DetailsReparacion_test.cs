@@ -110,12 +110,9 @@ namespace AppForSEII2526.UT.ReparacionController_test
             var result = await controller.GetReparacionDetails(0);
 
             // Assert
-            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            var value = notFoundResult.Value;
-            var mensajeProp = value.GetType().GetProperty("Mensaje");
-            Assert.NotNull(mensajeProp);
-            var mensaje = mensajeProp.GetValue(value)?.ToString();
-            Assert.Equal("No se encontraron reparaciones registradas.", mensaje);
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var actualList = Assert.IsType<List<ReparacionDetailsDTO>>(okResult.Value);
+            Assert.Empty(actualList);
 
 
             //Assert.IsType<NotFoundObjectResult>(result);
@@ -161,7 +158,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
                 }
             );
             // El UserName es nulo
-            expectedReparacion.UserName = null;
+            //expectedReparacion.UserName = null;
             Assert.Equal(expectedReparacion, actualReparacion);
         }
 

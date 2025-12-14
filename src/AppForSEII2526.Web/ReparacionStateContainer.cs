@@ -44,6 +44,14 @@ namespace AppForSEII2526.Web
             // Si esta vacio
             throw new InvalidOperationException("No se encontró ningún item de reparación.");
         }
+        //actualizar precio totalsi lo necesito
+        private void CalcularPrecioTotal()
+        {
+            Reparacion.ItemsReparacion = Reparacion.ItemsReparacion.Where(h => h.Cantidad > 0).ToList();
+            NotifyStateChanged();
+        }
+
+        
 
         public void RemoveItemFromReparacion(ReparacionItemDTO item)
         {
@@ -59,7 +67,7 @@ namespace AppForSEII2526.Web
         }
 
         // Finalizamos el proceso y reseteamos el estado
-        public void ReparacionProcessed()
+        public void ProcesarReparacion()
         {
             // Creamos un nuevo objeto limpio
             Reparacion = new ReparacionDTO()
