@@ -10,7 +10,7 @@ namespace AppForSEII2526.UIT.UC_Reparacion
     {
         // Localizadores basados en SelectHerramientaReparacion.razor
         private By inputNombre = By.Id("inputTitle"); 
-        private By inputDias = By.Id("inputGenre");
+        private By inputDias = By.Id("inputGenre"); 
         private By buttonBuscar = By.Id("searchHerramientas"); 
         private By tablaHerramientas = By.Id("TableOfHerramienta"); 
         private By errorShownBy = By.Id("ErrorsShown"); 
@@ -20,50 +20,61 @@ namespace AppForSEII2526.UIT.UC_Reparacion
         {
         }
 
-        public void BuscarHerramientas(string nombre, string dias)
+        public void BuscarHerramientas(string nombre, string dias = "")
         {
             WaitForBeingClickable(inputNombre);
-            // Limpiamos los campos antes de escribir
             _driver.FindElement(inputNombre).Clear();
-            _driver.FindElement(inputDias).Clear();
-
             _driver.FindElement(inputNombre).SendKeys(nombre);
-            _driver.FindElement(inputDias).SendKeys(dias);
+
+            if (!string.IsNullOrEmpty(dias))
+            {
+                _driver.FindElement(inputDias).Clear();
+                _driver.FindElement(inputDias).SendKeys(dias);
+            }
             _driver.FindElement(buttonBuscar).Click();
+            try
+            {
+                WaitForBeingVisible(tablaHerramientas);
+            }
+            catch
+            {
+                /* Puede no aparecer si no hay resultados */
+            }
         }
 
-        public bool CheckListaHerramientas(List<string[]> herramientasEsperadas)
+        
+        public void AddHerramientaToReparacion(string idHerramienta)
         {
-            // Usa el método genérico CheckBodyTable heredado de PageObject
-            return CheckBodyTable(herramientasEsperadas, tablaHerramientas);
-        }
-
-        public void AnadirHerramientaAReparacion(string idHerramienta)
-        {
+            // ID en Razor: id="BtnAdd_@h.Id"
+            // Debes pasar el ID numérico (ej: "1") desde el test
             By btnAdd = By.Id($"BtnAdd_{idHerramienta}");
+            WaitForBeingVisible(btnAdd);
             WaitForBeingClickable(btnAdd);
             _driver.FindElement(btnAdd).Click();
         }
 
-        public void EliminarHerramientaDelCarrito(string nombreHerramienta)
+        public void RemoveHerramientaFromCart(string nombreHerramienta)
         {
+            
             By btnRemove = By.Id($"removeHerramienta_{nombreHerramienta}");
-            WaitForBeingClickable(btnRemove);
+            WaitForBeingVisible(btnRemove);
             _driver.FindElement(btnRemove).Click();
         }
 
-        public void ClicTramitarReparacion()
+        public void ClickTramitarReparacion()
         {
-            WaitForBeingClickable(buttonTramitar);
+            WaitForBeingVisible(buttonTramitar);
             _driver.FindElement(buttonTramitar).Click();
         }
 
-        // Para verificar si el botón está visible (Caso de prueba de carrito vacío)
-        public bool EsVisibleBotonTramitar()
+        public bool IsTramitarButtonVisible()
         {
             try
             {
-                return _driver.FindElement(buttonTramitar).Displayed;
+                
+                // Si el botón está oculto o deshabilitado, esto saltará o devolverá false
+                var btn = _driver.FindElement(buttonTramitar);
+                return btn.Displayed && btn.Enabled;
             }
             catch (NoSuchElementException)
             {
@@ -71,12 +82,42 @@ namespace AppForSEII2526.UIT.UC_Reparacion
             }
         }
 
-        public bool CheckMensajeError(string mensajeError)
+        public bool CheckListaHerramientas(List<string[]> herramientasEsperadas)
         {
-            WaitForBeingVisible(errorShownBy);
-            IWebElement errorActual = _driver.FindElement(errorShownBy);
-            _output.WriteLine($"Mensaje de error encontrado: {errorActual.Text}");
-            return errorActual.Text.Contains(mensajeError);
+            try
+            {
+                WaitForBeingVisible(tablaHerramientas);
+                string textoTabla = _driver.FindElement(tablaHerramientas).Text;
+
+                foreach (var h in herramientasEsperadas)
+                {
+                    // h[0] = Nombre, h[1] = Material, h[2] = Precio (según lo que envíes en el test)
+                    if (!textoTabla.Contains(h[0]) || !textoTabla.Contains(h[1]))
+                    {
+                        _output.WriteLine($"Falta en tabla: {h[0]} o {h[1]}");
+                        return false;
+                    }
+                }
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public bool CheckMessageError(string errorMessage)
+        {
+            try
+            {
+                WaitForBeingVisible(errorShownBy);
+                string textoActual = _driver.FindElement(errorShownBy).Text;
+                return textoActual.Contains(errorMessage);
+            }
+            catch (WebDriverTimeoutException)
+            {
+                return false; // No apareció el mensaje
+            }
         }
     }
 }

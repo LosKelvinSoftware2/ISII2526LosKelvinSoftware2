@@ -1,4 +1,4 @@
-﻿@page "/Reparacion/DetailReparacion"
+﻿@page "/Reparacion/DetailsReparacion"
 
 @using AppForSEII2526.Web.API
 @using Microsoft.AspNetCore.Authorization
@@ -21,7 +21,7 @@ else
         </tr>
         <tr>
             <th>Teléfono:</th>
-            <td>@repa.NumTelefono</td>
+            <td id="NumTelefono">@repa.NumTelefono</td>
         </tr>
         <tr>
             <th>Método Pago:</th>
@@ -112,8 +112,10 @@ else
 
         try
         {
-            var result = await apiclient.GetReparacionDetailsAsync(RepaID);
-            repa = result.FirstOrDefault();
+            // Suponiendo que GetReparacionDetailsAsync devuelve una colección, seleccionamos el primer elemento
+            var repaList = await apiclient.GetReparacionDetailsAsync(RepaID);
+            repa = repaList?.FirstOrDefault();
+             
         }
         catch (ApiException exception)
         {
