@@ -19,6 +19,7 @@ namespace AppForSEII2526.API.DTO.RepararDTOs
             MetodoPago = metodoPago;
         }
 
+        [Key]
         public int Id { get; set; }
         public DateTime FechaRecogida { get; set; }
         public float PrecioTotal { get; set; }

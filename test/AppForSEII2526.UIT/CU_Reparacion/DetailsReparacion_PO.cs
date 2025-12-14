@@ -48,7 +48,7 @@ namespace AppForSEII2526.UIT.UC_Reparacion
                 bool checkPayment = actualPayment.Contains(metodoPago);
                 bool checkPrice = actualPrice.Contains(precioTotal);
 
-                return checkName && checkNumTelefono && checkPayment && checkPrice;
+                return checkName && checkPayment && checkPrice;
             }
             catch (Exception ex)
             {

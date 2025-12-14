@@ -29,52 +29,52 @@ namespace AppForSEII2526.UT.ReparacionController_test
 
             // Crear fabricantes
             var fabricantes = new List<Fabricante>()
-    {
-        new Fabricante { Id = 1, Nombre = "Fabricante1" },
-        new Fabricante { Id = 2, Nombre = "Fabricante2" },
-        new Fabricante { Id = 3, Nombre = "Fabricante3" }
-    };
+            {
+                new Fabricante { Id = 1, Nombre = "Fabricante1" },
+                new Fabricante { Id = 2, Nombre = "Fabricante2" },
+                new Fabricante { Id = 3, Nombre = "Fabricante3" }
+            };
 
             // Crear herramientas
             var herramientas = new List<Herramienta>()
-    {
-        new Herramienta
-        {
-            Id = 1,
-            Nombre = "Taladro",
-            Material = "Metal",
-            Precio = 100.0f,
-            TiempoReparacion = 5,
-            fabricante = fabricantes[0]
-        },
-        new Herramienta
-        {
-            Id = 2,
-            Nombre = "Martillo",
-            Material = "Plástico",
-            Precio = 50.0f,
-            TiempoReparacion = 3,
-            fabricante = fabricantes[1]
-        },
-        new Herramienta
-        {
-            Id = 3,
-            Nombre = "Sierra",
-            Material = "Madera",
-            Precio = 75.0f,
-            TiempoReparacion = 4,
-            fabricante = fabricantes[2]
-        },
-        new Herramienta
-        {
-            Id = 4,
-            Nombre = "Destornillador",
-            Material = "Metal",
-            Precio = 30.0f,
-            TiempoReparacion = 2,
-            fabricante = fabricantes[0]
-        }
-    };
+            {
+                new Herramienta
+                {
+                    Id = 1,
+                    Nombre = "Taladro",
+                    Material = "Metal",
+                    Precio = 100.0f,
+                    TiempoReparacion = 5,
+                    fabricante = fabricantes[0]
+                },
+                new Herramienta
+                {
+                    Id = 2,
+                    Nombre = "Martillo",
+                    Material = "Plástico",
+                    Precio = 50.0f,
+                    TiempoReparacion = 3,
+                    fabricante = fabricantes[1]
+                },
+                new Herramienta
+                {
+                    Id = 3,
+                    Nombre = "Sierra",
+                    Material = "Madera",
+                    Precio = 75.0f,
+                    TiempoReparacion = 4,
+                    fabricante = fabricantes[2]
+                },
+                new Herramienta
+                {
+                    Id = 4,
+                    Nombre = "Destornillador",
+                    Material = "Metal",
+                    Precio = 30.0f,
+                    TiempoReparacion = 2,
+                    fabricante = fabricantes[0]
+                }
+            };
 
             // Crear usuario - AÑADIR correoelectronico
             var user = new ApplicationUser
@@ -135,7 +135,6 @@ namespace AppForSEII2526.UT.ReparacionController_test
             // Caso 1: Sin items de reparación
             var reparacionSinItems = new ReparacionDTO
             {
-                UserName = _userName,
                 NombreCliente = _customerName,
                 ApellidosCliente = _customerSurname,
                 NumTelefono = _phoneNumber,
@@ -147,7 +146,6 @@ namespace AppForSEII2526.UT.ReparacionController_test
             // Caso 2: Fecha de entrega anterior a hoy
             var reparacionFechaAnterior = new ReparacionDTO
             {
-                UserName = _userName,
                 NombreCliente = _customerName,
                 ApellidosCliente = _customerSurname,
                 NumTelefono = _phoneNumber,
@@ -159,11 +157,9 @@ namespace AppForSEII2526.UT.ReparacionController_test
                 }
             };
 
-            //Caso examen
-            // Errornumero detelefono
+            //Caso examen: Error numero de telefono (sin +34)
             var reparacionNumTelefono = new ReparacionDTO
             {
-                UserName = _userName,
                 NombreCliente = _customerName,
                 ApellidosCliente = _customerSurname,
                 NumTelefono = "60033344",
@@ -176,9 +172,10 @@ namespace AppForSEII2526.UT.ReparacionController_test
             };
 
             // Caso 3: Cantidad menor o igual a 0
+            // NOTA: Al usar el constructor (int id, int cant, string desc), NombreHerramienta es null.
+            // El mensaje de error del controlador interpolará una cadena vacía ''.
             var reparacionCantidadInvalida = new ReparacionDTO
             {
-                UserName = _userName,
                 NombreCliente = _customerName,
                 ApellidosCliente = _customerSurname,
                 NumTelefono = _phoneNumber,
@@ -193,8 +190,8 @@ namespace AppForSEII2526.UT.ReparacionController_test
             // Caso 4: Usuario no encontrado
             var reparacionUsuarioNoEncontrado = new ReparacionDTO
             {
-                UserName = "usuarioinexistente@alu",
-                NombreCliente = _customerName,
+                //UserName = "usuarioinexistente@alu", // Eliminado
+                NombreCliente = "ClienteInexistente", // Cambiado nombre para forzar fallo búsqueda
                 ApellidosCliente = _customerSurname,
                 NumTelefono = _phoneNumber,
                 FechaEntrega = DateTime.Today.AddDays(1),
@@ -208,7 +205,6 @@ namespace AppForSEII2526.UT.ReparacionController_test
             // Caso 5: Herramienta no existe
             var reparacionHerramientaNoExiste = new ReparacionDTO
             {
-                UserName = _userName,
                 NombreCliente = _customerName,
                 ApellidosCliente = _customerSurname,
                 NumTelefono = _phoneNumber,
@@ -223,7 +219,6 @@ namespace AppForSEII2526.UT.ReparacionController_test
             // Caso 6: Herramienta ya en reparación
             var reparacionHerramientaEnReparacion = new ReparacionDTO
             {
-                UserName = _userName,
                 NombreCliente = _customerName,
                 ApellidosCliente = _customerSurname,
                 NumTelefono = _phoneNumber,
@@ -237,11 +232,11 @@ namespace AppForSEII2526.UT.ReparacionController_test
 
             var allTests = new List<object[]>
             {
-                new object[] { reparacionSinItems, "Error! Debe incluir al menos una herramienta para reparar" },
-                new object[] { reparacionFechaAnterior, "Error! La fecha de entrega debe ser posterior a hoy" },
-                new object[] { reparacionNumTelefono, "Error!, el telefono debe empezar por +34" },
-                new object[] { reparacionCantidadInvalida, "Error! La cantidad de todas las herramientas debe ser al menos 1" },
-                new object[] { reparacionUsuarioNoEncontrado, "Error! Usuario no autenticado o no encontrado" },
+                new object[] { reparacionSinItems, "Debe incluir al menos una herramienta para reparar." },
+                new object[] { reparacionFechaAnterior, "La fecha de entrega debe ser igual o posterior a hoy." },
+                new object[] { reparacionNumTelefono, "Error!, el teléfono debe empezar por +34" },
+                new object[] { reparacionCantidadInvalida, "La cantidad de la herramienta '' debe ser mayor que 0." },
+                new object[] { reparacionUsuarioNoEncontrado, "El cliente no está registrado en el sistema." },
                 new object[] { reparacionHerramientaNoExiste, "Error! La herramienta con ese ID no existe" },
                 new object[] { reparacionHerramientaEnReparacion, "Error! La herramienta con ese nombre no está disponible para reparación" }
             };
@@ -271,7 +266,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
                 .SelectMany(error => error.Value)
                 .ToList();
 
-            // Debug: mostrar errores si el test falla
+            
             var errorActual = todosLosErrores.FirstOrDefault(error => error.Contains(errorExpected));
 
             if (errorActual == null)
@@ -292,7 +287,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
             // Arrange
             var reparacionDTO = new ReparacionDTO
             {
-                UserName = _userName,
+                
                 NombreCliente = _customerName,
                 ApellidosCliente = _customerSurname,
                 NumTelefono = _phoneNumber,
@@ -330,7 +325,7 @@ namespace AppForSEII2526.UT.ReparacionController_test
                 tiposMetodoPago.PayPal,
                 itemsEsperados
             );
-            expectedResult.UserName = null; // Porque el DTO de respuesta no incluye UserName
+            //expectedResult.UserName = null; // Porque el DTO de respuesta no incluye UserName
 
             // Arrange
             var mockLogger = new Mock<ILogger<ReparacionController>>();

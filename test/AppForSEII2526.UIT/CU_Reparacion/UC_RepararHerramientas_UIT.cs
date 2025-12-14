@@ -65,7 +65,7 @@ namespace AppForSEII2526.UIT.UC_Reparacion
             selectPO.WaitForBeingVisible(By.Id("processBtn"));             
             selectPO.ClickTramitarReparacion();
            
-            postPO.RellenarFormulario(usuarioNombre, usuarioApellido, usuarioUsername, usuarioTelefono, "Tarjeta");
+            postPO.RellenarFormulario(usuarioNombre, usuarioApellido, usuarioTelefono, "Tarjeta");
             postPO.EstablecerCantidadItem(0, "1");
 
             // Guardar
@@ -155,7 +155,7 @@ namespace AppForSEII2526.UIT.UC_Reparacion
             selectPO.ClickTramitarReparacion();
 
             // Dejar campos obligatorios vacíos (Nombre, Apellido, etc.)
-            postPO.RellenarFormulario("", "", "", "", "Tarjeta");
+            postPO.RellenarFormulario("", "", "", "Tarjeta");
 
             postPO.SubmitReparacion();
 
@@ -183,7 +183,7 @@ namespace AppForSEII2526.UIT.UC_Reparacion
             selectPO.AddHerramientaToReparacion(Id2);
             selectPO.ClickTramitarReparacion();
 
-            postPO.RellenarFormulario(usuarioNombre, usuarioApellido, usuarioUsername, usuarioTelefono, "Efectivo");
+            postPO.RellenarFormulario(usuarioNombre, usuarioApellido, usuarioTelefono, "Efectivo");
 
             // Poner cantidad a 0 (inválida)
             postPO.EstablecerCantidadItem(0, "0");
