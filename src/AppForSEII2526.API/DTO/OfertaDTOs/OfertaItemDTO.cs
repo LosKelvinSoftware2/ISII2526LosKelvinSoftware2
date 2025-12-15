@@ -46,7 +46,7 @@ namespace AppForSEII2526.API.DTO.OfertaDTOs
         public string material { get; set; }
 
         [Required(ErrorMessage = "Por favor, introduce el porcentaje de descuento")]
-        [Range(0.0, 100.0, ErrorMessage = "El porcentaje debe estar entre 0 y 100.")]
+        [Range(1, 100.0, ErrorMessage = "El porcentaje debe estar entre 1 y 100.")]
         public float? porcentaje { get; set; }
     }
 }
