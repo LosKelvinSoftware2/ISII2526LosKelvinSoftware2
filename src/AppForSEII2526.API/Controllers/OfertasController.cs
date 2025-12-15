@@ -72,7 +72,7 @@ namespace AppForSEII2526.API.Controllers
         {   
             if (ofertaForCreate.fechaInicio == DateTime.MinValue || ofertaForCreate.fechaFinal == DateTime.MinValue)
                 ModelState.AddModelError("DateError", "Error! Las fechas no pueden estar vacías o en formato incorrecto.");
-            if (!ofertaForCreate.metodoPago.HasValue)
+            if (!Enum.IsDefined(typeof(tiposMetodoPago), ofertaForCreate.metodoPago))
                 ModelState.AddModelError("MetodoPago", "Error! El método de pago es obligatorio.");
             if (ofertaForCreate.fechaInicio <= DateTime.Today)
                 ModelState.AddModelError("RentalDateFrom", "Error! La fecha de inicio de oferta debe ser al menos mañana");

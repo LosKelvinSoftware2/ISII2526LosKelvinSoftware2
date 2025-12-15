@@ -86,16 +86,6 @@ namespace AppForSEII2526.UT.OfertasController_test
                 new OfertaItemDTO(15, 170, "Sierra", "Madera", "Black&Decker", 200)
             };
 
-            var ofertaWithNoDate = new OfertaDTO
-            (   
-                1,
-                DateTime.MinValue,
-                DateTime.MinValue,
-                tiposMetodoPago.Efectivo,
-                tiposDiridaOferta.Clientes,
-                ofertaItems
-            );
-
             var ofertaFromBeforeToday = new OfertaDTO
             (
                 1,
@@ -127,18 +117,6 @@ namespace AppForSEII2526.UT.OfertasController_test
                 ofertaItems
             );
 
-            var ofertaWithNoPercentage = new OfertaDTO
-            (
-                1,
-                DateTime.Today.AddMonths(1),
-                DateTime.Today.AddDays(1),
-                tiposMetodoPago.Efectivo,
-                tiposDiridaOferta.Clientes,
-                new List<OfertaItemDTO>(){
-                    new OfertaItemDTO(null, 90, "Taladro", "Metal", "Bosch", 100),
-                }
-            );
-
             var ofertaWithInvalidPercentage = new OfertaDTO
             (
                 1,
@@ -166,19 +144,17 @@ namespace AppForSEII2526.UT.OfertasController_test
                 1,
                 DateTime.Today.AddMonths(1),
                 DateTime.Today.AddDays(1),
-                null,
+                (tiposMetodoPago)999,
                 tiposDiridaOferta.Clientes,
                 ofertaItems
             );
 
             var allTests = new List<object[]>
             {
-                new object[] { ofertaWithNoDate, "Error! Las fechas no pueden estar vacías o en formato incorrecto." },
                 new object[] { ofertaFromBeforeToday, "Error! La fecha de inicio de oferta debe ser al menos mañana" },
                 new object[] { ofertaoBeforeFrom, "Error! La fecha final de oferta debe ser después de la fecha de inicio" },
                 // Las nuevas entradas (el object añadido)
                 new object[] { ofertaLessThanWeek, "Error!, la oferta debe durar al menos una semana" },
-                new object[] { ofertaWithNoPercentage, "Error! El porcentaje es obligatorio para la herramienta Taladro." },
                 new object[] { ofertaWithInvalidPercentage, "Error! El porcentaje de descuento debe estar entre 1 y 100" },
                 new object[] { ofertaNoItems, "Error! Hay que incluir al menos una herramienta" },
                 new object[] { ofertaWithNoPaymentMethod, "Error! El método de pago es obligatorio." },

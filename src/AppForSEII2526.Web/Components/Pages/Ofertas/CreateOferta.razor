@@ -24,13 +24,13 @@
     <div class="row g-3">
         <div class="col-md">
             <div class="form-floating">
-                <InputDate @bind-Value="oferta.FechaInicio" class="form-control" id="@($"fechaInicio_{oferta.FechaInicio}")" placeholder="FechaInicio"></InputDate>
+                <InputDate @bind-Value="oferta.FechaInicio" class="form-control" id="fechaInicio" placeholder="FechaInicio"></InputDate>
                 <label for="FechaInicio">Fecha Inicio</label>
             </div>
         </div>
         <div class="col-md">
             <div class="form-floating">
-                <InputDate @bind-Value="oferta.FechaFinal" class="form-control" id="@($"fechaFinal_{oferta.FechaFinal}")" placeholder="FechaFinal"></InputDate>
+                <InputDate @bind-Value="oferta.FechaFinal" class="form-control" id="fechaFinal" placeholder="FechaFinal"></InputDate>
                 <label for="FechaFinal">Fecha Final</label>
             </div>
         </div>
@@ -41,16 +41,18 @@
                 <div class="form-floating">
                     @*a dropdown for selecting the payment method*@
                     <InputSelect class="form-select" @bind-Value="@oferta.MetodoPago" id="PaymentMethod">
-                        <option value="@TiposMetodoPago.TarjetaCredito" default> CreditCard</option>
+                        <option value="" default>-- Seleccione método de pago --</option>
+                        <option value="@TiposMetodoPago.TarjetaCredito"> TarjetaCredito</option>
                         <option value="@TiposMetodoPago.PayPal"> PayPal</option>
-                        <option value="@TiposMetodoPago.Efectivo"> Cash</option>
+                        <option value="@TiposMetodoPago.Efectivo"> Efectivo</option>
                     </InputSelect>
                     <label for="PaymentMethod">Payment Method</label>
                 </div>
                 <div class="form-floating">
                     @*a dropdown for selecting the customers*@
                     <InputSelect class="form-select" @bind-Value="@oferta.DirigidaA" id="Customers">
-                        <option value="@TiposDiridaOferta.Clientes" default> Customers</option>
+                        <option value="" default>-- Seleccione a quién va dirigida --</option>
+                        <option value="@TiposDiridaOferta.Clientes"> Customers</option>
                         <option value="@TiposDiridaOferta.Socios"> Socios</option>
                     </InputSelect>
                     <label for="Customers">Customer Type</label>
@@ -64,7 +66,7 @@
             </div>
         </div>
     </div>
-    <h4>Rental detail</h4>
+    <h4>Oferta detail</h4>
     <p><b>Fecha Inicio:</b> @oferta.FechaInicio.ToString("dd/MM/yyyy") <b>to:</b> @oferta.FechaFinal.ToString("dd/MM/yyyy")</p>
     <p><b>Fecha Creación:</b> @oferta.FechaOferta.ToString("dd/MM/yyyy")</p>
     <p>
@@ -158,7 +160,4 @@
             }
         }
     }
-
-    [CascadingParameter]
-    private Task<AuthenticationState>? authenticationState { get; set; }
 }
