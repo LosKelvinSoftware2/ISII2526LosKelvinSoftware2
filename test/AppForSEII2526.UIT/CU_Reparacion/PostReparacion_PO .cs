@@ -13,7 +13,8 @@ namespace AppForSEII2526.UIT.UC_Reparacion
         private By inputTelefono = By.Id("NumTelefono"); 
         private By selectPago = By.Id("PaymentMethod");
         private By buttonSubmit = By.Id("Submit");
-        
+        private By inputFechaEntrega = By.Id("DeliveryDate");
+
         private By errorsShown = By.Id("ErrorsShown"); 
         private By validationSummary = By.ClassName("validation-summary-errors");
 
@@ -33,28 +34,22 @@ namespace AppForSEII2526.UIT.UC_Reparacion
 
             _driver.FindElement(inputTelefono).Clear();
             _driver.FindElement(inputTelefono).SendKeys(telefono);
+            //para la fecha de entrega se pone un dia mas a la fecha actual
+            EstablecerFechaEntrega(DateTime.Now.AddDays(1));
 
             var selectElement = new SelectElement(_driver.FindElement(selectPago));
             selectElement.SelectByText(metodoPago);
         }
 
-        //public void SetItemDetails(string toolId, string quantity, string description)
-        //{
-            
-        //    By rowLocator = By.Id($"ToolData_{toolId}");
-            
-        //    By descLocator = By.Id($"description_{toolId}");
-            
-        //    IWebElement row = _driver.FindElement(rowLocator);
-        //    IWebElement qtyInput = row.FindElement(By.CssSelector("input[type='number']"));
+        public void EstablecerFechaEntrega(DateTime fecha)
+        {
+            WaitForBeingVisible(inputFechaEntrega);
+            var input = _driver.FindElement(inputFechaEntrega);
 
-        //    qtyInput.Clear();
-        //    qtyInput.SendKeys(quantity);
+            input.SendKeys(fecha.ToString("dd/MM/yyyy"));
+        }
 
-        //    IWebElement descInput = _driver.FindElement(descLocator);
-        //    descInput.Clear();
-        //    descInput.SendKeys(description);
-        //}
+        
 
         public void EstablecerCantidadItem(int indexFila, string cantidad)
         {

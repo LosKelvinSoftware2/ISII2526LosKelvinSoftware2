@@ -11,7 +11,7 @@ namespace AppForSEII2526.UIT.UC_Reparacion
         private SelectHerramientasReparacion_PO selectPO;
         private PostReparacion_PO postPO;
         private DetailsReparacion_PO detailsPO;
-        /* DATOS DE LA BASE DE DATOS PARA LAS PRUEBAS POR AL HACER UNA PRUEBA SE JODE P vida
+        /* DATOS DE LA BASE DE DATOS PARA LAS PRUEBAS POR AL HACER UNA PRUEBA SE JODE, P vida
             (21, 'Soldador Inverter', 'Metal', 220.00, 4, 4),
             (22, 'Aspirador Industrial', 'Plástico', 180.50, 3, 2),
             (23, 'Mezcladora de Mortero', 'Acero', 115.00, 2, 18),
@@ -35,7 +35,6 @@ namespace AppForSEII2526.UIT.UC_Reparacion
 
         private const string usuarioNombre = "Juan";
         private const string usuarioApellido = "Pérez";
-        private const string usuarioUsername = "juanperez";
         private const string usuarioEmail = "juan.perez@email.com";
         private const string usuarioTelefono = "+34600111222";
 
@@ -68,6 +67,10 @@ namespace AppForSEII2526.UIT.UC_Reparacion
             postPO.RellenarFormulario(usuarioNombre, usuarioApellido, usuarioTelefono, "Tarjeta");
             postPO.EstablecerCantidadItem(0, "1");
 
+
+            DateTime fechaEntrega = DateTime.Now.AddDays(1); // siempreee Mañana
+            postPO.EstablecerFechaEntrega(fechaEntrega);
+
             // Guardar
             // Esperamos a que el botón Submit del formulario sea visible (ID "Submit")
             selectPO.WaitForBeingVisible(By.Id("Submit"));
@@ -76,20 +79,61 @@ namespace AppForSEII2526.UIT.UC_Reparacion
 
 
             // Paso 7: Verificar Detalles
-            // CORRECCIÓN: La vista DetailsReparacion muestra "@repa.NombreCliente @repa.ApellidosCliente"
-            // No incluye el username en el nombre completo visualizado.
             bool detallesCorrectos = detailsPO.VerificarDetallesReparacion(
                 usuarioNombre + " " + usuarioApellido, // Ej: "Juan Pérez"
                 "Tarjeta",
-                "85,00" // Asegúrate de que este precio coincida con tu BD
+                "85,00" 
             );
             Assert.True(detallesCorrectos, "Los detalles de la reparación mostrados no son correctos");
 
+            int diasReparacionHerramienta = 1; 
+
+            string fechaRecogidaEsperada = CalcularFechaRecogidaEsperada(fechaEntrega, diasReparacionHerramienta);
+            string fechaRecogidaReal = detailsPO.ObtenerFechaRecogidaTexto();
+
+            Assert.Equal(fechaRecogidaEsperada, fechaRecogidaReal);
+
             // Verificar tabla
             var itemsReparados = new List<string[]> {
-        new string[] { nombreHerramienta, "1", "85,00" }
-    };
+                new string[] { nombreHerramienta, "1", "85,00" }
+            };
             Assert.True(detailsPO.CheckListaHerramientasReparadas(itemsReparados), "La lista de herramientas reparadas no coincide");
+        }
+        //axuliar para las mierdas de las fechas
+        private string CalcularFechaRecogidaEsperada(DateTime fechaEntrega, int diasReparacion)
+        {
+            DateTime fechaRecogida = fechaEntrega;
+            int diasAgregados = 0;
+
+            // Para saltar Sábados y Domingos como en la api
+            while (diasAgregados < diasReparacion)
+            {
+                fechaRecogida = fechaRecogida.AddDays(1);
+                if (fechaRecogida.DayOfWeek != DayOfWeek.Saturday &&
+                    fechaRecogida.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    diasAgregados++;
+                }
+            }            
+            return fechaRecogida.ToString("dd/MM/yyyy");
+        }
+
+        [Fact]
+        public void FlujoAlternativo_0_FiltrarPorTiempoReparacion()
+        {
+            Initial_step_opening_the_web_page();
+            InitialStepsForRepararHerramientas();
+
+            string tiempoBusqueda = "5";
+
+            selectPO.BuscarHerramientas("",tiempoBusqueda);
+
+            // Verificar que aparece la herramienta correcta (Llave de Impacto, ID 25, 5 días)
+            var listaEsperada = new List<string[]> {
+            new string[] { nombreHerramienta2, "5" } 
+            };
+
+            Assert.True(selectPO.CheckListaHerramientas(listaEsperada),"El filtro por tiempo de reparación no devolvió los resultados esperados.");
         }
 
         [Fact]
@@ -100,17 +144,39 @@ namespace AppForSEII2526.UIT.UC_Reparacion
 
             // 1.1 Filtrar por nombre inexistente
             selectPO.BuscarHerramientas("HerramientaInexistente");
-            // Aquí podríamos comprobar que la tabla está vacía o no contiene el elemento, 
-            // pero el PO CheckListaHerramientas devuelve false si no encuentra lo esperado.
+            
             bool listaFallida = _driver.FindElements(By.Id("TableOfHerramienta")).Count == 0;
-            //Assert.True(listaFallida);
-            // Verificación corregida usando el PO y el ID correcto
+            
             Assert.True(listaFallida, "La lista debería estar vacía para una herramienta inexistente");
 
             // 1.2 Filtrar por nombre correcto
             selectPO.BuscarHerramientas(nombreHerramienta2);
             var listaCorrecta = new List<string[]> { new string[] { nombreHerramienta2, "" } };
             Assert.True(selectPO.CheckListaHerramientas(listaCorrecta), "El filtro por nombre no funcionó correctamente");
+        }
+
+        [Fact]
+        public void FlujoAlternativo_1_ValidacionFechaEntregaPasada()
+        {
+            Initial_step_opening_the_web_page();
+            InitialStepsForRepararHerramientas();
+
+            //añadir herramienta
+            selectPO.BuscarHerramientas(nombreHerramienta);
+            selectPO.AddHerramientaToReparacion(Id1);
+            selectPO.ClickTramitarReparacion();
+
+            //Rellenar
+            postPO.RellenarFormulario(usuarioNombre, usuarioApellido, usuarioTelefono, "Tarjeta");
+
+            //FECHA INVÁLIDA (Ayer)
+            postPO.EstablecerFechaEntrega(DateTime.Now.AddDays(-1));
+
+            //Intentar guardar
+            postPO.SubmitReparacion();
+
+            //Verificar
+            Assert.True(postPO.HayErroresDeValidacion(""), "El sistema da error con fecha pasada");
         }
 
         [Fact]
@@ -126,9 +192,8 @@ namespace AppForSEII2526.UIT.UC_Reparacion
             Assert.True(selectPO.IsTramitarButtonVisible(), "El botón tramitar debería aparecer al añadir item");
 
             // Flujo Alternativo 2: Modificar carrito (Borrar herramienta)
-            // El PO RemoveHerramientaFromCart usa el nombre para el ID del botón remove
             selectPO.RemoveHerramientaFromCart(nombreHerramienta2);
-            //QUIERO QUE SE ESPERE 5 SEGUNDOS PARA VER EL CAMBIO
+
             System.Threading.Thread.Sleep(5000);
             // Flujo Alternativo 3: Carrito vacío -> No se puede continuar
             Assert.False(selectPO.IsTramitarButtonVisible(), "El botón tramitar NO debería ser visible/activo si el carrito está vacío");
@@ -159,14 +224,6 @@ namespace AppForSEII2526.UIT.UC_Reparacion
 
             postPO.SubmitReparacion();
 
-            // Si hay validación de cliente, no debería salir el modal, 
-            // pero si sale el modal y damos OK, el backend o el form validator deberían saltar.
-            // El PO "ConfirmDialog" asume que el dialogo sale. Si la validación es HTML5/EditForm antes del submit real:
-            // Intentamos verificar errores.
-
-            // NOTA: Si el botón es type="submit", el OnValidSubmit solo salta si es válido.
-            // Si es inválido, EditForm muestra errores.
-
             bool hayErrores = postPO.HayErroresDeValidacion("The Nombre field is required") ||
                               postPO.HayErroresDeValidacion("required");
 
@@ -189,10 +246,6 @@ namespace AppForSEII2526.UIT.UC_Reparacion
             postPO.EstablecerCantidadItem(0, "0");
 
             postPO.SubmitReparacion();
-
-            // Al ser OnValidSubmit, si la validación falla, no abre el dialogo y muestra errores en el Summary
-            // O si abre dialogo (depende implementación Razor), al volver falla.
-            // Asumimos comportamiento estándar de Blazor EditForm: ValidationSummary aparece.
 
             Assert.True(postPO.HayErroresDeValidacion(""), "Debe haber error de validación si la cantidad es 0");
         }
