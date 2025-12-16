@@ -57,6 +57,20 @@ namespace AppForSEII2526.UIT.UC_Reparacion
             }
         }
 
+        public string ObtenerFechaRecogidaTexto()
+        {
+            WaitForBeingVisible(labelFechaRecogida);
+            string textoCompleto = _driver.FindElement(labelFechaRecogida).Text;
+
+            // Tu Razor muestra: "dd/MM/yyyy HH:mm:ss" (ej: 18/12/2025 00:00:00)
+            // Nosotros solo queremos la fecha (los primeros 10 caracteres)
+            if (textoCompleto.Length >= 10)
+            {
+                return textoCompleto.Substring(0, 10);
+            }
+            return textoCompleto;
+        }
+
         public bool CheckListaHerramientasReparadas(List<string[]> expectedRows)
         {
             
