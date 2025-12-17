@@ -12,6 +12,7 @@ namespace AppForSEII2526.UIT.UC_Reparacion
         private By inputApellido = By.Id("Surname"); 
         private By inputTelefono = By.Id("NumTelefono"); 
         private By selectPago = By.Id("PaymentMethod");
+        private By boton_modificar = By.Id("ModifyTools");
         private By buttonSubmit = By.Id("Submit");
         private By inputFechaEntrega = By.Id("DeliveryDate");
 
@@ -72,6 +73,14 @@ namespace AppForSEII2526.UIT.UC_Reparacion
         {
             // El dialogo genérico definido en PageObject (Dialog.razor)
             PressOkModalDialog();
+        }
+
+        public void modificar()
+        {
+            WaitForBeingVisible(boton_modificar);
+            WaitForBeingClickable(boton_modificar);
+            _driver.FindElement(boton_modificar).Click();
+
         }
 
         public bool HayErroresDeValidacion(string error)

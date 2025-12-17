@@ -1936,7 +1936,7 @@
           },
           "porcentaje": {
             "maximum": 100,
-            "minimum": 0,
+            "minimum": 1,
             "type": "number",
             "format": "float"
           }
