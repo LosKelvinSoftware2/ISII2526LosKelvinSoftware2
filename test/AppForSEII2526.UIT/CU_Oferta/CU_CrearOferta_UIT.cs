@@ -24,13 +24,14 @@ namespace AppForSEII2526.UIT.CU_Oferta
         private const string materialHerramienta1 = "Acero";
 
         private const string fabricante1 = "Makita";
+        private const string fabricante2 = "Bosch";
 
         private const string precioHerramienta1 = "120,5";
         private const string precioHerramientaFinal1 = "30";
 
         private const string nombreHerramienta2 = "Sierra Circular";
-        private const string materialHerramienta2 = "Plástico";
-        private const string precioHerramienta2 = "70";
+        private const string materialHerramienta2 = "Aluminio";
+        private const string precioHerramienta2 = "95";
 
         private const string formatoFecha = "dd/MM/yyyy"; // Definir el formato
         private string fechaInicio = DateTime.Today.AddDays(1).ToString(formatoFecha);
@@ -56,6 +57,40 @@ namespace AppForSEII2526.UIT.CU_Oferta
         {
             selectHerramientaPO.WaitForBeingVisible(By.Id("Crear Oferta"));
             _driver.FindElement(By.Id("Crear Oferta")).Click();
+        }
+
+
+        //Examen FB+FA0+FA0+FA2
+
+        [Fact]
+        [Trait("LevelTesting", "Funcional Testing")]
+        public void EXAMEN()
+        {
+            //Arrange
+            Initial_step_opening_the_web_page();
+            InitialStepsForCrearOferta();
+
+            string metodoPago = "TarjetaCredito";
+            var expectedHerramientas = new List<string[]> {
+                new string[] { nombreHerramienta2, fabricante2, materialHerramienta2, precioHerramienta2}
+            };
+
+            selectHerramientaPO.BuscarHerramientas(fabricante1, " ");
+            selectHerramientaPO.AddOfertaToRentingCart(nombreHerramienta1);
+            selectHerramientaPO.BuscarHerramientas("", precioHerramienta2);
+            selectHerramientaPO.AddOfertaToRentingCart(nombreHerramienta2);
+            selectHerramientaPO.RemoveOfertaFromRentingCart(nombreHerramienta1);
+            selectHerramientaPO.CrearOferta();
+            
+
+            postOfertaPO.RellenarFormulario(fechaInicio, fechaFin, metodoPago, dirigidaA);
+            postOfertaPO.EstablecerPorcentaje(0, porcentaje);
+            postOfertaPO.EnviarFormulario();
+            postOfertaPO.ConfirmarOferta();
+
+            //Assert
+            Assert.True(detailOfertaPO.CheckOfertaDetail(dirigidaA, metodoPago, fechaOferta, fechaInicio, fechaFin));
+            Assert.True(detailOfertaPO.CheckItem(expectedHerramientas));
         }
 
         //CU_3-FB
