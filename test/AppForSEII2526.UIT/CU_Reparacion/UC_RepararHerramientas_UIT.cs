@@ -33,6 +33,10 @@ namespace AppForSEII2526.UIT.UC_Reparacion
         private const string Id2 = "25";
         private const string TotalPrecio2 = "260.00";
 
+        private const string nombreHerramienta3 = "Esmeril de Banco";
+        private const string Id3 = "26";
+        private const string TotalPrecio3 = "95,00";
+
         private const string usuarioNombre = "Juan";
         private const string usuarioApellido = "Pérez";
         private const string usuarioEmail = "juan.perez@email.com";
@@ -248,6 +252,72 @@ namespace AppForSEII2526.UIT.UC_Reparacion
             postPO.SubmitReparacion();
 
             Assert.True(postPO.HayErroresDeValidacion(""), "Debe haber error de validación si la cantidad es 0");
+        }
+
+        ////////////////////////////////////////////////////////////Examen
+        /// Comprobar en la BD que existen los datos 
+        [Fact]
+        public void Flujoexamen()
+        {
+            // Navegar
+            Initial_step_opening_the_web_page();
+            InitialStepsForRepararHerramientas();
+            // Buscar y Añadir
+            selectPO.BuscarHerramientas(nombreHerramienta2);
+            selectPO.AddHerramientaToReparacion(Id2);
+
+            selectPO.BuscarHerramientas(nombreHerramienta3);
+            selectPO.AddHerramientaToReparacion(Id3);
+            //ir al post
+            selectPO.WaitForBeingVisible(By.Id("processBtn"));
+            selectPO.ClickTramitarReparacion();
+
+            //Volver al select
+            postPO.WaitForBeingVisible(By.Id("ModifyTools"));
+            postPO.modificar();
+
+            //eliminar la primera herramienta
+            selectPO.RemoveHerramientaFromCart(nombreHerramienta2);
+
+            //ir al post
+            selectPO.WaitForBeingVisible(By.Id("processBtn"));
+            selectPO.ClickTramitarReparacion();
+
+
+            postPO.RellenarFormulario(usuarioNombre, usuarioApellido, usuarioTelefono, "Tarjeta");
+            postPO.EstablecerCantidadItem(0, "1");
+
+
+            DateTime fechaEntrega = DateTime.Now.AddDays(1); // siempreee Mañana
+            postPO.EstablecerFechaEntrega(fechaEntrega);
+
+            // Guardar
+            // Esperamos a que el botón Submit del formulario sea visible (ID "Submit")
+            selectPO.WaitForBeingVisible(By.Id("Submit"));
+            postPO.SubmitReparacion();
+            postPO.ConfirmDialog();
+
+
+            // Paso 7: Verificar Detalles
+            bool detallesCorrectos = detailsPO.VerificarDetallesReparacion(
+                usuarioNombre + " " + usuarioApellido, // Ej: "Juan Pérez"
+                "Tarjeta",
+                "95,00"
+            );
+            Assert.True(detallesCorrectos, "Los detalles de la reparación mostrados no son correctos");
+
+            int diasReparacionHerramienta = 3;
+
+            string fechaRecogidaEsperada = CalcularFechaRecogidaEsperada(fechaEntrega, diasReparacionHerramienta);
+            string fechaRecogidaReal = detailsPO.ObtenerFechaRecogidaTexto();
+
+            Assert.Equal(fechaRecogidaEsperada, fechaRecogidaReal);
+
+            // Verificar tabla
+            var itemsReparados = new List<string[]> {
+                new string[] { nombreHerramienta3, "1", "95,00" }
+            };
+            Assert.True(detailsPO.CheckListaHerramientasReparadas(itemsReparados), "La lista de herramientas reparadas no coincide");
         }
 
 
