@@ -21,8 +21,10 @@ namespace AppForSEII2526.UIT.CU_Alquiler
         public void BuscarHerramientas(string nombreHerramienta, string material)
         {
             WaitForBeingClickable(inputNombreHerramienta);
-            WaitForBeingClickable(inputMaterial);   
+            WaitForBeingClickable(inputMaterial);
+            _driver.FindElement(inputNombreHerramienta).Clear();
             _driver.FindElement(inputNombreHerramienta).SendKeys(nombreHerramienta);
+            _driver.FindElement(inputMaterial).Clear();
             _driver.FindElement(inputMaterial).SendKeys(material);
             _driver.FindElement(buttonBuscarHerramientas).Click();
         }

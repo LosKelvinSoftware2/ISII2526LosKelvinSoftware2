@@ -23,6 +23,7 @@ namespace AppForSEII2526.UIT.CU_Alquiler
         By fechaFin = By.Id("FechaFin");
         By errorShownBy = By.Id("ErrorsShown");
         By validationSummary = By.Id("formularioNoValido");
+        By botonconfirmar = By.Id("Button_DialogOK");
         private By ErrorMessageLocator = By.CssSelector("#formularioNoValido li.validation-message");
         public CreateAlquiler_PO(IWebDriver driver, ITestOutputHelper output) : base(driver, output)
         {
@@ -86,6 +87,8 @@ namespace AppForSEII2526.UIT.CU_Alquiler
         }
         public void confirmarAlquiler()
         {
+            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(5));
+            wait.Until(ExpectedConditions.ElementIsVisible(botonconfirmar));
             _driver.FindElement(By.Id("Button_DialogOK")).Click();
         }
     }
