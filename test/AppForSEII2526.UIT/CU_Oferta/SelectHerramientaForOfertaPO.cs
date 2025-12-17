@@ -27,6 +27,10 @@ namespace AppForSEII2526.UIT.CU_Oferta
         {
             WaitForBeingClickable(inputFabricante);
             WaitForBeingClickable(inputPrecio);
+
+            _driver.FindElement(inputFabricante).Clear();
+            _driver.FindElement(inputPrecio).Clear();
+
             _driver.FindElement(inputFabricante).SendKeys(fabricante);
             _driver.FindElement(inputPrecio).SendKeys(precio);
             _driver.FindElement(buttonBuscarHerramientas).Click();
