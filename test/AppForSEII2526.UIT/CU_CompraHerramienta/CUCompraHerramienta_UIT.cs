@@ -183,8 +183,52 @@ namespace AppForSEII2526.UIT.UC_Comprar
             Assert.True(createCompraPO.HayErroresDeValidacion(), "Debería mostrar error si la cantidad es 0");
         }
 
+
+        //Examen
+
+        [Fact]
+        [Trait("LevelTesting", "Funcional Testing")]
+        public void CU1_AF_FiltrosCombinados_Y_ModificacionCarrito()
+        {
+            Initial_step_opening_the_web_page();
+            InitialStepsForComprarHerramientas();
+
+            string metodoPago = "Tarjeta";
+
+            // 1. Filtra por material
+            selectHerramientaPO.BuscarHerramienta(materialHerramienta1, "");
+
+            // 2. Añado al carrito una herramienta
+            selectHerramientaPO.AnadirAlCarrito(nombreHerramienta1);
+
+            // 3. Filtro por precio
+            selectHerramientaPO.BuscarHerramienta("", "200");
+
+            // 4. Añado una herramienta distinta a la anterior
+            selectHerramientaPO.AnadirAlCarrito(nombreHerramienta2);
+
+            // 5. Voy a tramitar compra
+            selectHerramientaPO.IrATramitarCompra();
+
+            // 6. Voy a modificar herramienta
+            createCompraPO.ModificarHerramientas();
+
+            // 7. Modifico el carrito y elimino la primera herramienta
+            selectHerramientaPO.QuitarDelCarrito(nombreHerramienta1);
+
+            // 8. Sigo creando la compra
+            selectHerramientaPO.IrATramitarCompra();
+
+            // 9. Rellenar datos
+            createCompraPO.RellenarFormulario(usuarioNombre, usuarioApellido, usuarioEmail, usuarioDireccion, metodoPago);
+            createCompraPO.EnviarFormulario();
+            createCompraPO.ConfirmarCompraEnModal();
+
+            // Comprobamos
+            Assert.True(detailsCompraPO.VerificarDetallesCompra(usuarioNombre, usuarioApellido, usuarioDireccion, nombreHerramienta2));
+
+        }
+
     }
-
-
 
 }
