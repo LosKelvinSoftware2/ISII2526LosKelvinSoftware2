@@ -17,6 +17,7 @@ namespace AppForSEII2526.UIT.CU_CompraHerramienta
         private By _inputDireccion = By.Id("DeliveryAddress");
         private By _selectPago = By.Id("PaymentMethod");
         private By _btnComprar = By.Id("Submit");
+        private By _btnModifica = By.Id("ModifyItems");
 
         // Locators de Error
         private By _listaErroresValidacion = By.ClassName("validation-message"); // Errores campo a campo
@@ -63,6 +64,12 @@ namespace AppForSEII2526.UIT.CU_CompraHerramienta
         {
             WaitForBeingClickable(_btnComprar);
             _driver.FindElement(_btnComprar).Click();
+        }
+
+        public void ModificarHerramientas()
+        {
+            WaitForBeingClickable(_btnModifica);
+            _driver.FindElement(_btnModifica).Click();
         }
 
         public void ConfirmarCompraEnModal()

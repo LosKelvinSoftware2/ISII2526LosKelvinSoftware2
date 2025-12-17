@@ -56,6 +56,19 @@ namespace AppForSEII2526.UIT.CU_CompraHerramienta
             WaitForBeingVisible(btnAnadir);
             WaitForBeingClickable(btnAnadir);
             _driver.FindElement(btnAnadir).Click();
+
+        }
+
+        //Examen
+        public void QuitarDelCarrito(string nombreHerramienta)
+        {
+            // Localizamos el botón
+            By btnQuitar = By.Id($"removeHerramienta_{nombreHerramienta}");
+            WaitForBeingVisible(btnQuitar);
+            WaitForBeingClickable(btnQuitar);
+            _driver.FindElement(btnQuitar).Click();
+
+            
         }
 
         public void IrATramitarCompra()
